@@ -7,6 +7,8 @@ import shapely.speedups
 import pywaterml.waterML as pwml
 from .model import Groups, HydroServer_Individual
 
+import requests
+
 from tethys_sdk.routing import controller
 
 from .auxiliary import GetSites_WHOS
@@ -395,6 +397,7 @@ def upload_hs(request, app_workspace):
                 # water = pwml.WaterMLOperations(url = url)
                 # sites_object = water.GetSites()
 
+                
                 sites = GetSites_WHOS(url)
                 sites_parsed_json = json.dumps(sites)
                 countries_json = json.dumps(available_regions_2(request, siteinfo=sites_parsed_json,
@@ -444,9 +447,14 @@ def available_regions_2(request, siteinfo, app_workspace):
     for site in sites:
         ls_lats.append(site['latitude'])
         ls_longs.append(site['longitude'])
-        site_names.append(site['fullSiteCode'])
+        if 'fullSiteCode' in site:
+            site_names.append(site['fullSiteCode'])
+        else:
+            site_names.append(site['id'])
+
         if site['country'] != "No Data was Provided":
             countries_list.append(site['country'])
+
     hydroserver_lat_list.append(ls_lats)
     hydroserver_long_list.append(ls_longs)
     hydroserver_name_list.append(site_names)
@@ -482,18 +490,46 @@ def available_regions_2(request, siteinfo, app_workspace):
 
 
 def available_variables_2(url):
-    varaibles_list = {}
+    import pdb 
+    pdb.set_trace()
+    variables_list = {}
     hydroserver_variable_list = []
     hydroserver_variable_code_list = []
-    water = pwml.WaterMLOperations(url=url)
-    hs_variables = water.GetVariables()['variables']
-    for hs_variable in hs_variables:
-        hydroserver_variable_list.append(hs_variable['variableName'])
-        hydroserver_variable_code_list.append(hs_variable['variableCode'])
+    try:
+        water = pwml.WaterMLOperations(url=url)
+        hs_variables = water.GetVariables()['variables']
+        for hs_variable in hs_variables:
+            hydroserver_variable_list.append(hs_variable['variableName'])
+            hydroserver_variable_code_list.append(hs_variable['variableCode'])
 
-    varaibles_list["variables"] = hydroserver_variable_list
-    varaibles_list["variables_codes"] = hydroserver_variable_code_list
-    return varaibles_list
+    except Exception as e:
+        headers = {'accept':'application/json'}
+
+        url = url.split("?WSDL")[0]
+        datastreams_url = f"{url}/api/data/datastreams"
+        properties_url = f"{url}/api/sensorthings/v1.1/ObservedProperties?%24count=false&%24skip=0"
+
+        datastreams_response = requests.get(datastreams_url,headers=headers)
+        properties_response = requests.get(properties_url, headers=headers)
+
+        datastreams = datastreams_response.json()
+        properties = properties_response.json()
+    
+        for datastream in datastreams:
+            property_id = datastream["observedPropertyId"]
+
+            for entry in properties["value"]:
+                if property_id == entry["@iot.id"]:
+                    property_name = entry["name"]
+                    break
+
+            
+            hydroserver_variable_list.append(property_name)
+            hydroserver_variable_code_list.append(property_id)
+
+    variables_list["variables"] = hydroserver_variable_list
+    variables_list["variables_codes"] = hydroserver_variable_code_list
+    return variables_list
 
 
 # #####*****************************************************************************************################
@@ -524,8 +560,16 @@ def soap_group(request, app_workspace):
         # client = Client(url, timeout= 500)
 
         # EJones added; sites_parsed_json was not being initialized before being used
+
+        #Try adding hydroserver 2 or 1 first
+
+       
         sites = GetSites_WHOS(url)
-        sites_parsed_json = json.dumps(sites)
+        if sites != "invalid url":
+            sites_parsed_json = json.dumps(sites)
+        else:
+            pass
+        
 
         # True Extent is on and necessary if the user is trying to add USGS or
         # some of the bigger HydroServers.
@@ -576,7 +620,8 @@ def soap_group(request, app_workspace):
                 countries_json = json.dumps(available_regions_2(request, siteinfo=sites_parsed_json,
                                                                 app_workspace=app_workspace))
                 # print(countries_json)
-
+                import pdb
+                pdb.set_trace()
                 variable_json = json.dumps(available_variables_2(url))
                 # print(variable_json)
             except Exception as e:
