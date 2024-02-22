@@ -9,7 +9,7 @@ import numpy as np
 import pywaterml.waterML as pwml
 import shapely.speedups
 
-from .model import Groups, HydroServer_Individual
+from .model import Groups, HydroServer_Individual, Hydroserver_Individual_Cuahsi, Hydroserver_Individual_Sensor
 
 
 from tethys_sdk.permissions import has_permission
@@ -321,6 +321,8 @@ def addMultipleViews(request, hs_list, group, app_workspace):
 def get_groups_list(request):
     list_catalog = {}
     # print("get_groups_list controllers.py FUNCTION inside")
+    print("Groups list is running \n\n\n\n")
+
 
     SessionMaker = app.get_persistent_store_database(Persistent_Store_Name, as_sessionmaker=True)
 
@@ -329,6 +331,8 @@ def get_groups_list(request):
 
     # Query DB for hydroservers
     hydroservers_groups = session.query(Groups).all()
+
+    
 
     hydroserver_groups_list = []
     for group in hydroservers_groups:
@@ -342,11 +346,13 @@ def get_groups_list(request):
 
     list2 = {}
     array_example = []
-    for server in session.query(HydroServer_Individual).all():
-        layer_obj = {}
-        layer_obj["title"] = server.title
-        layer_obj["url"] = server.url
-        array_example.append(layer_obj)
+
+
+    # for server in session.query(HydroServer_Individual).all():
+    #     layer_obj = {}
+    #     layer_obj["title"] = server.title
+    #     layer_obj["url"] = server.url
+    #     array_example.append(layer_obj)
 
     list2["servers"] = array_example
 
@@ -358,7 +364,6 @@ def get_groups_list(request):
 # #####*****************************************************************************************################
 @controller(name='load-hydroserver-of-groups', url='catalog-group/')
 def catalog_group(request):
-
     specific_group = request.POST.get('group')
 
     list_catalog = {}
@@ -367,19 +372,45 @@ def catalog_group(request):
 
     # print(SessionMaker)
     session = SessionMaker()  # Initiate a session
-    hydroservers_group = session.query(Groups).filter(Groups.title == specific_group)[0].hydroserver
+    hydroservers_group = session.query(Groups).filter(Groups.title == specific_group).first()
     # h1 = session.query(Groups).join("hydroserver")
+
+    if hydroservers_group:
+        hydroserver_1 = hydroservers_group.hydroserver1
+        hydroserver_2 = hydroservers_group.hydroserver2
+
     hs_list = []
-    for hydroservers in hydroservers_group:
+    
+    for hydroserver in hydroserver_1:
         layer_obj = {}
-        layer_obj["title"] = hydroservers.title
-        layer_obj["url"] = hydroservers.url.strip()
-        layer_obj["siteInfo"] = hydroservers.siteinfo
+        layer_obj["title"] = hydroserver.title
+        layer_obj["url"] = hydroserver.url.strip()
+        layer_obj["siteInfo"] = hydroserver.siteinfo
+        layer_obj["variables"] = hydroserver.variables
+
         hs_list.append(layer_obj)
+
+    for hydroserver in hydroserver_2:
+        layer_obj = {}
+        layer_obj["title"] = hydroserver.title
+        layer_obj["url"] = hydroserver.url.strip()
+        layer_obj["siteInfo"] = hydroserver.siteinfo
+        layer_obj["variables"] = hydroserver.variables
+
+        hs_list.append(layer_obj)
+
+    # for hydroservers in hydroservers_group:
+    #     layer_obj = {}
+    #     layer_obj["title"] = hydroservers.title
+    #     layer_obj["url"] = hydroservers.url.strip()
+    #     layer_obj["siteInfo"] = hydroservers.siteinfo
+    #     hs_list.append(layer_obj)
 
     list_catalog["hydroserver"] = hs_list
 
     return JsonResponse(list_catalog)
+
+
 
 
 # #####*****************************************************************************************################

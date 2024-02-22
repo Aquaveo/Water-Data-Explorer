@@ -5,7 +5,7 @@ import pandas as pd
 import geopandas as gpd
 import shapely.speedups
 import pywaterml.waterML as pwml
-from .model import Groups, HydroServer_Individual
+from .model import Groups, HydroServer_Individual, Hydroserver_Individual_Cuahsi, Hydroserver_Individual_Sensor
 
 import requests
 
@@ -490,11 +490,11 @@ def available_regions_2(request, siteinfo, app_workspace):
 
 
 def available_variables_2(url):
-    import pdb 
-    pdb.set_trace()
+    hydroserver_type = None
     variables_list = {}
     hydroserver_variable_list = []
     hydroserver_variable_code_list = []
+    #Try using hydroserver1 API
     try:
         water = pwml.WaterMLOperations(url=url)
         hs_variables = water.GetVariables()['variables']
@@ -502,6 +502,9 @@ def available_variables_2(url):
             hydroserver_variable_list.append(hs_variable['variableName'])
             hydroserver_variable_code_list.append(hs_variable['variableCode'])
 
+        hydroserver_type = 1
+
+    #Use hydroserver 2 API
     except Exception as e:
         headers = {'accept':'application/json'}
 
@@ -527,9 +530,11 @@ def available_variables_2(url):
             hydroserver_variable_list.append(property_name)
             hydroserver_variable_code_list.append(property_id)
 
+        hydroserver_type = 2
+
     variables_list["variables"] = hydroserver_variable_list
     variables_list["variables_codes"] = hydroserver_variable_code_list
-    return variables_list
+    return variables_list, hydroserver_type
 
 
 # #####*****************************************************************************************################
@@ -570,7 +575,6 @@ def soap_group(request, app_workspace):
         else:
             pass
         
-
         # True Extent is on and necessary if the user is trying to add USGS or
         # some of the bigger HydroServers.
         if true_extent == 'on':
@@ -580,7 +584,7 @@ def soap_group(request, app_workspace):
             ext_list = extent_value.split(',')
             sitesByBoundingBox = water.GetSitesByBoxObject(ext_list, 'epsg:3857')
             countries_json = available_regions_2(request, sites_parsed_json, app_workspace=app_workspace)
-            variable_json = available_variables_2(url)
+            variable_json,hydroserver_type = available_variables_2(url)
 
             return_obj['title'] = title
             return_obj['url'] = url
@@ -593,17 +597,34 @@ def soap_group(request, app_workspace):
             SessionMaker = app.get_persistent_store_database(
                 Persistent_Store_Name, as_sessionmaker=True)
             session = SessionMaker()
-            hydroservers_group = session.query(Groups).filter(Groups.title == group)[0]
+            hydroservers_group = session.query(Groups).filter(Groups.title == group).first()
             # hydroservers_g = session.query(Groups).filter(Groups.title == group)
-            hs_one = HydroServer_Individual(title=title,
-                                            url=url,
-                                            description=description,
-                                            siteinfo=sites_parsed_json,
-                                            variables=variable_json,
-                                            countries=countries_json)
-            #                               siteinfo=sitesByBoundingBoxs)
+            if hydroserver_type == 1:
+                hs = Hydroserver_Individual_Cuahsi(title=title,
+                                                   url=url,
+                                                   description=description,
+                                                   siteinfo=sites_parsed_json,
+                                                   variables=variable_json,
+                                                   countries=countries_json)
+                hydroservers_group.hydroserver1.append(hs)
 
-            hydroservers_group.hydroserver.append(hs_one)
+#                 hs_one = HydroServer_Individual(title=title,
+#                     url=url,
+#                     description=description,
+#                     siteinfo=sites_parsed_json,
+#                     variables=variable_json,
+#                     countries=countries_json)
+# #                               siteinfo=sitesByBoundingBoxs)
+            elif hydroserver_type == 2:
+                hs = Hydroserver_Individual_Sensor(title=title,
+                                                   url=url,
+                                                   description=description,
+                                                   siteinfo=sites_parsed_json,
+                                                   variables=variable_json,
+                                                   countires=countries_json)
+                hydroservers_group.hydroserver2.append(hs)
+
+            #hydroservers_group.hydroserver.append(hs)
             session.add(hydroservers_group)
             session.commit()
             session.close()
@@ -620,9 +641,10 @@ def soap_group(request, app_workspace):
                 countries_json = json.dumps(available_regions_2(request, siteinfo=sites_parsed_json,
                                                                 app_workspace=app_workspace))
                 # print(countries_json)
-                import pdb
-                pdb.set_trace()
-                variable_json = json.dumps(available_variables_2(url))
+                #variable_json = json.dumps(available_variables_2(url))
+                variable_json, hydroserver_type = available_variables_2(url)
+                variable_json = json.dumps(variable_json)
+
                 # print(variable_json)
             except Exception as e:
                 print(e)
@@ -637,16 +659,35 @@ def soap_group(request, app_workspace):
             SessionMaker = app.get_persistent_store_database(
                 Persistent_Store_Name, as_sessionmaker=True)
             session = SessionMaker()
-            hydroservers_group = session.query(Groups).filter(Groups.title == group)[0]
+            hydroservers_group = session.query(Groups).filter(Groups.title == group).first()
 
-            hs_one = HydroServer_Individual(title=title,
-                                            url=url,
-                                            description=description,
-                                            siteinfo=sites_parsed_json,
-                                            variables=variable_json,
-                                            countries=countries_json)
 
-            hydroservers_group.hydroserver.append(hs_one)
+            if hydroserver_type == 1:
+                hs = Hydroserver_Individual_Cuahsi(title=title,
+                                                   url=url,
+                                                   description=description,
+                                                   siteinfo=sites_parsed_json,
+                                                   variables=variable_json,
+                                                   countries=countries_json)
+                
+                hydroservers_group.hydroserver1.append(hs)
+            elif hydroserver_type == 2:
+                hs = Hydroserver_Individual_Sensor(title=title,
+                                                   url=url,
+                                                   description=description,
+                                                   siteinfo=sites_parsed_json,
+                                                   variables=variable_json,
+                                                   countries=countries_json)
+                hydroservers_group.hydroserver2.append(hs)
+
+            # hs_one = HydroServer_Individual(title=title,
+            #                                 url=url,
+            #                                 description=description,
+            #                                 siteinfo=sites_parsed_json,
+            #                                 variables=variable_json,
+            #                                 countries=countries_json)
+
+            #hydroservers_group.hydroserver.append(hs)
             session.add(hydroservers_group)
             session.commit()
             session.close()

@@ -1490,6 +1490,7 @@ load_group_hydroservers = function(){
        dataType: "JSON",
        success: result => {
           try{
+            console.log("Testing: ", result);
             let groups =result["hydroservers"];
 
             $(".divForServers").empty() //Resetting the catalog

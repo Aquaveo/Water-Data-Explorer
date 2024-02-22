@@ -32,8 +32,7 @@ extract_base_path = '/tmp'
 
 
 def GetSites_WHOS(url):
-    import pdb
-    pdb.set_trace()
+
     try:
         client = Client(url, timeout=500)
         sites = client.service.GetSites('[:]')

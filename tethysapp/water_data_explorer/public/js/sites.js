@@ -14,8 +14,8 @@
  * @return {void} A good string
  *
  */
-activate_layer_values = function (){
-  try{
+activate_layer_values = function () {
+  try {
     map.on('singleclick', function(evt) {
       // $('#variables_graph').selectpicker('setStyle', 'btn-primary');
       $('#variables_graph').select2();
@@ -25,7 +25,7 @@ activate_layer_values = function (){
       // MAKE THE POINT LAYER FOR THE MAP //
       var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature2, layer) {
           if(feature2){
-
+            console.log(feature2);
             if(layersDict['selectedPointModal']){
               map.removeLayer(layersDict['selectedPointModal'])
               map.updateSize()

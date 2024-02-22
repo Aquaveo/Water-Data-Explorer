@@ -66,10 +66,11 @@ get_vars_from_site = function (resultList){
                   },
                   error:function(){
                     $("#downloading_loading").addClass("hidden");
+
                     new Notify ({
                       status: 'error',
                       title: 'Error',
-                      text: 'Something went wrong when downloading a python notebook for the site',
+                      text:  `Something went wrong when downloading a python notebook for the site`,
                       effect: 'fade',
                       speed: 300,
                       customClass: '',
@@ -82,7 +83,7 @@ get_vars_from_site = function (resultList){
                       distance: 20,
                       type: 1,
                       position: 'right top'
-                    })
+                    }) 
                     // $.notify(
                     //     {
                     //         message: `Something went wrong when downloading a python notebook for the site`
@@ -110,9 +111,9 @@ get_vars_from_site = function (resultList){
             else{
               $("#downloading_loading").addClass("hidden");
               new Notify ({
-                status: 'warning',
+                status: 'error',
                 title: 'Error',
-                text: 'There is no variables in the selected site',
+                text: `There is no variables in the selected site`,
                 effect: 'fade',
                 speed: 300,
                 customClass: '',
@@ -125,7 +126,7 @@ get_vars_from_site = function (resultList){
                 distance: 20,
                 type: 1,
                 position: 'right top'
-              })
+              }) 
               // $.notify(
               //     {
               //         message: `There is no variables in the selected site`
@@ -149,9 +150,9 @@ get_vars_from_site = function (resultList){
           catch(e){
             $("#downloading_loading").addClass("hidden");
             new Notify ({
-              status: 'warning',
+              status: 'error',
               title: 'Error',
-              text: 'Something went wrong when loading the variables for the site',
+              text: `Something went wrong when loading the variables for the site`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -164,7 +165,7 @@ get_vars_from_site = function (resultList){
               distance: 20,
               type: 1,
               position: 'right top'
-            }) 
+            })
             // $.notify(
             //     {
             //         message: `Something went wrong when loading the variables for the site`
@@ -189,9 +190,9 @@ get_vars_from_site = function (resultList){
         error:function(){
           $("#downloading_loading").addClass("hidden");
           new Notify ({
-            status: 'warning',
+            status: 'error',
             title: 'Error',
-            text: 'Something went wrong when loading the variables for the site',
+            text: `Something went wrong when loading the variables for the site`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -204,7 +205,7 @@ get_vars_from_site = function (resultList){
             distance: 20,
             type: 1,
             position: 'right top'
-          }) 
+          })
           // $.notify(
           //     {
           //         message: `Something went wrong when loading the variables for the site`
@@ -230,9 +231,9 @@ get_vars_from_site = function (resultList){
     console.log(error)
     $("#downloading_loading").addClass("hidden");
     new Notify ({
-      status: 'warning',
+      status: 'error',
       title: 'Error',
-      text: 'Something went wrong when loading the variables for the site',
+      text: `Something went wrong when loading the variables for the site`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -245,7 +246,7 @@ get_vars_from_site = function (resultList){
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     // $.notify(
     //     {
     //         message: `Something went wrong when loading the variables for the site`
@@ -330,9 +331,9 @@ map_layers = function(sites,title,url){
   }
   catch(error){
     new Notify ({
-      status: 'warning',
+      status: 'error',
       title: 'Error',
-      text: 'Seems that there is no sites in the service',
+      text: `Seems that there is no sites in the service`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -345,7 +346,7 @@ map_layers = function(sites,title,url){
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     // $.notify(
     //     {
     //         message: `Seems that there is no sites in the service`
@@ -393,6 +394,8 @@ load_individual_hydroservers_group = function(group_name){
            success: result => {
              try{
                let servers = result["hydroserver"]
+               console.log("Servers here: ");
+               console.log(servers);
                //USE A FUNCTION TO FIND THE LI ASSOCIATED WITH THAT GROUP  AND DELETE IT FROM THE MAP AND MAKE ALL
                // THE CHECKBOXES VISIBLE //
                let group_name_e3;
@@ -558,7 +561,7 @@ load_individual_hydroservers_group = function(group_name){
                 distance: 20,
                 type: 1,
                 position: 'right top'
-              }) 
+              })
               //  $.notify(
               //      {
               //          message: `Something went wrong loading the hydroservers for the group called ${group_name}. Please see the console for details.`
@@ -600,7 +603,7 @@ load_individual_hydroservers_group = function(group_name){
               distance: 20,
               type: 1,
               position: 'right top'
-            }) 
+            })
               //  $.notify(
               //      {
               //          message: `Something went wrong loading the hydroservers for the group called ${group_name}. Please see the console for details.`
@@ -630,6 +633,7 @@ load_individual_hydroservers_group = function(group_name){
 */
 
 add_hydroserver = function(){
+  console.log("Running add hydroserver");
   try{
     if($("#extent").is(":checked")){
       var zoom= map.getView().getZoom();
@@ -700,9 +704,11 @@ add_hydroserver = function(){
           data: datastring,
           success: function(result) {
             try{
-
+              
               //Returning the geoserver layer metadata from the controller
               var json_response = JSON.parse(result)
+              console.log("Debugging: ");
+              console.log(result);
               let group_name = actual_group.split('=')[1];
               // let id_group_separator = `${group_name}_list_separator`;
 
@@ -832,6 +838,7 @@ add_hydroserver = function(){
                             input_check.checked = true;
 
                           });
+
                           new Notify ({
                             status: 'success',
                             title: 'Success',
@@ -848,7 +855,7 @@ add_hydroserver = function(){
                             distance: 20,
                             type: 1,
                             position: 'right top'
-                          }) 
+                          })
                           // $.notify(
                           //     {
                           //         message: `Successfully Added the WaterOneFlow Service to the Map`
@@ -885,7 +892,6 @@ add_hydroserver = function(){
                   status: 'error',
                   title: 'Error',
                   text: `We are having problems adding the WaterOneFlow web service`,
-                  effect: 'fade',
                   speed: 300,
                   customClass: '',
                   customIcon: '',
@@ -897,7 +903,7 @@ add_hydroserver = function(){
                   distance: 20,
                   type: 1,
                   position: 'right top'
-                }) 
+                })
                 // $.notify(
                 //     {
                 //         message: `We are having problems adding the WaterOneFlow web service`
@@ -938,7 +944,7 @@ add_hydroserver = function(){
                 distance: 20,
                 type: 1,
                 position: 'right top'
-              }) 
+              })
               // $.notify(
               //     {
               //         message: `Invalid WaterOneFlow web service Url. Please check and try again.`
@@ -980,7 +986,7 @@ add_hydroserver = function(){
           distance: 20,
           type: 1,
           position: 'right top'
-        }) 
+        })
         // $.notify(
         //     {
         //         message: `We are having problems adding the WaterOneFlow web service`
@@ -1080,7 +1086,7 @@ delete_hydroserver= function(){
                 distance: 20,
                 type: 1,
                 position: 'right top'
-              }) 
+              })
               // $.notify(
               //     {
               //         message: `Successfully Deleted the Web Service!`
@@ -1104,9 +1110,9 @@ delete_hydroserver= function(){
           }
           catch(e){
             new Notify ({
-              status: 'error',
-              title: 'Error',
-              text: `We got a problem updating the interface after deleting the Web Service, please reload your page`,
+              status: 'info',
+              title: 'Alert',
+              text: `We got a problem updating the interface after deleting the Web Service, please reload your page `,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -1119,7 +1125,8 @@ delete_hydroserver= function(){
               distance: 20,
               type: 1,
               position: 'right top'
-            }) 
+            })
+
             // $.notify(
             //     {
             //         message: `We got a problem updating the interface after deleting the Web Service, please reload your page `
@@ -1157,7 +1164,7 @@ delete_hydroserver= function(){
             distance: 20,
             type: 1,
             position: 'right top'
-          }) 
+          })
             // $.notify(
             //     {
             //         message: `Something went wrong while deleting the selected web services`
@@ -1196,7 +1203,7 @@ delete_hydroserver= function(){
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     // $.notify(
     //     {
     //         message: `We are having problems recognizing the actual group or groups to delete.`
@@ -1268,7 +1275,7 @@ delete_hydroserver_Individual= function(group,server){
                 distance: 20,
                 type: 1,
                 position: 'right top'
-              }) 
+              })
               // $.notify(
               //     {
               //         message: `Successfully Deleted the Web service!`
@@ -1291,8 +1298,8 @@ delete_hydroserver_Individual= function(group,server){
           }
           catch(e){
             new Notify ({
-              status: 'warning',
-              title: 'Info',
+              status: 'error',
+              title: 'Error',
               text: `We have a problem updating the interface, please reload the page`,
               effect: 'fade',
               speed: 300,
@@ -1306,7 +1313,7 @@ delete_hydroserver_Individual= function(group,server){
               distance: 20,
               type: 1,
               position: 'right top'
-            }) 
+            })
             // $.notify(
             //     {
             //         message: `We have a problem updating the interface, please reload the page`
@@ -1344,7 +1351,7 @@ delete_hydroserver_Individual= function(group,server){
             distance: 20,
             type: 1,
             position: 'right top'
-          }) 
+          })
             // $.notify(
             //     {
             //         message: `Something went wrong while deleting the selected web services`
@@ -1383,7 +1390,7 @@ delete_hydroserver_Individual= function(group,server){
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     // $.notify(
     //     {
     //         message: `We are having problems recognizing the actual servers selected to delete`
@@ -1463,7 +1470,7 @@ showVariables = function(){
                 distance: 20,
                 type: 1,
                 position: 'right top'
-              }) 
+              })
               // $.notify(
               //     {
               //         message: `Something went wrong retrieving the variables of the selected web services`
@@ -1501,7 +1508,7 @@ showVariables = function(){
             distance: 20,
             type: 1,
             position: 'right top'
-          }) 
+          })
             //  $.notify(
             //      {
             //          message: `Something went wrong retrieving the variables of the selected web services`
@@ -1541,7 +1548,7 @@ showVariables = function(){
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     //  $.notify(
     //      {
     //          message: `We are having problems recognizing the actual group of Web services`
@@ -1632,8 +1639,8 @@ showVariables2 = function(){
          catch(e){
            $("#variablesLoading2").addClass("hidden");
            new Notify ({
-            status: 'warning',
-            title: 'Info',
+            status: 'error',
+            title: 'Error',
             text: `There is a problem retrieving the variables of the ${hsActual} Web Service`,
             effect: 'fade',
             speed: 300,
@@ -1647,7 +1654,7 @@ showVariables2 = function(){
             distance: 20,
             type: 1,
             position: 'right top'
-          }) 
+          })
             //  $.notify(
             //      {
             //          message: `There is a problem retrieving the variables of the ${hsActual} Web Service`
@@ -1673,8 +1680,8 @@ showVariables2 = function(){
       error: function(error) {
         $("#variablesLoading2").addClass("hidden");
         new Notify ({
-          status: 'warning',
-          title: 'Info',
+          status: 'error',
+          title: 'Error',
           text: `There is no variables in the ${hsActual} Web Service`,
           effect: 'fade',
           speed: 300,
@@ -1688,7 +1695,7 @@ showVariables2 = function(){
           distance: 20,
           type: 1,
           position: 'right top'
-        }) 
+        })
           // $.notify(
           //     {
           //         message: `There is no variables in the ${hsActual} Web Service`
@@ -1715,7 +1722,7 @@ showVariables2 = function(){
  catch(e){
   new Notify ({
     status: 'error',
-    title: 'error',
+    title: 'Error',
     text: `We are having problems recognizing the actual servers selected to delete. WE ARE WORKING ON IT :)`,
     effect: 'fade',
     speed: 300,
@@ -1729,7 +1736,7 @@ showVariables2 = function(){
     distance: 20,
     type: 1,
     position: 'right top'
-  }) 
+  })
   //  $.notify(
   //      {
   //          message: `We are having problems recognizing the actual servers selected to delete. WE ARE WORKING ON IT :)`
@@ -1830,7 +1837,7 @@ showAvailableSites = function(){
             $("#variablesLoading").removeClass("hidden");
             new Notify ({
               status: 'error',
-              title: 'error',
+              title: 'Error',
               text: `There is a problem showing the available sites in the web service/s`,
               effect: 'fade',
               speed: 300,
@@ -1844,7 +1851,7 @@ showAvailableSites = function(){
               distance: 20,
               type: 1,
               position: 'right top'
-            }) 
+            })
               // $.notify(
               //     {
               //         message: `There is a problem showing the available sites in the web service/s`
@@ -1870,7 +1877,7 @@ showAvailableSites = function(){
          $("#variablesLoading").removeClass("hidden");
          new Notify ({
           status: 'error',
-          title: 'error',
+          title: 'Error',
           text: `There is a problem showing the available sites in the web service/s`,
           effect: 'fade',
           speed: 300,
@@ -1884,7 +1891,7 @@ showAvailableSites = function(){
           distance: 20,
           type: 1,
           position: 'right top'
-        }) 
+        })
           //  $.notify(
           //      {
           //          message: `There is a problem showing the available sites in the web service/s`
@@ -1911,7 +1918,7 @@ showAvailableSites = function(){
     $("#variablesLoading").addClass("hidden");
     new Notify ({
       status: 'error',
-      title: 'error',
+      title: 'Error',
       text: `We are having problems recognizing the web services selected`,
       effect: 'fade',
       speed: 300,
@@ -1925,7 +1932,7 @@ showAvailableSites = function(){
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     // $.notify(
     //     {
     //         message: `We are having problems recognizing the web services selected`
@@ -2115,7 +2122,7 @@ hydroserver_information = function(){
         catch(e){
           new Notify ({
             status: 'error',
-            title: 'error',
+            title: 'Error',
             text: `There is a problem retriving information for the selected Web Service`,
             effect: 'fade',
             speed: 300,
@@ -2129,7 +2136,7 @@ hydroserver_information = function(){
             distance: 20,
             type: 1,
             position: 'right top'
-          }) 
+          })
           // $.notify(
           //     {
           //         message: `There is a problem retriving information for the selected Web Service`
@@ -2168,7 +2175,7 @@ hydroserver_information = function(){
           distance: 20,
           type: 1,
           position: 'right top'
-        }) 
+        })
           // $.notify(
           //     {
           //         message: `There is a problem retriving information for the selected Web Service`
@@ -2210,7 +2217,7 @@ hydroserver_information = function(){
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     // $.notify(
     //     {
     //         message: `We are having problems recognizing the selected Web Service`
@@ -2271,7 +2278,7 @@ searchSites = function() {
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     // $.notify(
     //     {
     //         message: `Seems that we are having problems with the Search Bar, Please search manually for the site.`
@@ -2354,7 +2361,7 @@ update_hydroserver = function(){
               distance: 20,
               type: 1,
               position: 'right top'
-            }) 
+            })
               // $.notify(
               //     {
               //         message: `Successfully updated the Web Service , ${sitesAdded} have been added to the Map.`
@@ -2380,7 +2387,7 @@ update_hydroserver = function(){
             new Notify ({
               status: 'error',
               title: 'Error',
-              text: `There was an error updating the Web Service`,
+              text:  `There was an error updating the Web Service 1`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -2393,10 +2400,10 @@ update_hydroserver = function(){
               distance: 20,
               type: 1,
               position: 'right top'
-            }) 
+            })
             // $.notify(
             //     {
-            //         message: `There was an error updating the Web Service`
+            //         message: `There was an error updating the Web Service 1`
             //     },
             //     {
             //         type: "success",
@@ -2419,7 +2426,7 @@ update_hydroserver = function(){
           new Notify ({
             status: 'error',
             title: 'Error',
-            text: `There was an error updating the Web Service`,
+            text: `There was an error updating the Web Service.`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -2432,7 +2439,7 @@ update_hydroserver = function(){
             distance: 20,
             type: 1,
             position: 'right top'
-          }) 
+          })
           // $.notify(
           //     {
           //         message: `There was an error updating the Web Service.`
@@ -2460,7 +2467,7 @@ update_hydroserver = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `There was an error updating the Web Service`,
+      text: `There was an error Updating the selected Web Service.`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -2473,7 +2480,7 @@ update_hydroserver = function(){
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     // $.notify(
     //     {
     //         message: `There was an error Updating the selected Web Service.`
