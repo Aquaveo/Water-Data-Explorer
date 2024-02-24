@@ -32,7 +32,6 @@ extract_base_path = '/tmp'
 
 
 def GetSites_WHOS(url):
-
     try:
         client = Client(url, timeout=500)
         sites = client.service.GetSites('[:]')

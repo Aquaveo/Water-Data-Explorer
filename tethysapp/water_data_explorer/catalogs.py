@@ -332,8 +332,6 @@ def get_groups_list(request):
     # Query DB for hydroservers
     hydroservers_groups = session.query(Groups).all()
 
-    
-
     hydroserver_groups_list = []
     for group in hydroservers_groups:
         layer_obj = {}
@@ -387,6 +385,7 @@ def catalog_group(request):
         layer_obj["url"] = hydroserver.url.strip()
         layer_obj["siteInfo"] = hydroserver.siteinfo
         layer_obj["variables"] = hydroserver.variables
+        layer_obj["serverType"] = "hydroserver1"
 
         hs_list.append(layer_obj)
 
@@ -396,6 +395,7 @@ def catalog_group(request):
         layer_obj["url"] = hydroserver.url.strip()
         layer_obj["siteInfo"] = hydroserver.siteinfo
         layer_obj["variables"] = hydroserver.variables
+        layer_obj["serverType"] = "hydroserver2"
 
         hs_list.append(layer_obj)
 

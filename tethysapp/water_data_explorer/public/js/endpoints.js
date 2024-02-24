@@ -269,9 +269,38 @@ get_vars_from_site = function (resultList){
 
 }
 
-map_layers = function(sites,title,url){
+map_layers = function(sites,title,url,serverType){
   try{
     sites = sites.map(site => {
+      // console.log("Map Layers");
+      // console.log(sites);
+      var currentSiteName;
+      //Account for differences in hydroserver 1 and 2
+        if (site.sitename) {
+          currentSiteName = site.sitename;
+        }
+        else  {
+          currentSiteName = site.name;
+        }
+
+        var currentSiteCode;
+        if (site.sitecode) {
+          currentSiteCode = site.sitecode;
+        } else if(site.id) {
+          currentSiteCode = site.id;
+        } else {
+          currentSiteCode = "Site Code not found";
+        }
+
+        var currentSiteNetwork;
+        if (site.network) {
+          currentSiteNetwork = site.network;
+        } else {
+          currentSiteNetwork = "No network found";
+        }
+
+
+
         return {
             type: "Feature",
             geometry: {
@@ -286,17 +315,19 @@ map_layers = function(sites,title,url){
                 )
             },
             properties: {
-                name: site.sitename,
-                code: site.sitecode,
-                network: site.network,
+                
+                name: currentSiteName,
+                code: currentSiteCode,
+                network: currentSiteNetwork,
                 hs_url: url,
                 hs_name: title,
                 lon: parseFloat(site.longitude),
-                lat: parseFloat(site.latitude)
+                lat: parseFloat(site.latitude),
+                server_type:serverType
             }
         }
     })
-
+    console.log("Sites: ", sites);
     let sitesGeoJSON = {
         type: "FeatureCollection",
         crs: {
@@ -306,6 +337,7 @@ map_layers = function(sites,title,url){
             }
         },
         features: sites
+        
     }
 
     const vectorSource = new ol.source.Vector({
@@ -406,7 +438,7 @@ load_individual_hydroservers_group = function(group_name){
                });
                let extent = ol.extent.createEmpty()
                let id_group_separator = `${group_name_e3}_list_separator`;
-
+              
                if(servers.length <= 0){
                  $(`#${group_name_e3}-noGroups`).show();
                }
@@ -415,15 +447,18 @@ load_individual_hydroservers_group = function(group_name){
                }
 
                servers.forEach(function(server){
+                  
                    let {
                        title,
                        url,
-                       siteInfo
+                       siteInfo,
+                       variables,
+                       serverType
                    } = server
                    let unique_id_group = uuidv4()
                    id_dictionary[unique_id_group] = title
                    information_model[`${group_name}`].push(title);
-
+                  
                    let new_title = unique_id_group;
 
                      let newHtml = html_for_servers(new_title,group_name_e3);
@@ -483,8 +518,8 @@ load_individual_hydroservers_group = function(group_name){
                      if (typeof(sites) == "string"){
                        sites = JSON.parse(siteInfo);
                      }
-                     var vectorLayer = map_layers(sites,title,url)[0]
-                     var vectorSource = map_layers(sites,title,url)[1]
+                     var vectorLayer = map_layers(sites,title,url,serverType)[0]
+                     var vectorSource = map_layers(sites,title,url,serverType)[1]
 
                      let test_style = new ol.style.Style({
                        image: new ol.style.Circle({
@@ -739,6 +774,7 @@ add_hydroserver = function(){
                         if (typeof(sites) == "string"){
                           sites = JSON.parse(siteInfo);
                         }
+                        
                         var vectorLayer = map_layers(sites,title,url)[0]
                         var vectorSource = map_layers(sites,title,url)[1]
 
@@ -762,7 +798,6 @@ add_hydroserver = function(){
                        }
                        $(`#${new_title}-row-legend`).prepend($(getIconLegend(test_style,title)));
 
-
                         map.addLayer(vectorLayer);
 
                         vectorLayer.set("selectable", true)
@@ -783,7 +818,7 @@ add_hydroserver = function(){
                           let lis = document.getElementById("current-Groupservers").getElementsByTagName("li");
                           let li_arrays = Array.from(lis);
                           let input_check = li_arrays.filter(x => new_title === x.attributes['layer-name'].value)[0].getElementsByClassName("chkbx-layer")[0];
-
+                          input_check.checked = true;
                           input_check.addEventListener("change", function(){
                             if(layersDict['selectedPointModal']){
                               map.removeLayer(layersDict['selectedPointModal'])

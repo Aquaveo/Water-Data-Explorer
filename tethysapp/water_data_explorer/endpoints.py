@@ -490,6 +490,8 @@ def available_regions_2(request, siteinfo, app_workspace):
 
 
 def available_variables_2(url):
+    import pdb 
+    pdb.set_trace()
     hydroserver_type = None
     variables_list = {}
     hydroserver_variable_list = []
@@ -575,6 +577,7 @@ def soap_group(request, app_workspace):
         else:
             pass
         
+
         # True Extent is on and necessary if the user is trying to add USGS or
         # some of the bigger HydroServers.
         if true_extent == 'on':
@@ -585,6 +588,11 @@ def soap_group(request, app_workspace):
             sitesByBoundingBox = water.GetSitesByBoxObject(ext_list, 'epsg:3857')
             countries_json = available_regions_2(request, sites_parsed_json, app_workspace=app_workspace)
             variable_json,hydroserver_type = available_variables_2(url)
+
+
+            if hydroserver_type == 2:
+                url = url.split("?WSDL")[0]
+
 
             return_obj['title'] = title
             return_obj['url'] = url
@@ -621,7 +629,7 @@ def soap_group(request, app_workspace):
                                                    description=description,
                                                    siteinfo=sites_parsed_json,
                                                    variables=variable_json,
-                                                   countires=countries_json)
+                                                   countries=countries_json)
                 hydroservers_group.hydroserver2.append(hs)
 
             #hydroservers_group.hydroserver.append(hs)
@@ -633,7 +641,8 @@ def soap_group(request, app_workspace):
 
             return_obj['zoom'] = 'false'
             # sites = water.GetSites()
-
+            import pdb
+            pdb.set_trace()
             sites = GetSites_WHOS(url)
             sites_parsed_json = json.dumps(sites)
             # print(sites_parsed_json)
@@ -648,6 +657,9 @@ def soap_group(request, app_workspace):
                 # print(variable_json)
             except Exception as e:
                 print(e)
+
+            if hydroserver_type == 2:
+                url = url.split("?WSDL")[0]
 
             return_obj['title'] = title
             return_obj['url'] = url
@@ -691,10 +703,11 @@ def soap_group(request, app_workspace):
             session.add(hydroservers_group)
             session.commit()
             session.close()
+
     else:
         return_obj[
             'message'] = 'This request can only be made through a "POST" AJAX call.'
-
+    print("Completed adding to DB")
     return JsonResponse(return_obj)
 
 

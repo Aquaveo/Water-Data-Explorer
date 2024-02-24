@@ -25,6 +25,7 @@ activate_layer_values = function () {
       // MAKE THE POINT LAYER FOR THE MAP //
       var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature2, layer) {
           if(feature2){
+            console.log("Feature");
             console.log(feature2);
             if(layersDict['selectedPointModal']){
               map.removeLayer(layersDict['selectedPointModal'])
@@ -70,9 +71,13 @@ activate_layer_values = function () {
           'whisker':{}
         }
         let feature_single = feature.getProperties().features[0].getProperties()
+        
+        console.log("Feature Single: ");
+        console.log(feature_single);
         object_request['hs_url']=feature_single['hs_url'];
         object_request['code']=feature_single['code'];
         object_request['network']=feature_single['network'];
+        object_request["server_type"] = feature_single["server_type"]
 
         $("#GeneralLoading").removeClass("hidden");
         $('#sG').bootstrapToggle('on');
@@ -83,6 +88,7 @@ activate_layer_values = function () {
           data: object_request,
           success: function(result){
             try{
+              console.log("Testing result:", result);
               // MAKE THE METADATA OF THE SITE TO LOAD IN THE FIRST SLIDE //
               let description_site = document.getElementById('siteDes');
               if (result.hasOwnProperty('codes') && result['codes'].length > 0){
