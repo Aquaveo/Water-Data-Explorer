@@ -833,4 +833,14 @@ select_variable_change = function(){
   }
 }
 
-$("#update_graphs").on("click",select_variable_change);
+function select_variable_change_2() {
+  console.log("Running select variable change 2");
+}
+
+$("#update_graphs").on("click", function() {
+  if ($("#update_graphs").attr("server-type") == "hydrroserver1") {
+    select_variable_change();
+  } else {
+    select_variable_change_2();
+  }
+});

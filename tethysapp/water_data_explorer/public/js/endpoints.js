@@ -403,7 +403,7 @@ map_layers = function(sites,title,url,serverType){
 }
 
 /*
-****** FU1NCTION NAME : load_individual_hydroservers_group*********
+****** FUNCTION NAME : load_individual_hydroservers_group*********
 ****** FUNCTION PURPOSE: LOADS THE SERVERS OF A HYDROSERVER WHEN THE HYDROSERVER GROUPS IS CLICKED*********
 */
 load_individual_hydroservers_group = function(group_name){

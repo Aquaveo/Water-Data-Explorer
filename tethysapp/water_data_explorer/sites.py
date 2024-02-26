@@ -15,6 +15,42 @@ from django.http import JsonResponse
 
 Persistent_Store_Name = 'catalog_db'
 
+@controller(name='get-datastream-values', url='get-datastream-values')
+def get_datastream_values_hydroserver_2(request):
+    import pdb
+    pdb.set_trace()
+    url = request.POST.get("url")
+    datastream_id = request.POST.get("datastream_id")
+    
+    observed_values = {}
+    headers = {'accept':'application/json'}
+    try:
+        #original url - stop at 1000 values
+        #url_observed_values = f"{data['url']}/api/sensorthings/v1.1/Datastreams('{data['datastream_id']}')/Observations?$resultFormat=dataArray&$top=1000"
+        url_observed_values = f"{url}/api/sensorthings/v1.1/Datastreams('{datastream_id}')/Observations?$resultFormat=dataArray&$top=5000"
+
+        #breakpoint()
+        # start_datetime = datetime.fromisoformat(data["start_time"])
+        # end_datetime = datetime.fromisoformat(data["end_time"])
+
+        response = requests.get(url_observed_values,headers=headers)
+        if response.status_code == 200:
+            observed_values['observed_values'] = response.json().get('value',[])[0].get('dataArray',[])
+            
+            timestamps = [observed_value[0] for observed_value in observed_values["observed_values"]]
+            print(timestamps)
+            dates = [datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ").strftime('%m-%d-%Y') for timestamp in timestamps]
+            
+            minimum_timestamp = min(dates)
+            maximum_timestamp = max(dates)
+
+            observed_values["minimum_time"] = minimum_timestamp
+            observed_values["maximum_time"] = maximum_timestamp
+
+    except Exception as e:
+        print(e)
+
+    return JsonResponse(observed_values)
 
 
 @controller(name='get-values-hs', url='get-values-hs/')
@@ -50,8 +86,7 @@ def get_values_hs(request):
             - timeUnitName: array containing time units used for the time series.
             - timeSupport: array containing booleans that indicates if the variables support time.
     """
-    import pdb
-    pdb.set_trace()
+   
     
     return_obj = {}
     hs_url = request.POST.get('hs_url')
@@ -68,6 +103,7 @@ def get_values_hs(request):
         try:
             response_info = GetSiteInfo(client, site_desc)['siteInfo']
             df = pd.DataFrame.from_dict(response_info)
+            print(df["variableCode"].tolist())
 
             if df.empty:
                 return_obj['country'] = []
@@ -103,9 +139,23 @@ def get_values_hs(request):
         except Exception:
             return JsonResponse(return_obj)
     else: # Hydroserver2
-        import pdb
-        pdb.set_trace()
+        
         return_obj["datastreams"] = []
+        
+        
+        site_info_response = requests.get(f"{hs_url}/api/data/things/{site_code}")
+        if site_info_response.status_code == 200: 
+            site_info = site_info_response.json()
+            organization_name = None
+            for owner in site_info["owners"]:
+                if owner["isPrimaryOwner"]:
+                    if owner["organizationName"] is not None:
+                        organization_name = owner["organizationName"]
+
+           
+            return_obj["country"] = site_info["country"]
+            return_obj["organization"] = organization_name
+            
         datastreams_response = requests.get(f"{hs_url}/api/data/things/{site_code}/datastreams")
         if datastreams_response.status_code == 200:
             metadata_response = requests.get(f"{hs_url}/api/data/things/{site_code}/metadata")
@@ -113,12 +163,18 @@ def get_values_hs(request):
                 datastreams = datastreams_response.json()
                 metadata = metadata_response.json()
 
-            
+                #print("Datastreams:", datastreams, "\n\n\n")
+                print(metadata["observedProperties"])
                 for datastream_dict in datastreams:
                     
                     datastream_id = datastream_dict["id"]
                     observed_property_id = datastream_dict["observedPropertyId"]
                     unit_id = datastream_dict["unitId"]
+
+                    for metadata_dict in metadata["observedProperties"]:
+                        if metadata_dict["id"] == observed_property_id:
+                            observed_property_name = metadata_dict["name"]
+                            break
 
                     for unit_dict in metadata["units"]:
                         if unit_dict["id"] == unit_id:
@@ -126,13 +182,17 @@ def get_values_hs(request):
                             unit_abbreviation = unit_dict["symbol"]
                             break
 
-                return_obj["datastreams"].append({"datastream_id": datastream_id, 
-                                                  "observed_property_id": observed_property_id, 
-                                                  "unit_id": unit_id,
-                                                  "unit_name": unit_name,
-                                                  "unit_abbreviation": unit_abbreviation})
+                    return_obj["datastreams"].append({"datastream_id": datastream_id, 
+                                                      "observed_property_id": observed_property_id, 
+                                                      "observed_property_name": observed_property_name,
+                                                      "unit_id": unit_id,
+                                                      "unit_name": unit_name,
+                                                      "unit_abbreviation": unit_abbreviation})
 
                     
+                return_obj["datastreams"] = sorted(return_obj["datastreams"], key=lambda x: x["observed_property_name"])
+
+
 
 
         

@@ -641,8 +641,7 @@ def soap_group(request, app_workspace):
 
             return_obj['zoom'] = 'false'
             # sites = water.GetSites()
-            import pdb
-            pdb.set_trace()
+            
             sites = GetSites_WHOS(url)
             sites_parsed_json = json.dumps(sites)
             # print(sites_parsed_json)
@@ -673,7 +672,6 @@ def soap_group(request, app_workspace):
             session = SessionMaker()
             hydroservers_group = session.query(Groups).filter(Groups.title == group).first()
 
-
             if hydroserver_type == 1:
                 hs = Hydroserver_Individual_Cuahsi(title=title,
                                                    url=url,
@@ -690,6 +688,7 @@ def soap_group(request, app_workspace):
                                                    siteinfo=sites_parsed_json,
                                                    variables=variable_json,
                                                    countries=countries_json)
+                
                 hydroservers_group.hydroserver2.append(hs)
 
             # hs_one = HydroServer_Individual(title=title,
