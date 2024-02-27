@@ -801,7 +801,11 @@ function html_for_servers(title,group_name,server_type,isNew){
      </button>`;
     }
     else {
+<<<<<<< HEAD
       newHtml += `<button type="button" class="btn btn-sm empty-update-button" disabled></button>`;
+=======
+      newHtml += `<button type="button" class="btn btn-sm empty-update-button" ></button>`;
+>>>>>>> 9b00fcf4205aaca7664db65fbdda7fd7edc4a072
     }
     newHtml += `
     <button type="button" id="${title}_zoom" class="btn btn-sm" >
