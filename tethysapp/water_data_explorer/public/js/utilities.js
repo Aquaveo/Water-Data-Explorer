@@ -785,16 +785,25 @@ function change_effect_groups(element_to_check,id_group_separator){
   }
 }
 
-function html_for_servers(title,group_name,isNew){
+function html_for_servers(title,group_name,server_type,isNew){
   try{
+    console.log("Testing: ", server_type);
     let check_var = (( isNew == true ) ? 'checked' : '');
     let newHtml = `
     <li class="ui-state-default" layer-name="${title}" id="${title}" >
     <span class="server-name tool_tip_h" data-bs-toggle="tooltip" data-placement="right" title="${id_dictionary[title]}">${id_dictionary[title]}</span>
     <input class="chkbx-layer" type="checkbox" data-bs-toggle="tooltip" data-placement="bottom" title="Show/Hide View" ${check_var}>
-    <button type="button" id="${title}_${group_name}_reload" class="btn btn-sm" >
-     <i class="bi bi-arrow-clockwise tool_tip_h" aria-hidden="true" data-bs-toggle="tooltip" data-placement="bottom" title="Update View"></i>
-    </button>
+    `;
+    if (server_type == "hydroserver1") {
+      console.log("Adding hydroserver 1");
+      newHtml += `<button type="button" id="${title}_${group_name}_reload" class="btn btn-sm" >
+      <i class="bi bi-arrow-clockwise tool_tip_h" aria-hidden="true" data-bs-toggle="tooltip" data-placement="bottom" title="Update View"></i>
+     </button>`;
+    }
+    else {
+      newHtml += `<button type="button" class="btn btn-sm empty-update-button" ></button>`;
+    }
+    newHtml += `
     <button type="button" id="${title}_zoom" class="btn btn-sm" >
      <i class="bi bi-geo-alt-fill tool_tip_h" aria-hidden="true" data-bs-toggle="tooltip" data-placement="bottom" title="Zoom to View"></i>
     </button>
@@ -861,6 +870,29 @@ getIconLegend = function(style,server) {
 
     // Convert DOM object to string to overcome from some SVG manipulation related oddities
     return $('<div>').append(svgElem).html();
+  }
+  catch(e){
+    console.log(e);
+  }
+
+}
+
+/**
+* check_if_exists function.
+* Function to check if a groups/service has already been created
+  * @param {string} name_to_check - name of the group or service
+  * @return {boolean} isThere - boolean to see if the group/service exists
+* */
+check_if_exists = function(name_to_check){
+  try{
+      isThere = false;
+  Object.keys(id_dictionary).forEach(function(key){
+    if(id_dictionary[key].toLowerCase() == name_to_check.toLowerCase()){
+      isThere = true;
+      return isThere
+    }
+  })
+  return isThere
   }
   catch(e){
     console.log(e);

@@ -455,13 +455,14 @@ load_individual_hydroservers_group = function(group_name){
                        variables,
                        serverType
                    } = server
+                   console.log("Server Type: ", serverType);
                    let unique_id_group = uuidv4()
                    id_dictionary[unique_id_group] = title
                    information_model[`${group_name}`].push(title);
                   
                    let new_title = unique_id_group;
 
-                     let newHtml = html_for_servers(new_title,group_name_e3);
+                     let newHtml = html_for_servers(new_title,group_name_e3,serverType);
                      $(newHtml).appendTo(`#${id_group_separator}`);
 
                      $(`#${new_title}_variables`).on("click",showVariables2);
@@ -692,6 +693,9 @@ add_hydroserver = function(){
     if($("#soap-title").val() == ""){
       $modalAddSOAP.find(".warning").html(  "<b>Please enter a title. This field cannot be blank.</b>")
       return false
+    } else if (check_if_exists($("#soap-title").val())) {
+      $modalAddSOAP.find(".warning").html(  "<b>Please enter a different title, a web service with that name already exists.</b>")
+      return false;
     }
     else {
       $modalAddSOAP.find(".warning").html("")
@@ -703,14 +707,21 @@ add_hydroserver = function(){
                   "<b>Please zoom in further to be able to access the NWIS Values</b>"
               )
           return false
-      }
+    } else if ($("#soap-url").val() == "") {
+      $modalAddSOAP
+              .find(".warning")
+              .html(
+                  "<b>Please enter an endpoint/url. This field cannot be blank.</b>"
+              )
+              return false;
+    }
       else {
           $modalAddSOAP.find(".warning").html("")
       }
       if ($("#soap-title").val() != "") {
         var regex = new RegExp("^(?![0-9]*$)[a-zA-Z0-9]+$")
         var specials=/[*|\":<>[\]{}`\\()';@&$]/;
-
+        
         var title = $("#soap-title").val()
         // if (!regex.test(title)) {
         if (specials.test(title)){
@@ -1104,6 +1115,9 @@ delete_hydroserver= function(){
                 $(`#${group_name_e3}-noGroups`).show();
 
               }
+
+              delete id_dictionary[new_title];
+
               $(`#${new_title}deleteID`).remove();
               new Notify ({
                 status: 'success',
