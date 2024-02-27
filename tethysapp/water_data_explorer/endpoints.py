@@ -730,8 +730,11 @@ def delete_group_hydroserver(request):
         # hydroservers_group = session.query(Groups).filter(Groups.title == group)[0].hydroserver
 
         for title in titles:
-            session.query(HydroServer_Individual).filter(HydroServer_Individual.title == title).\
-                delete(synchronize_session='evaluate')  # Deleting the record from the local catalog
+            session.query(Hydroserver_Individual_Cuahsi).filter(Hydroserver_Individual_Cuahsi.title == title).delete(synchronize_session='evaluate')
+            session.query(Hydroserver_Individual_Sensor).filter(Hydroserver_Individual_Sensor.title == title).delete(synchronize_session='evaluate')
+
+            # session.query(HydroServer_Individual).filter(HydroServer_Individual.title == title).\
+            #     delete(synchronize_session='evaluate')  # Deleting the record from the local catalog
             session.commit()
             session.close()
 

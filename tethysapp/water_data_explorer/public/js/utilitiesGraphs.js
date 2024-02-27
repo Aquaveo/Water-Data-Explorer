@@ -870,9 +870,6 @@ function select_variable_change_2() {
   let variable_name_legend = units_x;
 
   if(chart_type === "Scatter") {
-    console.log("Scatter timeee");
-    console.log("X values: ", x_values);
-    console.log("Y Values: ", y_values);
     initialize_graphs(x_values, y_values, "Title Here", units_x, units_y, variable_name_legend,"scatter", x_values, y_values);
   }
 
