@@ -134,7 +134,8 @@
             </div>
           </div>
           <div id= "secondContainer" class="controlGraphs2">
-              <button type="button" id= "update_graphs" class="btn btn-success">Plot Time Series</button>
+              <input type="hidden" id="hydroserver-2-values-input" value="">
+              <button type="button"  id= "update_graphs" class="btn btn-success" server-type="hydroserver1">Plot Time Series</button>
               {% if can_download %}
 
                 <select id= "download_dropdown" class="selectpicker" data-live-search="false" data-width="fit" data-size="mini">

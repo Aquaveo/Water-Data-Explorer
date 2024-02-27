@@ -92,6 +92,7 @@ activate_layer_values = function () {
               // MAKE THE METADATA OF THE SITE TO LOAD IN THE FIRST SLIDE //
               let description_site = document.getElementById('siteDes');
               if (feature_single["server_type"] == "hydroserver1") {
+                $("#update_graphs").attr("server-type","hydroserver1");
                 if (result.hasOwnProperty('codes') && result['codes'].length > 0){
                   let geolocations = result['geolo'];
                   let country_name = result['country'];
@@ -356,6 +357,7 @@ activate_layer_values = function () {
                   // )
                 }
               } else { //Hydroserver 2
+                $("#update_graphs").attr("server-type","hydroserver2");
                 let country = result["country"];
                 let organization = result["organization"];
                 let lat = feature_single["lat"];
@@ -437,7 +439,7 @@ activate_layer_values = function () {
                       dataType: "JSON",
                       data: object_request,
                       success: function(result) {
-                        console.log(result);
+                        //console.log(result);
                         // THIS IS NECESARRY TO RESET THE DATES OTHERWISE IT IS GOING TO HAVE EMPTY SPACES..
                         $('#datetimepicker6').datepicker('setStartDate', null);
                         $('#datetimepicker6').datepicker('setEndDate', null);
@@ -452,7 +454,9 @@ activate_layer_values = function () {
                         $("#datetimepicker6").datepicker("setStartDate", startDate);
                         $("#datetimepicker6").datepicker("setEndDate", endDate);
                         $("#datetimepicker7").datepicker("setEndDate", endDate);
-
+                        $("#hydroserver-2-values-input").val("");
+                        console.log(JSON.stringify(result));
+                        $("#hydroserver-2-values-input").val(JSON.stringify(result));
                       }
                     })
                   })

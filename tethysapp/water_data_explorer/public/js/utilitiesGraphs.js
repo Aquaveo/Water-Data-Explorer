@@ -51,7 +51,7 @@ select_variable_change = function(){
           url: `get-values-graph-hs/`,
           dataType: "JSON",
           data: object_request_variable,
-          success: function(result1){
+          success: function(result1) {
             try{
               // CHECK TO NOT SELECT THE FIRST DROPDOWN OPTION "SELECT VARIABLE"//
               if(result1.graphs.length > 0){
@@ -834,11 +834,59 @@ select_variable_change = function(){
 }
 
 function select_variable_change_2() {
-  console.log("Running select variable change 2");
+  let start_date_object = $("#datetimepicker6").datepicker("getDates")[0];
+  console.log(typeof start_date_object);
+  let start_date_string = start_date_object.toISOString().split("T")[0];
+
+  let end_date_object = $("#datetimepicker7").datepicker("getDates")[0];
+  let end_date_string = end_date_object.toISOString().split("T")[0];
+
+  let chart_type = $("#type_graph_select2").val();
+  
+  let datastream_values = JSON.parse($("#hydroserver-2-values-input").val())["observed_values"];
+  console.log(datastream_values);
+
+  let arrayTime = [];
+  arrayTime.push(start_date_string);
+  arrayTime.push(end_date_string);
+
+  var x_values = [];
+  var y_values = [];
+
+  //Filter values by dates selected by user
+  datastream_values.forEach(function(set) {
+    console.log(typeof set[0]);
+    if (set[0] > start_date_string && set[0] < end_date_string) {
+      x_values.push(set[0]);
+      y_values.push(set[1]);
+    }
+  });
+
+  //RETREIVE INTERPOLATION VALUES - NOT YET AVAILABLE
+  let units_x = "Time";
+  let units_y = $('#variables_graph option:selected').text();
+
+
+  let variable_name_legend = units_x;
+
+  if(chart_type === "Scatter") {
+    console.log("Scatter timeee");
+    console.log("X values: ", x_values);
+    console.log("Y Values: ", y_values);
+    initialize_graphs(x_values, y_values, "Title Here", units_x, units_y, variable_name_legend,"scatter", x_values, y_values);
+  }
+
+  if(chart_type === "Whisker and Box") {
+    initialize_graphs(x_values, y_values, "Title Here", units_x, units_y, variable_name_legend,"whisker", x_values, y_values);
+
+  }
+
+
+
 }
 
 $("#update_graphs").on("click", function() {
-  if ($("#update_graphs").attr("server-type") == "hydrroserver1") {
+  if ($("#update_graphs").attr("server-type") == "hydroserver1") {
     select_variable_change();
   } else {
     select_variable_change_2();

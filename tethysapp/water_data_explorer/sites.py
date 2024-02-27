@@ -17,8 +17,6 @@ Persistent_Store_Name = 'catalog_db'
 
 @controller(name='get-datastream-values', url='get-datastream-values')
 def get_datastream_values_hydroserver_2(request):
-    import pdb
-    pdb.set_trace()
     url = request.POST.get("url")
     datastream_id = request.POST.get("datastream_id")
     
@@ -225,6 +223,10 @@ def get_values_graph_hs(request):
             - variablesname: array containing variable names.
             - timeUnitName: array containing time unit names.
     """
+
+    import pdb
+    pdb.set_trace()
+
     return_obj = {}
     hs_url = request.POST.get('hs_url')
     site_code = request.POST.get('code')
@@ -237,6 +239,9 @@ def get_values_graph_hs(request):
     site_desc = network + ':' + site_code
     water = pwml.WaterMLOperations(url=hs_url)
     values = water.GetValues(site_desc, variable_desc, start_date, end_date, format='json')
+    print("Testing values: ")
+    #print(type(values))
+    print(values)
     # print(values)
     df = pd.DataFrame.from_dict(values['values'])
     # print(df)
