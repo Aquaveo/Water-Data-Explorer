@@ -93,6 +93,14 @@ activate_layer_values = function () {
               let description_site = document.getElementById('siteDes');
               if (feature_single["server_type"] == "hydroserver1") {
                 $("#update_graphs").attr("server-type","hydroserver1");
+              
+                $('#download_dropdown').empty(); // Remove all download options to clear it out
+                $("#download_dropdown").append('<option value="Download">Download</option>');
+                $("#download_dropdown").append('<option value="CSV" >CSV</option>');
+                $("#download_dropdown").append('<option value = "WaterML1.0">WaterML 1.0</option>');
+                $("#download_dropdown").append('<option value = "WaterML2.0">WaterML 2.0</option>');
+                $("#download_dropdown").append('<option value = "NetCDF">NetCDF</option>');
+
                 if (result.hasOwnProperty('codes') && result['codes'].length > 0){
                   let geolocations = result['geolo'];
                   let country_name = result['country'];
@@ -357,7 +365,11 @@ activate_layer_values = function () {
                   // )
                 }
               } else { //Hydroserver 2
+                
                 $("#update_graphs").attr("server-type","hydroserver2");
+                $('#download_dropdown').empty(); // Remove all download options to clear it out
+                $("#download_dropdown").append('<option value="Download">Download</option>');
+                $("#download_dropdown").append('<option value="CSV" >CSV</option>');
                 let country = result["country"];
                 let organization = result["organization"];
                 let lat = feature_single["lat"];

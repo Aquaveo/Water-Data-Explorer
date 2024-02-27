@@ -131,9 +131,20 @@ select_variable_change = function(){
                 // IF FOR TYPE OF PLOT//
                 if(chart_type ==="Scatter"){
                   initialize_graphs(x_array,y_array,title_graph,units_y, units_x,variable_name_legend,type,x_array_interpolation,y_array_interpolation);
-                  $("#download_dropdown").unbind('change');
+                  
+                }
+
+
+                if(chart_type ==="Whisker and Box"){
+
+                  initialize_graphs(undefined,y_array,title_graph,undefined, undefined,undefined,"whisker");
+                }
+                $("#graphAddLoading").addClass("hidden")
+
+                $("#download-button").off("click");
                   let funcDown = function(){
                     try{
+                      console.log("Download time");
                       let selectedDownloadType = $('#download_dropdown').val();
                       let selectedDownloadTypeText = $('#download_dropdown option:selected').text();
                       // IF TO AVOID 'DONWLOAD' VALUE IN THE DROPDOWN//
@@ -651,16 +662,8 @@ select_variable_change = function(){
                   }
 
 
-                  $("#download_dropdown").change(funcDown);
-                }
-
-
-                if(chart_type ==="Whisker and Box"){
-
-                  initialize_graphs(undefined,y_array,title_graph,undefined, undefined,undefined,"whisker");
-                }
-                $("#graphAddLoading").addClass("hidden")
-
+                  $("#download-button").on("click", funcDown);
+                  console.log("Assigned click");
              }
              else{
                let title_graph=  `${object_request_graphs['site_name']} - ${selectedItemText}
@@ -878,7 +881,116 @@ function select_variable_change_2() {
 
   }
 
+  $("#download-button").off("click");
+                  let funcDown = function(){
+                    try{
+                      console.log("Download time");
+                      let selectedDownloadType = $('#download_dropdown').val();
+                      let selectedDownloadTypeText = $('#download_dropdown option:selected').text();
+                      // IF TO AVOID 'DONWLOAD' VALUE IN THE DROPDOWN//
+                      if(selectedDownloadType != "Download"){
+                        // IF TO AVOID 'CSV' VALUE IN THE DROPDOWN//
+                        if(selectedDownloadType == "CSV" ){
+                          var csvData = [];
+                          var header = [units_y,units_x] //main header.
+                          csvData.push(header);
+                          for (var i = 0; i < x_array.length; i++){ //data
+                            var line = [x_array[i],y_array[i]];
+                            csvData.push(line);
+                          }
+                          // var csvFile = csvData.map(e=>e.map(a=>'"'+((a||"").toString().replace(/"/gi,'""'))+'"').join(",")).join("\r\n"); //quote all fields, escape quotes by doubling them.
+                          var csvFile = csvData.map(e => e.join(",")).join("\n"); //quote all fields, escape quotes by doubling them.
+                          var blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' });
+                          var link = document.createElement("a");
+                          var url = URL.createObjectURL(blob);
+                          link.setAttribute("href", url);
+                          link.setAttribute("download", `${object_request_variable['code_variable']}_${object_request_graphs['variable']}` + ".csv");
+                          link.style.visibility = 'hidden';
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                          new Notify ({
+                            status: 'success',
+                            title: 'Success',
+                            text: `Download completed for the ${object_request_graphs['variable']} variable in CSV format`,
+                            effect: 'fade',
+                            speed: 300,
+                            customClass: '',
+                            customIcon: '',
+                            showIcon: true,
+                            showCloseButton: true,
+                            autoclose: true,
+                            autotimeout: 3000,
+                            gap: 20,
+                            distance: 20,
+                            type: 1,
+                            position: 'right top'
+                          })
+                          // $.notify(
+                          //     {
+                          //         message: `Download completed for the ${object_request_graphs['variable']} variable in CSV format`
+                          //     },
+                          //     {
+                          //         type: "success",
+                          //         allow_dismiss: true,
+                          //         z_index: 20000,
+                          //         delay: 5000,
+                          //         animate: {
+                          //           enter: 'animated fadeInRight',
+                          //           exit: 'animated fadeOutRight'
+                          //         },
+                          //         onShow: function() {
+                          //             this.css({'width':'auto','height':'auto'});
+                          //         }
+                          //     }
+                          // )
+                        }
+                        
+                      }
+                    }
+                    catch(e){
+                      console.log(e);
+                      $("#graphAddLoading").addClass("hidden");
+                      new Notify ({
+                        status: 'error',
+                        title: 'Error',
+                        text: `There was a problem downloading the file for the Service ${object_request_variable['hs_url']}`,
+                        effect: 'fade',
+                        speed: 300,
+                        customClass: '',
+                        customIcon: '',
+                        showIcon: true,
+                        showCloseButton: true,
+                        autoclose: true,
+                        autotimeout: 3000,
+                        gap: 20,
+                        distance: 20,
+                        type: 1,
+                        position: 'right top'
+                      });     
+                      // $.notify(
+                      //     {
+                      //         message: `There was a problem downloading the file for the Service ${object_request_variable['hs_url']}`
+                      //     },
+                      //     {
+                      //         type: "danger",
+                      //         allow_dismiss: true,
+                      //         z_index: 20000,
+                      //         delay: 5000,
+                      //         animate: {
+                      //           enter: 'animated fadeInRight',
+                      //           exit: 'animated fadeOutRight'
+                      //         },
+                      //         onShow: function() {
+                      //             this.css({'width':'auto','height':'auto'});
+                      //         }
+                      //     }
+                      // )
+                    }
 
+                  }
+
+                  $("#download-button").on("click", funcDown);
 
 }
 

@@ -286,7 +286,6 @@ tr:hover {
   flex: 1 1 90%;
 }
 
-
 .hmbrgr-div {
   width: 22px;
   height: 22px;
@@ -340,6 +339,7 @@ tr:hover {
   align-items: center;
   text-align: left;
 }
+
 #current-Groupservers {
   width: 100%;
   height: 100%;
@@ -716,6 +716,11 @@ tr:hover {
   width: 100%;
 }
 
+
+.empty-update-button {
+  width: 32px;
+}
+
 #tableLegend {
   position: absolute;
   top: 3%;
@@ -776,6 +781,15 @@ tr:hover {
   flex-direction: row;
   justify-content: center;
 }
+
+#download-button {
+  width:50%;
+}
+
+#download_dropdown {
+  width:50%;
+}
+
 #carouselExampleIndicators {
   width: 100%;
   height: 100%;
@@ -894,6 +908,8 @@ tr:hover {
     flex-direction: column;
     flex: 1 1 30%;
   }
+
+  
   #firstContainer {
     display: flex;
     flex-direction: row;

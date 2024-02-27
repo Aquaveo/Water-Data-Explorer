@@ -33,9 +33,9 @@
             <i class="bi bi-trash"></i>
           </button>
           {% endif %}
-          <button id="btn-filter-groups-f" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalKeyWordSearch">
+          <!-- <button id="btn-filter-groups-f" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalKeyWordSearch">
             <i class="bi bi-funnel"></i>
-          </button>
+          </button> -->
   
           <button type="button" id="btn-r-reset" class="btn btn-danger">Reset</button>
         </div>
@@ -136,18 +136,13 @@
           <div id= "secondContainer" class="controlGraphs2">
               <input type="hidden" id="hydroserver-2-values-input" value="">
               <button type="button"  id= "update_graphs" class="btn btn-success" server-type="hydroserver1">Plot Time Series</button>
+              
               {% if can_download %}
-
-                <select id= "download_dropdown" class="selectpicker" data-live-search="false" data-width="fit" data-size="mini">
-                    <option value="Download">Download</option>
-                      <option value="CSV" >CSV</option>
-                      <option value = "WaterML1.0">WaterML 1.0</option>
-                      <option value = "WaterML2.0">WaterML 2.0</option>
-                      <option value = "NetCDF">NetCDF</option>
-
-                </select>
-
-              {% endif %}
+                <div id="download-info-container">
+                  <select id= "download_dropdown" class="selectpicker" data-live-search="false" data-width="fit" data-size="mini"></select>
+                  <button type="button" id="download-button" class="btn btn-dark">Download</button>
+                </div>
+                {% endif %}
 
 
           </div>

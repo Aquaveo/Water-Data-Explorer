@@ -386,7 +386,7 @@ def upload_hs(request, app_workspace):
         specific_hs = request.POST.get('hs')
         SessionMaker = app.get_persistent_store_database(Persistent_Store_Name, as_sessionmaker=True)
         session = SessionMaker()  # Initiate a session
-        hydroservers_group = session.query(Groups).filter(Groups.title == specific_group)[0].hydroserver
+        hydroservers_group = session.query(Groups).filter(Groups.title == specific_group)[0].hydroserver1
         # h1 = session.query(Groups).join("hydroserver")
         for hydroservers in hydroservers_group:
             name = hydroservers.title
@@ -577,7 +577,6 @@ def soap_group(request, app_workspace):
         else:
             pass
         
-
         # True Extent is on and necessary if the user is trying to add USGS or
         # some of the bigger HydroServers.
         if true_extent == 'on':
