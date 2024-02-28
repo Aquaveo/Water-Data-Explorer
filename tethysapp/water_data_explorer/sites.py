@@ -223,10 +223,6 @@ def get_values_graph_hs(request):
             - variablesname: array containing variable names.
             - timeUnitName: array containing time unit names.
     """
-
-    import pdb
-    pdb.set_trace()
-
     return_obj = {}
     hs_url = request.POST.get('hs_url')
     site_code = request.POST.get('code')

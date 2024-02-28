@@ -22,6 +22,34 @@ activate_layer_values = function () {
       evt.stopPropagation();
       $("#graphs").empty();
       let object_request={};
+      //TESTING HERE FOR CLUSTER DETECTION
+      var coordinate = evt.coordinate;
+      var features = map.getFeaturesAtPixel(evt.pixel);
+      if(features) {
+        var isCluster = features.some(function(feature) {
+          return feature.get('features') instanceof Array && feature.get('features').length > 1;        });
+        }
+        if (isCluster) {
+          console.log("Clicked on a cluster");
+          var clusterFeature = features.find(function(feature) {
+            return feature.get("features") instanceof Array && feature.get('features').length > 1;
+          });
+
+          var individualFeatures = clusterFeature.get('features');
+
+            // Calculate the extent of the individual features
+            var extent = ol.extent.createEmpty();
+            individualFeatures.forEach(function(feature) {
+                ol.extent.extend(extent, feature.getGeometry().getExtent());
+            });
+
+            // Zoom to the extent of the individual features
+            map.getView().fit(extent, { padding: [100, 100, 100, 100] });
+         
+        
+
+
+       } else {
       // MAKE THE POINT LAYER FOR THE MAP //
       var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature2, layer) {
           if(feature2){
@@ -91,6 +119,9 @@ activate_layer_values = function () {
               console.log("Testing result:", result);
               // MAKE THE METADATA OF THE SITE TO LOAD IN THE FIRST SLIDE //
               let description_site = document.getElementById('siteDes');
+              $("#datetimepicker6").datepicker("setDate", null);
+              $("#datetimepicker7").datepicker("setDate", null);
+
               if (feature_single["server_type"] == "hydroserver1") {
                 $("#update_graphs").attr("server-type","hydroserver1");
               
@@ -143,7 +174,6 @@ activate_layer_values = function () {
                         <tr class="danger">
                           <th>Observed Variables</th>
                           <th>Unit</th>
-                          <th>Interpolation Type</th>
                         </tr>`;
   
                   //SORT THERESULT FROM THE AJAX RESPONSE FOR SOME ATTRIBUTES //
@@ -212,7 +242,6 @@ activate_layer_values = function () {
                     <tr>
                       <th>${variable_new}</th>
                       <th>${variable_unit}</th>
-                      <th>${interpolation_type}</th>
                     </tr>
                     `
                     table_begin = table_begin + newRow;
@@ -397,7 +426,6 @@ activate_layer_values = function () {
                         <tr class="danger">
                           <th>Observed Variables</th>
                           <th>Unit</th>
-                          <th>Interpolation Type</th>
                         </tr>`;
                   result["datastreams"].forEach(function(datastream) {
                     
@@ -410,20 +438,18 @@ activate_layer_values = function () {
                     let newRow = `<tr>
                                     <th>${variableName}</th>
                                     <th>${unitName}</th>
-                                    <th>${interpolationType}</th>
                                   </tr>`;
                     table_begin += newRow;
 
                     $("variables_graph").empty();
                     $("#variables_graph").select2();
                     
-                    
-
-
                   });
 
                   let variable_select = $("#variables_graph");
-                  
+                  variable_select.empty();
+                  let option_beginning= `<option value= 0 selected= "selected" > Select Variable </option>`;
+                  variable_select.append(option_beginning);
                   result["datastreams"].forEach(function(datastream) {
                     let variableName = datastream["observed_property_name"];
                     let datastreamId = datastream["datastream_id"];
@@ -437,9 +463,10 @@ activate_layer_values = function () {
 
                   table_begin += "</table>";
                   $("#table_div").html(table_begin);
-
+                  
                   $("#variables_graph").unbind('change');
                   $("#variables_graph").bind('change', function(e) {
+                    variable_select.select2();
                     var selectedDatastreamId = $("#variables_graph");
                     var object_request = {"url": feature_single["hs_url"],
                                           "datastream_id": $("#variables_graph option:selected").attr("datastream_id")};
@@ -584,7 +611,10 @@ activate_layer_values = function () {
         })
 
       }
+    }
+      
     });
+    
   }
   catch(error){
     $("#GeneralLoading").addClass("hidden");

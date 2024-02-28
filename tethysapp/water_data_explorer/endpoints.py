@@ -46,6 +46,8 @@ def get_download_hs(request):
 
 @controller(name='get-variables-hs', url='get-variables-hs/')
 def get_variables_hs(request):
+    import pdb
+    pdb.set_trace()
     list_catalog = {}
     # print("get_variables_hs Function")
     specific_group = request.POST.get('group')
@@ -55,10 +57,15 @@ def get_variables_hs(request):
     SessionMaker = app.get_persistent_store_database(Persistent_Store_Name, as_sessionmaker=True)
 
     session = SessionMaker()  # Initiate a session
-    hydroservers_group = session.query(Groups).filter(Groups.title == specific_group)[0].hydroserver
+    #hydroservers_group = session.query(Groups).filter(Groups.title == specific_group)[0].hydroserver
 
-    for hydroservers in hydroservers_group:
-        name = hydroservers.title
+    hydroservers_1 = session.query(Groups).filter(Groups.title == specific_group)[0].hydroserver1
+    hydroservers_2 = session.query(Groups).filter(Groups.title == specific_group)[0].hydroserver2
+
+    print(hydroservers_1)
+    
+    for hydroserver in hydroservers_1:
+        name = hydroserver.title
         if hs_actual == name:
             # print(hydroservers.url)
             # layer_obj = {}
@@ -68,7 +75,7 @@ def get_variables_hs(request):
             # layer_obj["siteInfo"] = hydroservers.siteinfo
             # client = Client(url = hydroservers.url.strip(), timeout= 500)
             # keywords = client.service.GetVariables('[:]')
-            water = pwml.WaterMLOperations(url=hydroservers.url.strip())
+            water = pwml.WaterMLOperations(url=hydroserver.url.strip())
             keywords_response = water.GetVariables()['variables']
             keywords = []
             keywords_name = []
@@ -83,12 +90,26 @@ def get_variables_hs(request):
                 key_timeSupport.append(kyword['timeSupport'])
                 timeUnitName.append(kyword['timeUnitAbbreviation'])
             variables_show = keywords
+            list_catalog["variables_code"] = variables_show
+            list_catalog["variables_name"] = keywords_name
+            list_catalog["variables_unit_abr"] = keywords_abbr_unit
+            list_catalog["variables_timesupport"] = key_timeSupport
+            list_catalog["variables_time_abr"] = timeUnitName
+            return JsonResponse(list_catalog)
+            
+    
+    import pdb
+    pdb.set_trace()
+    for hydroserver in hydroservers_2:
+        name = hydroserver.title
+        if hs_actual == name:
+            print(dir(hydroserver))
 
-    list_catalog["variables_code"] = variables_show
-    list_catalog["variables_name"] = keywords_name
-    list_catalog["variables_unit_abr"] = keywords_abbr_unit
-    list_catalog["variables_timesupport"] = key_timeSupport
-    list_catalog["variables_time_abr"] = timeUnitName
+
+
+    
+
+
 
     # print("Finished get_variables_hs Function")
 
@@ -365,13 +386,37 @@ def get_hydroserver_info(request):
     session = SessionMaker()  # Initiate a session
     hydroservers_group = session.query(Groups).filter(Groups.title == specific_group)[0].hydroserver
     # h1=session.query(Groups).join("hydroserver")
-    for hydroservers in hydroservers_group:
-        name = hydroservers.title
+
+    hydroservers_1 = session.query(Groups).filter(Groups.title == specific_group)[0].hydroserver1
+    hydroservers_2 = session.query(Groups).filter(Groups.title == specific_group)[0].hydroserver2
+
+    for hydroserver in hydroservers_1:
+        name = hydroserver.title
         if name == specific_hs:
-            response_obj["url"] = hydroservers.url.strip()
-            response_obj["title"] = hydroservers.title
-            response_obj["description"] = hydroservers.description
-            response_obj["siteInfo"] = json.loads(hydroservers.siteinfo)
+            response_obj["url"] = hydroserver.url.strip()
+            response_obj["title"] = hydroserver.title
+            response_obj["description"] = hydroserver.description
+            response_obj["siteInfo"] = json.loads(hydroserver.siteinfo)
+            return JsonResponse(response_obj)
+
+    for hydroserver in hydroservers_2:
+        name = hydroserver.title
+        if name == specific_hs:
+            response_obj["url"] = hydroserver.url.strip()
+            response_obj["title"] = hydroserver.title
+            response_obj["description"] = hydroserver.description
+            response_obj["siteInfo"] = json.loads(hydroserver.siteinfo)
+            return JsonResponse(response_obj)
+
+
+
+    # for hydroservers in hydroservers_group:
+    #     name = hydroservers.title
+    #     if name == specific_hs:
+    #         response_obj["url"] = hydroservers.url.strip()
+    #         response_obj["title"] = hydroservers.title
+    #         response_obj["description"] = hydroservers.description
+    #         response_obj["siteInfo"] = json.loads(hydroservers.siteinfo)
 
     return JsonResponse(response_obj)
 
@@ -490,8 +535,6 @@ def available_regions_2(request, siteinfo, app_workspace):
 
 
 def available_variables_2(url):
-    import pdb 
-    pdb.set_trace()
     hydroserver_type = None
     variables_list = {}
     hydroserver_variable_list = []
@@ -516,6 +559,11 @@ def available_variables_2(url):
 
         datastreams_response = requests.get(datastreams_url,headers=headers)
         properties_response = requests.get(properties_url, headers=headers)
+        
+        import pdb
+        pdb.set_trace()
+
+
 
         datastreams = datastreams_response.json()
         properties = properties_response.json()
@@ -576,6 +624,9 @@ def soap_group(request, app_workspace):
             sites_parsed_json = json.dumps(sites)
         else:
             pass
+
+        import pdb
+        pdb.set_trace
         
         # True Extent is on and necessary if the user is trying to add USGS or
         # some of the bigger HydroServers.

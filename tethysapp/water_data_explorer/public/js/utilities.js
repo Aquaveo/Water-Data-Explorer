@@ -443,6 +443,52 @@ cleanGraphs = function(){
 
 }
 /*
+Performs essentially the same function as initialie_graphs, just doesn't perform interpolation. 
+This will be used for graphing data from hydroserver2 servers.
+*/
+initialize_graphs_2 = function(xArray,yArray, title_graph, xTitel, yTitle, legend1, type) {
+  let element_graphs=document.getElementById("graph");
+  $("#graphs").empty();
+  let element_map =document.getElementById("map");
+    //make the down part visible and also give the design of the model//
+
+
+
+  if($( window ).width() > 320 && $( window ).width() <= 480){
+    element_graphs.style.cssText=  "display: flex; flex-direction: column;";
+  }
+  else{
+    element_graphs.style.cssText=  "display: flex !important; flex-direction: row;";
+  }
+
+  map.updateSize();
+    var config = {
+       modeBarButtonsToRemove: ['hoverClosestCartesian', 'hoverCompareCartesian','resetScale2d','toggleSpikelines'],
+       displaylogo: false,
+       responsive:true
+    };
+
+    if(type === "scatter"){
+      var trace1 = {
+        x: xArray,
+        y: yArray,
+        mode: 'lines',
+        type: type,
+        name: legend1,
+        text: [],
+        marker: { size: 5 },
+        line: {color: '#17BECF'}
+      };
+      var interpolation_trace;
+      var data = [];
+      data.push(trace1);
+
+      
+    }
+
+}
+
+/*
 ************ FUNCTION NAME: INITIALIZE_GRAPHS **********************
 ************ PURPOSE: INITIALIZES ANY GRAH IN THE TIME SERIE OR BEGINNING ***********
 */
@@ -461,9 +507,6 @@ initialize_graphs = function(xArray,yArray,title_graph,xTitle,yTitle,legend1,typ
     else{
       element_graphs.style.cssText=  "display: flex !important; flex-direction: row;";
     }
-
-
-
 
     map.updateSize();
     var config = {
@@ -538,7 +581,7 @@ initialize_graphs = function(xArray,yArray,title_graph,xTitle,yTitle,legend1,typ
         },
       };
 
-
+      $("#plots").empty();
       Plotly.newPlot('plots', data, layout, config);
 
     }
@@ -642,11 +685,10 @@ function featureStyle(myColor) {
 
 
 function get_new_color(){
-  var color_new = colors_unique[Math.floor(Math.random() * colors_unique.length)];
-  if (!colors_used.includes(color_new)) {
-    colors_used.push(color_new)
-    return color_new
-  }
+
+  var color_new = colors_unique[currentColorIndex];
+  currentColorIndex += 1;
+  return color_new;
 
 }
 
@@ -801,11 +843,7 @@ function html_for_servers(title,group_name,server_type,isNew){
      </button>`;
     }
     else {
-<<<<<<< HEAD
       newHtml += `<button type="button" class="btn btn-sm empty-update-button" disabled></button>`;
-=======
-      newHtml += `<button type="button" class="btn btn-sm empty-update-button" ></button>`;
->>>>>>> 9b00fcf4205aaca7664db65fbdda7fd7edc4a072
     }
     newHtml += `
     <button type="button" id="${title}_zoom" class="btn btn-sm" >

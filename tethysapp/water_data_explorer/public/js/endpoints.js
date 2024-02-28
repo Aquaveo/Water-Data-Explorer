@@ -455,20 +455,20 @@ load_individual_hydroservers_group = function(group_name){
                        variables,
                        serverType
                    } = server
-                   console.log("Server Type: ", serverType);
+                   console.log
                    let unique_id_group = uuidv4()
                    id_dictionary[unique_id_group] = title
                    information_model[`${group_name}`].push(title);
                   
                    let new_title = unique_id_group;
 
-                     let newHtml = html_for_servers(new_title,group_name_e3,serverType);
+                     let newHtml = html_for_servers(new_title,group_name_e3,serverType=serverType);
                      $(newHtml).appendTo(`#${id_group_separator}`);
 
                      $(`#${new_title}_variables`).on("click",showVariables2);
                      $(`#${new_title}_variables_info`).on("click",hydroserver_information);
                      $(`#${new_title}_${group_name_e3}_reload`).on("click",update_hydroserver);
-                      
+
 
                      let lis = document.getElementById(`${id_group_separator}`).getElementsByTagName("li");
                      let li_arrays = Array.from(lis);
