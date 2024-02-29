@@ -259,7 +259,7 @@ tr:hover {
   order: 1;
   width: 100%;
   height: 100%;
-
+  
 }
 
 #plots2 {
@@ -653,9 +653,9 @@ tr:hover {
   margin: auto;
 }
 
-#table_div {
+/* #table_div {
   overflow-y: scroll;
-}
+} */
 
 .loading_id {
   display: flex;
@@ -794,8 +794,8 @@ tr:hover {
 #carouselExampleIndicators {
   width: 100%;
   height: 100%;
-  overflow-y: scroll;
-  overflow-x: scroll;
+  /* overflow-y: scroll;
+  overflow-x: scroll; */
   padding: 1% 1% 1% 1%;
   max-width: 100%;
   max-height: 100%;

@@ -319,25 +319,25 @@ activate_layer_values = function () {
   
                       let ends_no_seconds = ends[1].split(":");
   
-                      // THIS IS NECESARRY TO RESET THE DATES OTHERWISE IT IS GOING TO HAVE EMPTY SPACES..
-                      $('#datetimepicker6').datepicker('setStartDate', null);
-                      $('#datetimepicker6').datepicker('setEndDate', null);
-                      $('#datetimepicker7').datepicker('setEndDate',null);
+                      // // THIS IS NECESARRY TO RESET THE DATES OTHERWISE IT IS GOING TO HAVE EMPTY SPACES..
+                      // $('#datetimepicker6').datepicker('setStartDate', null);
+                      // $('#datetimepicker6').datepicker('setEndDate', null);
+                      // $('#datetimepicker7').datepicker('setEndDate',null);
   
-                      //@KrunchMuffin I found a workaround this issue:
-                      //Before setting the value remove the limitation (endDate)
-                      // Set the value
-                      //Restore the limitation (endDate)
-                      //
-                      // Maybe it will work for you also
-                      // https://github.com/uxsolutions/bootstrap-datepicker/issues/2292#issuecomment-341496634
+                      // //@KrunchMuffin I found a workaround this issue:
+                      // //Before setting the value remove the limitation (endDate)
+                      // // Set the value
+                      // //Restore the limitation (endDate)
+                      // //
+                      // // Maybe it will work for you also
+                      // // https://github.com/uxsolutions/bootstrap-datepicker/issues/2292#issuecomment-341496634
   
-                      $('#datetimepicker6').datepicker('update', dateUTC_start);
-                      $('#datetimepicker7').datepicker('update', dateUTC_end);
-                      $('#datetimepicker6').datepicker('setStartDate', dateUTC_start);
-                      $('#datetimepicker6').datepicker('setEndDate', dateUTC_end);
-                      // $('#datetimepicker7').datepicker('setStartDate',dateUTC_end);
-                      $('#datetimepicker7').datepicker('setEndDate',dateUTC_end);
+                      // $('#datetimepicker6').datepicker('update', dateUTC_start);
+                      // $('#datetimepicker7').datepicker('update', dateUTC_end);
+                      // $('#datetimepicker6').datepicker('setStartDate', dateUTC_start);
+                      // $('#datetimepicker6').datepicker('setEndDate', dateUTC_end);
+                      // // $('#datetimepicker7').datepicker('setStartDate',dateUTC_end);
+                      // $('#datetimepicker7').datepicker('setEndDate',dateUTC_end);
                       $("#GeneralLoading").addClass("hidden");
   
                     }
@@ -480,19 +480,19 @@ activate_layer_values = function () {
                       success: function(result) {
                         //console.log(result);
                         // THIS IS NECESARRY TO RESET THE DATES OTHERWISE IT IS GOING TO HAVE EMPTY SPACES..
-                        $('#datetimepicker6').datepicker('setStartDate', null);
-                        $('#datetimepicker6').datepicker('setEndDate', null);
-                        $('#datetimepicker7').datepicker('setEndDate',null);
+                        // $('#datetimepicker6').datepicker('setStartDate', null);
+                        // $('#datetimepicker6').datepicker('setEndDate', null);
+                        // $('#datetimepicker7').datepicker('setEndDate',null);
 
-                        let startDate = result["minimum_time"];
-                        let endDate = result["maximum_time"];
+                        // let startDate = result["minimum_time"];
+                        // let endDate = result["maximum_time"];
                         
-                        $("#datetimepicker6").datepicker('update', startDate);
-                        $("#datetimepicker7").datepicker('update',endDate);
+                        // $("#datetimepicker6").datepicker('update', startDate);
+                        // $("#datetimepicker7").datepicker('update',endDate);
 
-                        $("#datetimepicker6").datepicker("setStartDate", startDate);
-                        $("#datetimepicker6").datepicker("setEndDate", endDate);
-                        $("#datetimepicker7").datepicker("setEndDate", endDate);
+                        // $("#datetimepicker6").datepicker("setStartDate", startDate);
+                        // $("#datetimepicker6").datepicker("setEndDate", endDate);
+                        // $("#datetimepicker7").datepicker("setEndDate", endDate);
                         $("#hydroserver-2-values-input").val("");
                         console.log(JSON.stringify(result));
                         $("#hydroserver-2-values-input").val(JSON.stringify(result));

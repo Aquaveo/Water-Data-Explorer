@@ -100,7 +100,7 @@ var water_data_explorer_PACKAGE = (function() {
             if(vectorSource.getState() === 'ready') {
               var extent = vectorSource.getExtent();
               ////console.log(extent);
-              map.getView().fit(extent, map.getSize());
+              map.getView().fit(extent, map.getSize(),{padding: [100,100,100,100]});
 
               //disable zoom out //
               var properties = map.getView().getProperties();

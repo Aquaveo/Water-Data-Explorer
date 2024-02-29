@@ -559,7 +559,8 @@ load_individual_hydroservers_group = function(group_name){
                          map.removeLayer(layersDict['selectedPoint'])
                          map.updateSize();
                        }
-                       map.getView().fit(vectorSource.getExtent());
+                       
+                       map.getView().fit(vectorSource.getExtent(),{padding:[100,100,100,100]});
                        map.updateSize();
                        map.getLayers().forEach(function(layer) {
                          if (!(title in layer_object_filter)){
@@ -812,7 +813,7 @@ add_hydroserver = function(){
                         map.addLayer(vectorLayer);
 
                         vectorLayer.set("selectable", true)
-                        map.getView().fit(vectorSource.getExtent());
+                        map.getView().fit(vectorSource.getExtent(),{padding:[100,100,100,100]});
                         map.updateSize();
                         layersDict[title] = vectorLayer;
 
@@ -866,7 +867,7 @@ add_hydroserver = function(){
                               map.removeLayer(layersDict['selectedPoint'])
                               map.updateSize();
                             }
-                            map.getView().fit(vectorSource.getExtent());
+                            map.getView().fit(vectorSource.getExtent(),{padding:[100,100,100,100]});
                             map.updateSize();
                             map.getLayers().forEach(function(layer) {
                               if (!(title in layer_object_filter)){
@@ -2066,7 +2067,7 @@ hydroserver_information = function(){
               actualLayerModal = layersDict[`${hs_title}`]
 
               map2.addLayer(actualLayerModal);
-              map2.getView().fit(actualLayerModal.getSource().getExtent());
+              map2.getView().fit(actualLayerModal.getSource().getExtent(),{padding:[100,100,100,100]});
               map2.updateSize();
             }
             else{
@@ -2076,7 +2077,7 @@ hydroserver_information = function(){
 
               map2.addLayer(actualLayerModal);
 
-              map2.getView().fit(actualLayerModal.getSource().getExtent());
+              map2.getView().fit(actualLayerModal.getSource().getExtent(),{padding:[100,100,100,100]});
               map2.updateSize();
             }
 
@@ -2386,7 +2387,7 @@ update_hydroserver = function(){
 
 
             map.addLayer(vectorLayer)
-            ol.extent.extend(extent, vectorSource.getExtent())
+            ol.extent.extend(extent, vectorSource.getExtent(),{padding:[100,100,100,100]})
             vectorLayer.set("selectable", true)
             layersDict[hsActual] = vectorLayer;
 

@@ -239,6 +239,8 @@ disable_map =  function (){
     let vectorSource = layerBoundary.getSource();
     if(map_block.checked){
       var extent = vectorSource.getExtent();
+      extent = ol.extend.pad(extent,100);
+
       ////console.log(extent);
       map.getView().fit(extent, map.getSize());
       var properties = map.getView().getProperties();
