@@ -16,6 +16,7 @@
  */
 
 select_variable_change = function(){
+  console.log("Changing variable button pressed");
   try{
     // ARRAY CREATION FOR END AND START TIME //
     let arrayTime = [];
@@ -837,6 +838,7 @@ select_variable_change = function(){
 }
 
 function select_variable_change_2() {
+  console.log("Changing variable button pressed #2");
   let start_date_object = $("#datetimepicker6").datepicker("getDates")[0];
   console.log(typeof start_date_object);
   let start_date_string = start_date_object.toISOString().split("T")[0];
@@ -891,10 +893,10 @@ function select_variable_change_2() {
         // IF TO AVOID 'CSV' VALUE IN THE DROPDOWN//
         if(selectedDownloadType == "CSV" ){
           var csvData = [];
-          var header = [units_y,units_x] //main header.
+          var header = [units_x,units_y] //main header.
           csvData.push(header);
-          for (var i = 0; i < x_array.length; i++){ //data
-            var line = [x_array[i],y_array[i]];
+          for (var i = 0; i < x_values.length; i++){ //data
+            var line = [x_values[i],y_values[i]];
             csvData.push(line);
           }
           // var csvFile = csvData.map(e=>e.map(a=>'"'+((a||"").toString().replace(/"/gi,'""'))+'"').join(",")).join("\r\n"); //quote all fields, escape quotes by doubling them.
@@ -903,7 +905,8 @@ function select_variable_change_2() {
           var link = document.createElement("a");
           var url = URL.createObjectURL(blob);
           link.setAttribute("href", url);
-          link.setAttribute("download", `${object_request_variable['code_variable']}_${object_request_graphs['variable']}` + ".csv");
+          //
+          link.setAttribute("download", `${units_y}_${object_request_graphs['variable']}` + ".csv");
           link.style.visibility = 'hidden';
           document.body.appendChild(link);
           link.click();
