@@ -291,6 +291,15 @@ activate_layer_values = function () {
   
                   $('#variables_graph').bind('change', function(e){
                     try{
+                    
+                    // var carousel = document.getElementById('carouselExampleIndicators');
+
+                    // // Check if the element exists to avoid errors
+                    // if (carousel) {
+                    //   // Set overflow properties to "auto" or another value as needed
+                    //   carousel.style.overflowY = "";
+                    //   carousel.style.overflowX = "";
+                    // }
                       variable_select.select2();
                       var selectedItem = $('#variables_graph').val() -1;
                       var selectedItemText = $('#variables_graph option:selected').text();
@@ -339,6 +348,9 @@ activate_layer_values = function () {
                       // $('#datetimepicker7').datepicker('setStartDate',dateUTC_end);
                       $('#datetimepicker7').datepicker('setEndDate',dateUTC_end);
                       $("#GeneralLoading").addClass("hidden");
+
+
+                      
   
                     }
                     catch(e){
@@ -403,6 +415,7 @@ activate_layer_values = function () {
                 let organization = result["organization"];
                 let lat = feature_single["lat"];
                 let lon = feature_single["lon"];
+                
 
                 if (country == null) {
                   country = "No Data Provided";
@@ -427,6 +440,7 @@ activate_layer_values = function () {
                           <th>Observed Variables</th>
                           <th>Unit</th>
                         </tr>`;
+                  console.log("results:", result);
                   result["datastreams"].forEach(function(datastream) {
                     
                     var variableName = datastream["observed_property_name"];
@@ -447,6 +461,17 @@ activate_layer_values = function () {
                   });
 
                   let variable_select = $("#variables_graph");
+                    // Access the element by its ID
+                    var carousel = document.getElementById('carouselExampleIndicators');
+
+                    // Check if the element exists to avoid errors
+                    if (carousel) {
+                      // Set overflow properties to "auto" or another value as needed
+                      carousel.style.overflowY = "";
+                      carousel.style.overflowX = "";
+                  }
+
+
                   variable_select.empty();
                   let option_beginning= `<option value= 0 selected= "selected" > Select Variable </option>`;
                   variable_select.append(option_beginning);
@@ -456,7 +481,7 @@ activate_layer_values = function () {
                     //may need to add unit_id here for API calls upon graph button being pressed
                     
                     let option;
-                    option = `<option datastream_id=${datastreamId}>${variableName}</option>`;
+                    option = `<option datastream_id=${datastreamId}>${variableName} variable-code=${datastream["observed_property_code"]}</option>`;
                     variable_select.append(option);
                   });
                   
@@ -464,14 +489,31 @@ activate_layer_values = function () {
                   table_begin += "</table>";
                   $("#table_div").html(table_begin);
                   
-                  $("#variables_graph").unbind('change');
+                  $("#variables_graph").unbind('change',function(e){
+                    var carousel = document.getElementById('carouselExampleIndicators');
+
+                    // Check if the element exists to avoid errors
+                    if (carousel) {
+                      // Set overflow properties to "auto" or another value as needed
+                      carousel.style.overflowY = "scroll";
+                      carousel.style.overflowX = "scroll";
+                    }
+                  });
                   $("#variables_graph").bind('change', function(e) {
                     variable_select.select2();
                     var selectedDatastreamId = $("#variables_graph");
                     var object_request = {"url": feature_single["hs_url"],
                                           "datastream_id": $("#variables_graph option:selected").attr("datastream_id")};
                     
+                    // var carousel = document.getElementById('carouselExampleIndicators');
 
+                    // // Check if the element exists to avoid errors
+                    // if (carousel) {
+                    //   // Set overflow properties to "auto" or another value as needed
+                    //   carousel.style.overflowY = "visible";
+                    //   carousel.style.overflowX = "visible";
+                    // }
+                    
                     $.ajax({
                       type:"POST",
                       url: `get-datastream-values/`,

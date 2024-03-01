@@ -17,6 +17,9 @@ Persistent_Store_Name = 'catalog_db'
 
 @controller(name='get-datastream-values', url='get-datastream-values')
 def get_datastream_values_hydroserver_2(request):
+    # import pdb
+    # pdb.set_trace()
+
     url = request.POST.get("url")
     datastream_id = request.POST.get("datastream_id")
     
@@ -161,7 +164,8 @@ def get_values_hs(request):
                 datastreams = datastreams_response.json()
                 metadata = metadata_response.json()
 
-                #print("Datastreams:", datastreams, "\n\n\n")
+                #print("Datastreams:", datastreams, "\n\n\n")\
+                print("Ok let's go")
                 print(metadata["observedProperties"])
                 for datastream_dict in datastreams:
                     
@@ -172,6 +176,7 @@ def get_values_hs(request):
                     for metadata_dict in metadata["observedProperties"]:
                         if metadata_dict["id"] == observed_property_id:
                             observed_property_name = metadata_dict["name"]
+                            observed_property_code = metadata_dict["code"]
                             break
 
                     for unit_dict in metadata["units"]:
@@ -183,6 +188,7 @@ def get_values_hs(request):
                     return_obj["datastreams"].append({"datastream_id": datastream_id, 
                                                       "observed_property_id": observed_property_id, 
                                                       "observed_property_name": observed_property_name,
+                                                      "observed_property_code":observed_property_code,
                                                       "unit_id": unit_id,
                                                       "unit_name": unit_name,
                                                       "unit_abbreviation": unit_abbreviation})

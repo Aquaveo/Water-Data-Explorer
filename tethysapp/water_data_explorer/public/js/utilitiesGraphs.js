@@ -856,7 +856,10 @@ function select_variable_change_2() {
   arrayTime.push(end_date_string);
 
   var x_values = [];
-  var y_values = [];
+  var y_values = []; 
+
+  console.log("Datastreawm values:");
+  console.log(datastream_values);
 
   //Filter values by dates selected by user
   datastream_values.forEach(function(set) {
@@ -906,6 +909,7 @@ function select_variable_change_2() {
           var url = URL.createObjectURL(blob);
           link.setAttribute("href", url);
           //
+          
           link.setAttribute("download", `${units_y}_${object_request_graphs['variable']}` + ".csv");
           link.style.visibility = 'hidden';
           document.body.appendChild(link);
