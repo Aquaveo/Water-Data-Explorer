@@ -30,6 +30,9 @@ select_variable_change = function(){
     let selectedItem = $('#variables_graph').val();
     let selectedItemText = $('#variables_graph option:selected').text();
 
+    current_variable_code = $("#variables_graph option:selected").attr("variable-code");
+
+
     arrayTime.push(start_date_string);
     arrayTime.push(end_date_string);
 
@@ -166,7 +169,7 @@ select_variable_change = function(){
                           var link = document.createElement("a");
                           var url = URL.createObjectURL(blob);
                           link.setAttribute("href", url);
-                          link.setAttribute("download", `${object_request_variable['code_variable']}_${object_request_graphs['variable']}` + ".csv");
+                          link.setAttribute("download", `${current_station_name}_${current_variable_code}` + ".csv");
                           link.style.visibility = 'hidden';
                           document.body.appendChild(link);
                           link.click();
@@ -220,7 +223,7 @@ select_variable_change = function(){
                           fetch(url_download).then(res => res.blob()) // Gets the response and returns it as a blob
                             .then(blob => {
                               var pom = document.createElement('a');
-                              var filename = `${object_request_variable['code_variable']}_${object_request_graphs['variable']}.xml`;
+                              var filename = `${current_station_name}_${current_variable_code}.xml`;
                               var pom = document.createElement('a');
                               // var bb = new Blob([xmltext], {type: 'application/octet-stream'});
                               // pom.setAttribute('href', window.URL.createObjectURL(bb));
@@ -279,7 +282,7 @@ select_variable_change = function(){
                                success: function(result1){
                                  var xmltext = result1['waterml'];
                                  var pom = document.createElement('a');
-                                 var filename = `${object_request_variable['code_variable']}_${object_request_graphs['variable']}.xml`;
+                                 var filename = `${current_station_name}_${current_variable_code}.xml`;
                                  var pom = document.createElement('a');
                                  var bb = new Blob([xmltext], {type: 'application/octet-stream'});
                                  pom.setAttribute('href', window.URL.createObjectURL(bb));
@@ -384,7 +387,7 @@ select_variable_change = function(){
                           fetch(url_download).then(res => res.blob()) // Gets the response and returns it as a blob
                             .then(blob => {
                               var pom = document.createElement('a');
-                              var filename = `${object_request_variable['code_variable']}_${object_request_graphs['variable']}.xml`;
+                              var filename = `${current_station_name}_${current_variable_code}.xml`;
                               var pom = document.createElement('a');
                               pom.setAttribute('href', window.URL.createObjectURL(blob));
                               pom.setAttribute('download', filename);
@@ -534,7 +537,7 @@ select_variable_change = function(){
                           fetch(url_download).then(res => res.blob()) // Gets the response and returns it as a blob
                             .then(blob => {
                               var pom = document.createElement('a');
-                              var filename = `${object_request_variable['code_variable']}_${object_request_graphs['variable']}.nc`;
+                              var filename = `${current_station_name}_${current_variable_code}.nc`;
                               var pom = document.createElement('a');
                               pom.setAttribute('href', window.URL.createObjectURL(blob));
                               pom.setAttribute('download', filename);
@@ -847,6 +850,7 @@ function select_variable_change_2() {
   let end_date_string = end_date_object.toISOString().split("T")[0];
 
   let chart_type = $("#type_graph_select2").val();
+  current_variable_code = $("#variables_graph option:selected").attr("variable-code");
   
   let datastream_values = JSON.parse($("#hydroserver-2-values-input").val())["observed_values"];
   console.log(datastream_values);
@@ -910,7 +914,7 @@ function select_variable_change_2() {
           link.setAttribute("href", url);
           //
           
-          link.setAttribute("download", `${units_y}_${object_request_graphs['variable']}` + ".csv");
+          link.setAttribute("download", `${current_station_name}_${current_variable_code}` + ".csv");
           link.style.visibility = 'hidden';
           document.body.appendChild(link);
           link.click();

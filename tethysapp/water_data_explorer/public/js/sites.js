@@ -102,6 +102,7 @@ activate_layer_values = function () {
         
         console.log("Feature Single: ");
         console.log(feature_single);
+        current_station_name = feature_single['name'];
         object_request['hs_url']=feature_single['hs_url'];
         object_request['code']=feature_single['code'];
         object_request['network']=feature_single['network'];
@@ -273,11 +274,11 @@ activate_layer_values = function () {
                       array_variables.push(variable);
                       if(i === 1){
   
-                        option_begin = `<option value=${i}>${variable} </option>`;
+                        option_begin = `<option value=${i} variable-code="${code_variable[i-1]}">${variable} </option>`;
                         variable_select.append(option_begin)
                       }
                       else{
-                        option = `<option value=${i} >${variable} </option>`;
+                        option = `<option value=${i} variable-code="${code_variable[i-1]}">${variable} </option>`;
   
                       }
                       variable_select.append(option)
@@ -481,7 +482,7 @@ activate_layer_values = function () {
                     //may need to add unit_id here for API calls upon graph button being pressed
                     
                     let option;
-                    option = `<option datastream_id=${datastreamId}>${variableName} variable-code=${datastream["observed_property_code"]}</option>`;
+                    option = `<option datastream_id="${datastreamId}" variable-code="${datastream["observed_property_code"]}">${variableName}</option>`;
                     variable_select.append(option);
                   });
                   
