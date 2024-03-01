@@ -43,7 +43,6 @@ def get_download_hs(request):
 
     return JsonResponse(nb)
 
-
 @controller(name='get-variables-hs', url='get-variables-hs/')
 def get_variables_hs(request):
     # import pdb
@@ -95,7 +94,7 @@ def get_variables_hs(request):
             list_catalog["variables_unit_abr"] = keywords_abbr_unit
             list_catalog["variables_timesupport"] = key_timeSupport
             list_catalog["variables_time_abr"] = timeUnitName
-            return JsonResponse(list_catalog)
+            return JsonResponse({"server_type":"hydroserver1","variables":list_catalog})
             
     
     # import pdb
@@ -103,21 +102,61 @@ def get_variables_hs(request):
     for hydroserver in hydroservers_2:
         name = hydroserver.title
         if hs_actual == name:
-            print(dir(hydroserver))
+            url = hydroserver.url
+            datastream_url = url + "/api/data/datastreams"
+            datastream_with_units_url = url + "/api/sensorthings/v1.1/Datastreams?%24skip=0"
+            properties_url = url + "/api/sensorthings/v1.1/ObservedProperties?%24count=false&%24skip=0"
 
+            return_obj = {}
 
+            #list_catalog[]
+            headers = {"Content-Type": "application/json"}
+            datastreams_response = requests.get(datastream_url, headers=headers)
+            datastream_with_units_response = requests.get(datastream_with_units_url, headers=headers)
+            properties_response = requests.get(properties_url, headers=headers)
+            if datastreams_response.status_code == 200 and datastream_with_units_response.status_code == 200:
+                for datastream in datastreams_response.json():
+                    datastream_id = datastream["id"]
+                    property_id = datastream["observedPropertyId"]
+                    
+                    for entry in datastream_with_units_response.json()["value"]:
+                        if datastream_id == entry["@iot.id"]:
+                            unit_name = entry["unitOfMeasurement"]["name"]
+                            abbreviation = entry["unitOfMeasurement"]["symbol"]
+                            break
+                    
+                    for entry in properties_response.json()["value"]:
+                        if property_id == entry["@iot.id"]:
+                            property_name = entry["name"]
+                            property_variable_code = entry["properties"]["variableCode"]
+                            break
+
+                    if property_name not in return_obj:
+                        return_obj[property_name] = {"unit_name": unit_name, "abbreviation": abbreviation, "variable_code": property_variable_code}
+                    else:
+                        if unit_name not in return_obj[property_name]:
+                            return_obj[property_name]["unit_name"] = unit_name
+                            return_obj[property_name]["abbreviation"] = abbreviation
+                            return_obj[property_name]["variable_code"] = property_variable_code
+
+                sorted_object = dict(sorted(return_obj.items(), key=lambda x: x[0]))
+
+                
+
+                return JsonResponse({"server_type": "hydroserver2", "variables": sorted_object})
+
+            
+
+            
+
+    # print("Finished get_variables_hs Function")
 
     
 
 
-
-    # print("Finished get_variables_hs Function")
-
-    return JsonResponse(list_catalog)
-
-
 @controller(name='get-available-sites', url='get-available-sites/')
 def get_available_sites(request):
+
     if request.method == 'POST':
         specific_group = request.POST.get('group')
         specific_hydroserver = request.POST.get('hs')

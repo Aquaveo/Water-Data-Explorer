@@ -1622,6 +1622,7 @@ showVariables = function(){
 
 showVariables2 = function(){
  try{
+  console.log(this.parentElement);
    let groupActual = this.parentElement.parentNode.id.split("_")[0];
    groupActual = id_dictionary[groupActual];
    let hsActual = this.id.split("_")[0];
@@ -1638,55 +1639,77 @@ showVariables2 = function(){
        dataType: "JSON",
        data: filterSites,
        success: result => {
+        console.log("Prelim results: ", result);
          try{
-           //1) combine the arrays:
-          var list_e = [];
-          for (var j = 0; j <result['variables_name'].length; j++)
-              list_e.push({'variables_name': result['variables_name'][j], 'variables_unit_abr': result['variables_unit_abr'][j], 'variables_code':result['variables_code'][j]});
+          var HSTableHtml =
+                  `<table id="${filterSites['hs']}-variable-table" class="table table-striped table-bordered nowrap" width="100%">
+                      <thead><th>Observed Variable</th><th>Unit</th><th> WHOS Variable Code</th></thead>
+                  <tbody>`;
+          if (result["server_type"] == "hydroserver1") {
+            //1) combine the arrays:
+            var list_e = [];
+            for (var j = 0; j <result['variables_name'].length; j++)
+                list_e.push({'variables_name': result['variables_name'][j], 'variables_unit_abr': result['variables_unit_abr'][j], 'variables_code':result['variables_code'][j]});
 
-          //2) sort:
-          list_e.sort(function(a, b) {
-              return ((a.variables_name < b.variables_name) ? -1 : ((a.variables_name == b.variables_name) ? 0 : 1));
+            //2) sort:
+            list_e.sort(function(a, b) {
+                return ((a.variables_name < b.variables_name) ? -1 : ((a.variables_name == b.variables_name) ? 0 : 1));
 
-          });
+            });
 
-          //3) separate them back out:
-          for (var k = 0; k < list_e.length; k++) {
-              result['variables_name'][k] = list_e[k].variables_name;
-              result['variables_unit_abr'][k] = list_e[k].variables_unit_abr;
-              result['variables_code'][k] = list_e[k].variables_code;
+            //3) separate them back out:
+            for (var k = 0; k < list_e.length; k++) {
+                result['variables_name'][k] = list_e[k].variables_name;
+                result['variables_unit_abr'][k] = list_e[k].variables_unit_abr;
+                result['variables_code'][k] = list_e[k].variables_code;
+            }
+
+              // console.log(result);
+              
+              if (result['variables_name'].length === 0) {
+                  $modalVariables
+                      .find(".modal-body")
+                      .html(
+                          "<b>There are no variables in the Hydroserver.</b>"
+                      )
+              }
+              else {
+                  for (var i = 0; i < result['variables_name'].length; i++) {
+                      HSTableHtml +=
+                      '<tr class="odd gradeX2">'+
+                          `<td>${result['variables_name'][i]}</td>
+                          <td>${result['variables_unit_abr'][i]}</td>
+                          <td>${result['variables_code'][i]}</td>
+
+                          `
+                          +
+                      '</tr>'
+                  }
+                  HSTableHtml += "</tbody></table>"
+                  $modalVariables.find("#hideScroll2").html(HSTableHtml)
+              }
+          } else {
+            console.log(result);
+            for (var variable in result.variables) {
+              HSTableHtml += 
+              `<tr class="odd gradeX2">
+                  <td>${variable}</td>
+                  <td>${result.variables[variable].unit_name} (${result.variables[variable].abbreviation})</td>
+                  <td>${result.variables[variable].variable_code}</td>
+                </tr>
+              ` ;
+            }
+
+            HSTableHtml += "</tbody></table>";
+            $modalVariables.find("#hideScroll2").html(HSTableHtml)
+
+            
+
           }
-
-             // console.log(result);
-             var HSTableHtml =
-                 `<table id="${filterSites['hs']}-variable-table" class="table table-striped table-bordered nowrap" width="100%">
-                    <thead><th>Observed Variable</th><th>Unit</th><th> WHOS Variable Code</th></thead>
-                 <tbody>`
-             if (result['variables_name'].length === 0) {
-                 $modalVariables
-                     .find(".modal-body")
-                     .html(
-                         "<b>There are no variables in the Hydroserver.</b>"
-                     )
-             }
-             else {
-                 for (var i = 0; i < result['variables_name'].length; i++) {
-                     HSTableHtml +=
-                    '<tr class="odd gradeX2">'+
-                         `<td>${result['variables_name'][i]}</td>
-                         <td>${result['variables_unit_abr'][i]}</td>
-                         <td>${result['variables_code'][i]}</td>
-
-                         `
-                         +
-                    '</tr>'
-                 }
-                 HSTableHtml += "</tbody></table>"
-                 $modalVariables.find("#hideScroll2").html(HSTableHtml)
-             }
              $("#variablesLoading2").addClass("hidden");
          }
          catch(e){
+          console.log("Error: ", e);
            $("#variablesLoading2").addClass("hidden");
            new Notify ({
             status: 'error',
