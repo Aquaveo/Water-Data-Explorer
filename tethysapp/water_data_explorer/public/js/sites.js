@@ -454,6 +454,7 @@ activate_layer_values = function () {
                                     <th>${variableName}</th>
                                     <th>${unitName}</th>
                                   </tr>`;
+
                     table_begin += newRow;
 
                     $("variables_graph").empty();
@@ -462,15 +463,15 @@ activate_layer_values = function () {
                   });
 
                   let variable_select = $("#variables_graph");
-                    // Access the element by its ID
-                    var carousel = document.getElementById('carouselExampleIndicators');
+                    // // Access the element by its ID
+                    // var carousel = document.getElementById('carouselExampleIndicators');
 
-                    // Check if the element exists to avoid errors
-                    if (carousel) {
-                      // Set overflow properties to "auto" or another value as needed
-                      carousel.style.overflowY = "";
-                      carousel.style.overflowX = "";
-                  }
+                    // // Check if the element exists to avoid errors
+                    // if (carousel) {
+                    //   // Set overflow properties to "auto" or another value as needed
+                    //   carousel.style.overflowY = "";
+                    //   carousel.style.overflowX = "";
+                  // }
 
 
                   variable_select.empty();
@@ -538,6 +539,7 @@ activate_layer_values = function () {
                         $("#datetimepicker7").datepicker("setEndDate", endDate);
                         $("#hydroserver-2-values-input").val("");
                         console.log(JSON.stringify(result));
+                        console.log("Max: ", result["maximum_time"]);
                         $("#hydroserver-2-values-input").val(JSON.stringify(result));
                       }
                     })

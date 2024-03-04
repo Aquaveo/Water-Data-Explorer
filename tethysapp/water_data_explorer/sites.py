@@ -17,9 +17,6 @@ Persistent_Store_Name = 'catalog_db'
 
 @controller(name='get-datastream-values', url='get-datastream-values')
 def get_datastream_values_hydroserver_2(request):
-    # import pdb
-    # pdb.set_trace()
-
     url = request.POST.get("url")
     datastream_id = request.POST.get("datastream_id")
     
@@ -29,17 +26,21 @@ def get_datastream_values_hydroserver_2(request):
         #original url - stop at 1000 values
         #url_observed_values = f"{data['url']}/api/sensorthings/v1.1/Datastreams('{data['datastream_id']}')/Observations?$resultFormat=dataArray&$top=1000"
         url_observed_values = f"{url}/api/sensorthings/v1.1/Datastreams('{datastream_id}')/Observations?$resultFormat=dataArray&$top=5000"
-
-        #breakpoint()
+        url_datastream_info = f"{url}/api/sensorthings/v1.1/Datastreams('{datastream_id}')"
+  
         # start_datetime = datetime.fromisoformat(data["start_time"])
         # end_datetime = datetime.fromisoformat(data["end_time"])
+        info_response = requests.get(url_datastream_info, headers=headers)
+        values_response = requests.get(url_observed_values,headers=headers)
 
-        response = requests.get(url_observed_values,headers=headers)
-        if response.status_code == 200:
-            observed_values['observed_values'] = response.json().get('value',[])[0].get('dataArray',[])
+        if info_response.status_code == 200:
+            observed_values["unit_abbreviation"] = info_response.json().get("unitOfMeasurement").get("symbol")
+
+        if values_response.status_code == 200:
+
+            observed_values['observed_values'] = values_response.json().get('value')[0].get('dataArray',[])
             
             timestamps = [observed_value[0] for observed_value in observed_values["observed_values"]]
-            print(timestamps)
             dates = [datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ").strftime('%m-%d-%Y') for timestamp in timestamps]
             
             minimum_timestamp = min(dates)

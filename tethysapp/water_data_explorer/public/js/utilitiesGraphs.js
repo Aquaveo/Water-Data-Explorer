@@ -157,7 +157,7 @@ select_variable_change = function(){
                         // IF TO AVOID 'CSV' VALUE IN THE DROPDOWN//
                         if(selectedDownloadType == "CSV" ){
                           var csvData = [];
-                          var header = [units_y,units_x] //main header.
+                          var header = ["Timestamp",units_x] //main header.
                           csvData.push(header);
                           for (var i = 0; i < x_array.length; i++){ //data
                             var line = [x_array[i],y_array[i]];
@@ -853,6 +853,7 @@ function select_variable_change_2() {
   current_variable_code = $("#variables_graph option:selected").attr("variable-code");
   
   let datastream_values = JSON.parse($("#hydroserver-2-values-input").val())["observed_values"];
+  var unit_abbreviation = JSON.parse($("#hydroserver-2-values-input").val())["unit_abbreviation"];
   console.log(datastream_values);
 
   let arrayTime = [];
@@ -900,10 +901,11 @@ function select_variable_change_2() {
         // IF TO AVOID 'CSV' VALUE IN THE DROPDOWN//
         if(selectedDownloadType == "CSV" ){
           var csvData = [];
-          var header = [units_x,units_y] //main header.
+          var header = ["Timestamp",`${units_y} (${datastream_values["unit_abbreviation"]})`] //main header.
           csvData.push(header);
           for (var i = 0; i < x_values.length; i++){ //data
             var line = [x_values[i],y_values[i]];
+            
             csvData.push(line);
           }
           // var csvFile = csvData.map(e=>e.map(a=>'"'+((a||"").toString().replace(/"/gi,'""'))+'"').join(",")).join("\r\n"); //quote all fields, escape quotes by doubling them.
