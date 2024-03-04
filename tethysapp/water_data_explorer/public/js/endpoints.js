@@ -467,7 +467,7 @@ load_individual_hydroservers_group = function(group_name){
 
                      $(`#${new_title}_variables`).on("click",showVariables2);
                      $(`#${new_title}_variables_info`).on("click",hydroserver_information);
-                     $(`#${new_title}_${group_name_e3}_reload`).on("click",update_hydroserver);
+                     $(`#${new_title}_${group_name_e3}_reload`).on("click",update_hydroserver_2);
 
 
                      let lis = document.getElementById(`${id_group_separator}`).getElementsByTagName("li");
@@ -823,7 +823,7 @@ add_hydroserver = function(){
                            $(newHtml).appendTo(`#${id_group_separator}`);
                            $(`#${new_title}_variables`).on("click",showVariables2);
                            $(`#${new_title}_variables_info`).on("click",hydroserver_information);
-                           $(`#${new_title}_${group_name_e3}_reload`).on("click",update_hydroserver);
+                           $(`#${new_title}_${group_name_e3}_reload`).on("click",update_hydroserver_2);
 
                           // MAKES THE LAYER INVISIBLE
 
@@ -2376,10 +2376,143 @@ searchSites = function() {
 document.getElementById('myInput').addEventListener("keyup", searchSites);
 
 
-update_hydroserver = function(){
-  try{
+update_hydroserver_2 = function() {
+  try {
+    // Display the loading animation GIF
+    $("#GeneralLoading").css({
+      position:'fixed',
+      "z-index": 9999,
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)'
+    });
+   $("#GeneralLoading").removeClass("hidden");
+
+
     let hsActual = this.id.split("_")[0];
-    let group_name = this.id.split("_")[1]
+    let group_name = this.id.split("_")[1];
+    
+    
+    var vectorLayer = layersDict[id_dictionary[hsActual]];
+    var source = vectorLayer.getSource()
+    var features = source.getFeatures();
+
+    let requestObject = {
+      hs: id_dictionary[hsActual],
+      group: id_dictionary[group_name]
+    }
+    
+    
+    $.ajax({
+      type: "POST",
+      url: `soap-update/`,
+      dataType: "JSON",
+      data: requestObject,
+      success: function(result) {
+        try {
+          layersDict[id_dictionary[hsActual]].getSource().clear();
+
+          var vectorLayer = map_layers(result["siteInfo"], 
+                                       id_dictionary[hsActual],
+                                       result["url"],
+                                       "hydroserver1")[0]; // This feature is only available for hydroserver1, 
+                                                       // this will always be hydroserver1 for now
+
+        var vectorSource = map_layers(result["siteInfo"],
+                                      id_dictionary[hsActual],
+                                      result["url"],
+                                      "hydroserver1")[1]; // This feature is only available for hydroserver1, 
+                                                      // this will always be hydroserver1 for now
+
+
+        // Add features to the map and make them visible by default
+        map.addLayer(vectorLayer);
+        vectorLayer.setStyle(featureStyle(layerColorDict[id_dictionary[hsActual]]));
+        vectorLayer.set("selectable", true);
+        layersDict[id_dictionary[hsActual]] = vectorLayer;
+
+        map.getView().fit(vectorSource.getExtent(),{padding:[100,100,100,100]});
+        map.updateSize();
+
+        // Check the show/hide view checkbox by default
+        $(`#${hsActual}`).find('.chkbx-layer').prop('checked', true);
+
+        // Hide the loading animation GIF  
+        $("#GeneralLoading").addClass("hidden");
+
+        new Notify ({
+          status: 'success',
+          title: 'Success',
+          text: `Successfully updated the Web Service , ${result["sitesAdded"]} have been added to the Map.`,
+          effect: 'fade',
+          speed: 300,
+          customClass: '',
+          customIcon: '',
+          showIcon: true,
+          showCloseButton: true,
+          autoclose: true,
+          autotimeout: 3000,
+          gap: 20,
+          distance: 20,
+          type: 1,
+          position: 'right top'
+        })
+
+        } catch(e){
+          // Hide the loading animation GIF
+          $("#GeneralLoading").addClass("hidden");
+          new Notify ({
+            status: 'error',
+            title: 'Error',
+            text:  `There was an error updating the Web Service 1`,
+            effect: 'fade',
+            speed: 300,
+            customClass: '',
+            customIcon: '',
+            showIcon: true,
+            showCloseButton: true,
+            autoclose: true,
+            autotimeout: 3000,
+            gap: 20,
+            distance: 20,
+            type: 1,
+            position: 'right top'
+          })
+
+        }
+      }
+    });
+
+    
+    
+  }
+  catch (e){
+    // Hide the loading animation GIF
+    $("#GeneralLoading").addClass("hidden");
+    new Notify ({
+      status: 'error',
+      title: 'Error',
+      text: `There was an error Updating the selected Web Service.`,
+      effect: 'fade',
+      speed: 300,
+      customClass: '',
+      customIcon: '',
+      showIcon: true,
+      showCloseButton: true,
+      autoclose: true,
+      autotimeout: 3000,
+      gap: 20,
+      distance: 20,
+      type: 1,
+      position: 'right top'
+    })
+  }
+}
+
+update_hydroserver = function(){
+  try {
+    let hsActual = this.id.split("_")[0];
+    let group_name = this.id.split("_")[1];
     let requestObject = {
       hs: id_dictionary[hsActual],
       group: id_dictionary[group_name]
@@ -2400,14 +2533,14 @@ update_hydroserver = function(){
         success: function(result) {
           try{
             let {siteInfo,sitesAdded,url} = result
-            if(layersDict.hasOwnProperty(hsActual)){
+            if(layersDict.hasOwnProperty(id_dictionary[hsActual])){
+              console.log("Layers Dict check: ", layersDict[id_dictionary[hsActual]]);
               map.removeLayer(layersDict[hsActual])
             }
 
             let sites = siteInfo
             const vectorLayer = map_layers(sites,hsActual,url)[0]
             const vectorSource = map_layers(sites,hsActual,url)[1]
-
 
             map.addLayer(vectorLayer)
             ol.extent.extend(extent, vectorSource.getExtent(),{padding:[100,100,100,100]})
