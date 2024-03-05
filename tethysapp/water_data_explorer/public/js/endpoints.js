@@ -755,8 +755,9 @@ add_hydroserver = function(){
               
               //Returning the geoserver layer metadata from the controller
               var json_response = JSON.parse(result)
-              console.log("Debugging: ");
+              console.log("Debugging add hydroserver: ");
               console.log(result);
+              console.log("Getting server_type: ", result.server_type);
               let group_name = actual_group.split('=')[1];
               // let id_group_separator = `${group_name}_list_separator`;
 
@@ -779,17 +780,16 @@ add_hydroserver = function(){
 
                     $(`#${group_name_e3}-noGroups`).hide();
 
-                      let {title, siteInfo, url, group} = json_response
-
-
+                      let {title, siteInfo, url, group, server_type} = json_response
                         let sites = siteInfo
+                        let server_type_test = server_type;
 
                         if (typeof(sites) == "string"){
                           sites = JSON.parse(siteInfo);
                         }
                         
-                        var vectorLayer = map_layers(sites,title,url)[0]
-                        var vectorSource = map_layers(sites,title,url)[1]
+                        var vectorLayer = map_layers(sites,title,url,server_type)[0]
+                        var vectorSource = map_layers(sites,title,url,server_type)[1]
 
                         let test_style = new ol.style.Style({
                           image: new ol.style.Circle({
@@ -1866,6 +1866,7 @@ showAvailableSites = function(){
             let sites = result['hydroserver'];
             let title = filterSites['hs'];
             let url = layersDict[title].getSource().getFeatures()[0].getProperties().features[0].getProperties().hs_url
+            // THESE CALLS TO MAP_LAYERS WILL NEED THE SERVER TYPE TO BE PASSED IN TO THEM IF THIS FEATURE IS EVER IMPLEMENTED
             const vectorLayer =  map_layers(sites,title,url)[0]
             const vectorSource =  map_layers(sites,title,url)[1]
             map.getLayers().forEach(function(layer) {
@@ -2533,6 +2534,8 @@ update_hydroserver = function(){
         data: requestObject,
         success: function(result) {
           try{
+            console.log("Testing Update: ");
+            console.log(result);
             let {siteInfo,sitesAdded,url} = result
             if(layersDict.hasOwnProperty(id_dictionary[hsActual])){
               console.log("Layers Dict check: ", layersDict[id_dictionary[hsActual]]);

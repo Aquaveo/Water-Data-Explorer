@@ -2458,6 +2458,7 @@ catalog_filter = function(){
               let title = sitesObj[i]['title']
               let url = sitesObj[i]['url']
               let sites = sitesObj[i]['sites'];
+              // SERVER TYPE NEEDS TO BE PASSED INTO map_layers FOR THIS TO WORK PROPERLY IF THIS FEATURE IS EVER IMPLEMENTED
               var vectorLayer = map_layers(sites,title,url)[0]
               var vectorSource = map_layers(sites,title,url)[1]
               map.getLayers().forEach(function(layer) {

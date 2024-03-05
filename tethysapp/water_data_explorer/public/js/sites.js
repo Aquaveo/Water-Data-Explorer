@@ -106,7 +106,7 @@ activate_layer_values = function () {
         object_request['hs_url']=feature_single['hs_url'];
         object_request['code']=feature_single['code'];
         object_request['network']=feature_single['network'];
-        object_request["server_type"] = feature_single["server_type"]
+        object_request["server_type"] = feature_single["server_type"];
 
         $("#GeneralLoading").removeClass("hidden");
         $('#sG').bootstrapToggle('on');
@@ -117,6 +117,9 @@ activate_layer_values = function () {
           data: object_request,
           success: function(result){
             try{
+              // Clear out the metadata table in modal
+              $("#table_div").empty();
+              $("#variables_graph").empty();
               console.log("Testing result:", result);
               // MAKE THE METADATA OF THE SITE TO LOAD IN THE FIRST SLIDE //
               let description_site = document.getElementById('siteDes');
@@ -167,7 +170,6 @@ activate_layer_values = function () {
                       <p> <span> Geospatial Location:</span> lat: ${new_lat} lon: ${new_lon} <p>`
   
                   // MAKE THE TABLE METADATA OF THE SITE TO LOAD IN THE FIRST SLIDE //
-  
                   let table_begin =
                     `<br>
                     <p><i>Table of Variables</i></p>
@@ -301,6 +303,7 @@ activate_layer_values = function () {
                     //   carousel.style.overflowY = "";
                     //   carousel.style.overflowX = "";
                     // }
+                    
                       variable_select.select2();
                       var selectedItem = $('#variables_graph').val() -1;
                       var selectedItemText = $('#variables_graph option:selected').text();
@@ -368,7 +371,8 @@ activate_layer_values = function () {
                 else{
                   description_site.innerHTML =
                     ` <p> <em> Station/Platform Name:</em> ${feature_single['name']}<p>`
-  
+                  
+
                   $("#GeneralLoading").addClass("hidden");
                   new Notify ({
                     status: 'warning',
@@ -473,7 +477,6 @@ activate_layer_values = function () {
                     //   carousel.style.overflowX = "";
                   // }
 
-
                   variable_select.empty();
                   let option_beginning= `<option value= 0 selected= "selected" > Select Variable </option>`;
                   variable_select.append(option_beginning);
@@ -492,14 +495,14 @@ activate_layer_values = function () {
                   $("#table_div").html(table_begin);
                   
                   $("#variables_graph").unbind('change',function(e){
-                    var carousel = document.getElementById('carouselExampleIndicators');
+                    // var carousel = document.getElementById('carouselExampleIndicators');
 
-                    // Check if the element exists to avoid errors
-                    if (carousel) {
-                      // Set overflow properties to "auto" or another value as needed
-                      carousel.style.overflowY = "scroll";
-                      carousel.style.overflowX = "scroll";
-                    }
+                    // // Check if the element exists to avoid errors
+                    // if (carousel) {
+                    //   // Set overflow properties to "auto" or another value as needed
+                    //   carousel.style.overflowY = "scroll";
+                    //   carousel.style.overflowX = "scroll";
+                    // }
                   });
                   $("#variables_graph").bind('change', function(e) {
                     variable_select.select2();
@@ -522,6 +525,29 @@ activate_layer_values = function () {
                       dataType: "JSON",
                       data: object_request,
                       success: function(result) {
+                        console.log("Testing result");
+                        console.log(result);
+                        if (result["observed_values"].length == 0) {
+                          new Notify ({
+                            status: 'warning',
+                            title: 'Warning',
+                            text: `${$("variables_graph option: selected").text()} does not have any time series data`,
+                            effect: 'fade',
+                            speed: 300,
+                            customClass: '',
+                            customIcon: '',
+                            showIcon: true,
+                            showCloseButton: true,
+                            autoclose: true,
+                            autotimeout: 3000,
+                            gap: 20,
+                            distance: 20,
+                            type: 1,
+                            position: 'right top'
+                          })
+                        } else {
+
+                        
                         //console.log(result);
                         // THIS IS NECESARRY TO RESET THE DATES OTHERWISE IT IS GOING TO HAVE EMPTY SPACES..
                         $('#datetimepicker6').datepicker('setStartDate', null);
@@ -542,11 +568,13 @@ activate_layer_values = function () {
                         console.log("Max: ", result["maximum_time"]);
                         $("#hydroserver-2-values-input").val(JSON.stringify(result));
                       }
+                    }
                     })
                   })
-
+                
                 } else {
                   // No variables found
+                  $("#table_div").html(`<p> This site does not have any variables </p>`);
                   new Notify ({
                     status: 'warning',
                     title: 'Warning',

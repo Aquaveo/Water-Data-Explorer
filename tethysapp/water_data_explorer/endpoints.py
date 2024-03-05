@@ -753,6 +753,13 @@ def soap_group(request, app_workspace):
             return_obj['siteInfo'] = sites
             return_obj['group'] = group
             return_obj['status'] = "true"
+
+            if hydroserver_type == 1:
+                server_type = "hydroserver1"
+            else:
+                server_type = "hydroserver2"
+                
+            return_obj['server_type'] = server_type
             # print(return_obj)
             SessionMaker = app.get_persistent_store_database(
                 Persistent_Store_Name, as_sessionmaker=True)
