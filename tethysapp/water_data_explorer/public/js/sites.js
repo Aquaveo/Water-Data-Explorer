@@ -317,6 +317,9 @@ activate_layer_values = function () {
                       object_request2['variable']=selectedItem;
                       object_request2['code_variable']= code_variable[`${selectedItem}`];
                       object_request2['times_series'] = result['times_series'];
+                      console.log("Checking results for values: ");
+                      console.log("Features: ", feature_single);
+                      console.log("Result: ", result);
                       time_series_cache = result['times_series'];
                       object_request2['variables_array']=result['variables'];
                       object_request_graphs = JSON.parse(JSON.stringify(object_request2));
@@ -531,7 +534,7 @@ activate_layer_values = function () {
                           new Notify ({
                             status: 'warning',
                             title: 'Warning',
-                            text: `${$("variables_graph option: selected").text()} does not have any time series data`,
+                            text: `No time series data was found for ${$("#variables_graph option: selected")}`,
                             effect: 'fade',
                             speed: 300,
                             customClass: '',

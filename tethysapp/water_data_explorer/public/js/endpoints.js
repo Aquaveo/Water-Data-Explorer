@@ -2418,14 +2418,13 @@ update_hydroserver_2 = function() {
                                        id_dictionary[hsActual],
                                        result["url"],
                                        "hydroserver1")[0]; // This feature is only available for hydroserver1, 
-                                                       // this will always be hydroserver1 for now
+                                                           // this will always be hydroserver1 for now
 
         var vectorSource = map_layers(result["siteInfo"],
                                       id_dictionary[hsActual],
                                       result["url"],
                                       "hydroserver1")[1]; // This feature is only available for hydroserver1, 
-                                                      // this will always be hydroserver1 for now
-
+                                                          // this will always be hydroserver1 for now
 
         // Add features to the map and make them visible by default
         map.addLayer(vectorLayer);

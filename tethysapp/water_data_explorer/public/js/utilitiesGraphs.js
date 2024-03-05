@@ -57,6 +57,27 @@ select_variable_change = function(){
           data: object_request_variable,
           success: function(result1) {
             try{
+              console.log("Testing graph data result: ", result1);
+              if (result1.graphs.length == 0) {
+                $("#GeneralLoading").addClass("hidden");
+                new Notify ({
+                  status: 'error',
+                  title: 'Error',
+                  text: `No time series data was found for  ${$("#variables_graph option: selected")}`,
+                  effect: 'fade',
+                  speed: 300,
+                  customClass: '',
+                  customIcon: '',
+                  showIcon: true,
+                  showCloseButton: true,
+                  autoclose: true,
+                  autotimeout: 3000,
+                  gap: 20,
+                  distance: 20,
+                  type: 1,
+                  position: 'right top'
+                })
+              }
               // CHECK TO NOT SELECT THE FIRST DROPDOWN OPTION "SELECT VARIABLE"//
               if(result1.graphs.length > 0){
 
