@@ -1647,39 +1647,38 @@ showVariables2 = function(){
                   <tbody>`;
           if (result["server_type"] == "hydroserver1") {
             //1) combine the arrays:
-            var list_e = [];
-            for (var j = 0; j <result['variables_name'].length; j++)
-                list_e.push({'variables_name': result['variables_name'][j], 'variables_unit_abr': result['variables_unit_abr'][j], 'variables_code':result['variables_code'][j]});
-
+            var variable_array = [];
+            for (var j = 0; j <result["variables"]["variables_name"].length; j++) {
+              var variable_name = result["variables"]["variables_name"][j];
+              var unit_abr = result["variables"]["variables_unit_abr"][j];
+              var variable_code = result["variables"]["variables_code"][j];
+              variable_array.push({'variables_name': variable_name, 
+                           'variables_unit_abr':unit_abr, 
+                           'variables_code':variable_code});
+                
+                console.log("PUshing");
+              }
             //2) sort:
-            list_e.sort(function(a, b) {
+            variable_array.sort(function(a, b) {
                 return ((a.variables_name < b.variables_name) ? -1 : ((a.variables_name == b.variables_name) ? 0 : 1));
 
             });
-
-            //3) separate them back out:
-            for (var k = 0; k < list_e.length; k++) {
-                result['variables_name'][k] = list_e[k].variables_name;
-                result['variables_unit_abr'][k] = list_e[k].variables_unit_abr;
-                result['variables_code'][k] = list_e[k].variables_code;
-            }
-
-              // console.log(result);
-              
-              if (result['variables_name'].length === 0) {
+          
+              if (variable_array.length === 0) {
                   $modalVariables
                       .find(".modal-body")
                       .html(
                           "<b>There are no variables in the Hydroserver.</b>"
                       )
               }
+              // Display out the variables information
               else {
-                  for (var i = 0; i < result['variables_name'].length; i++) {
+                  for (var i = 0; i < variable_array.length; i++) {
                       HSTableHtml +=
                       '<tr class="odd gradeX2">'+
-                          `<td>${result['variables_name'][i]}</td>
-                          <td>${result['variables_unit_abr'][i]}</td>
-                          <td>${result['variables_code'][i]}</td>
+                          `<td>${variable_array[i]['variables_name']}</td>
+                          <td>${variable_array[i]['variables_unit_abr']}</td>
+                          <td>${variable_array[i]['variables_code']}</td>
 
                           `
                           +
@@ -1688,7 +1687,7 @@ showVariables2 = function(){
                   HSTableHtml += "</tbody></table>"
                   $modalVariables.find("#hideScroll2").html(HSTableHtml)
               }
-          } else {
+          } else { // Hydroserver2
             console.log(result);
             for (var variable in result.variables) {
               HSTableHtml += 
