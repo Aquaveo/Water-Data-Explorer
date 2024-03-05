@@ -434,18 +434,28 @@ def delete_group(request):
             arrayTitles = []
 
             for group in groups:
-                hydroservers_group = session.query(Groups).filter(Groups.title == group)[0].hydroserver
-                for server in hydroservers_group:
+                hydroservers_1_group = session.query(Groups).filter(Groups.title == group)[0].hydroserver1
+                hydroservers_2_group = session.query(Groups).filter(Groups.title == group)[0].hydroserver2
+                for server in hydroservers_1_group:
                     title = server.title
                     arrayTitles.append(title)
                     i_string = str(i)
                     list_catalog[i_string] = title
 
                     i = i + 1
+
+                for server in hydroservers_2_group:
+                    title = server.title
+                    arrayTitles.append(title)
+                    i_string = str(i)
+                    list_catalog[i_string] = title
+
+                    i = i + 1
+                    
                 hydroservers_group = session.query(Groups).filter(Groups.title == group).first()
                 session.delete(hydroservers_group)
                 session.commit()
-                session.close()
+            session.close()
             list_response['hydroservers'] = arrayTitles
 
     return JsonResponse(list_response)

@@ -772,7 +772,9 @@ tr:hover {
 }
 
 
-
+#no-groups-label {
+  margin-left:7%;
+}
 
 #app-content-wrapper .hide-nav {
   /* display:none; */

@@ -671,6 +671,7 @@ load_individual_hydroservers_group = function(group_name){
 
 add_hydroserver = function(){
   console.log("Running add hydroserver");
+
   try{
     if($("#extent").is(":checked")){
       var zoom= map.getView().getZoom();
@@ -903,6 +904,7 @@ add_hydroserver = function(){
                             type: 1,
                             position: 'right top'
                           })
+                          $("#no-groups-label").hide();
                           // $.notify(
                           //     {
                           //         message: `Successfully Added the WaterOneFlow Service to the Map`

@@ -1312,6 +1312,7 @@ create_group_hydroservers = function(){
                     $("#modalAddGroupServer").modal("hide");
                     $("#rows_servs").empty();
                     $("#available_services").hide();
+                    $("#no-groups-label").addClass("hidden");
               }
 
               else {
@@ -1496,57 +1497,62 @@ load_group_hydroservers = function(){
             $(".divForServers").empty() //Resetting the catalog
             let extent = ol.extent.createEmpty()
             ind = 1;
-            groups.forEach(group => {
-                let {
-                    title,
-                    description
-                } = group
-                let unique_id_group = uuidv4()
-                id_dictionary[unique_id_group] = title;
+            if (groups.length > 0) {
+              groups.forEach(group => {
+                  let {
+                      title,
+                      description
+                  } = group
+                  let unique_id_group = uuidv4()
+                  id_dictionary[unique_id_group] = title;
 
-                information_model[`${title}`] = []
+                  information_model[`${title}`] = []
 
-                let new_title = unique_id_group;
-                let id_group_separator = `${new_title}_list_separator`;
-
-
-                $(`#${new_title}-noGroups`).show();
-
-                let newHtml;
-
-                newHtml = html_for_groups(can_delete_hydrogroups, new_title, id_group_separator);
-                
-                $(newHtml).appendTo("#current-Groupservers");
+                  let new_title = unique_id_group;
+                  let id_group_separator = `${new_title}_list_separator`;
 
 
-                let li_object = document.getElementById(`${new_title}`);
-                let input_check = li_object.getElementsByClassName("chkbx-layers")[0];
-                load_individual_hydroservers_group(title);
-                let servers_checks = document.getElementById(`${id_group_separator}`).getElementsByClassName("chkbx-layers");
-                input_check.addEventListener("change", function(){
-                  change_effect_groups(this,id_group_separator);
-                });
+                  $(`#${new_title}-noGroups`).show();
+
+                  let newHtml;
+
+                  newHtml = html_for_groups(can_delete_hydrogroups, new_title, id_group_separator);
+                  
+                  $(newHtml).appendTo("#current-Groupservers");
 
 
-                let $title="#"+new_title;
-                let $title_list="#"+new_title+"list";
+                  let li_object = document.getElementById(`${new_title}`);
+                  let input_check = li_object.getElementsByClassName("chkbx-layers")[0];
+                  load_individual_hydroservers_group(title);
+                  let servers_checks = document.getElementById(`${id_group_separator}`).getElementsByClassName("chkbx-layers");
+                  input_check.addEventListener("change", function(){
+                    change_effect_groups(this,id_group_separator);
+                  });
 
-                $($title).click(function(){
-                  $("#pop-up_description2").html("");
 
-                  actual_group = `&actual-group=${title}`;
+                  let $title="#"+new_title;
+                  let $title_list="#"+new_title+"list";
 
-                  let description_html=`
-                  <h3>Catalog Title</h3>
-                  <p>${title}</p>
-                  <h3>Catalog Description</h3>
-                  <p>${description}</p>`;
-                  $("#pop-up_description2").html(description_html);
+                  $($title).click(function(){
+                    $("#pop-up_description2").html("");
 
-                });
-                ind = ind +1;
+                    actual_group = `&actual-group=${title}`;
 
-            })
+                    let description_html=`
+                    <h3>Catalog Title</h3>
+                    <p>${title}</p>
+                    <h3>Catalog Description</h3>
+                    <p>${description}</p>`;
+                    $("#pop-up_description2").html(description_html);
+
+                  });
+                  ind = ind +1;
+
+              });
+          } else {
+              // If there are no groups yet, show the no groups label
+              $("#no-groups-label").removeClass("hidden");
+          }
           }
           catch(e){
             $("#GeneralLoading").addClass("hidden")
@@ -2090,6 +2096,7 @@ delete_group_of_hydroservers = function(){
               Object.keys(id_dictionary).forEach(function(key) {
                 if(id_dictionary[key] == group ){
                   group_name_e3 = key;
+                  delete id_dictionary[key];
                 }
               });
               let element=document.getElementById(group_name_e3);
@@ -2108,6 +2115,7 @@ delete_group_of_hydroservers = function(){
                 Object.keys(id_dictionary).forEach(function(key) {
                   if(id_dictionary[key] == hydroserver ){
                     new_title = key;
+                    delete id_dictionary[key];
                   }
                 });
                 map.removeLayer(layersDict[hydroserver]);
@@ -2145,6 +2153,10 @@ delete_group_of_hydroservers = function(){
               type: 1,
               position: 'right top'
             })
+
+            if(Object.keys(id_dictionary).length == 0) {
+              $("#no-groups-label").removeClass("hidden");
+            }
               // $.notify(
               //     {
               //         message: `Successfully Deleted Group!`
