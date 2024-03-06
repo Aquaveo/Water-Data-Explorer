@@ -27,7 +27,7 @@ def get_datastream_values_hydroserver_2(request):
         #url_observed_values = f"{data['url']}/api/sensorthings/v1.1/Datastreams('{data['datastream_id']}')/Observations?$resultFormat=dataArray&$top=1000"
         url_observed_values = f"{url}/api/sensorthings/v1.1/Datastreams('{datastream_id}')/Observations?$resultFormat=dataArray&$top=5000"
         url_datastream_info = f"{url}/api/sensorthings/v1.1/Datastreams('{datastream_id}')"
-        
+
         # start_datetime = datetime.fromisoformat(data["start_time"])
         # end_datetime = datetime.fromisoformat(data["end_time"])
         info_response = requests.get(url_datastream_info, headers=headers)
@@ -164,9 +164,6 @@ def get_values_hs(request):
                 datastreams = datastreams_response.json()
                 metadata = metadata_response.json()
 
-                #print("Datastreams:", datastreams, "\n\n\n")\
-                print("Ok let's go")
-                print(metadata["observedProperties"])
                 for datastream_dict in datastreams:
                     
                     datastream_id = datastream_dict["id"]

@@ -500,7 +500,7 @@ tr:hover {
   overflow-y: initial !important;
 }
 #modalHydroserInformation .modal-body #infoTable {
-  height: 250px;
+  height: 300px;
   overflow-y: auto;
 }
 #modalKeyWordSearch .modal-body #groups_variables {

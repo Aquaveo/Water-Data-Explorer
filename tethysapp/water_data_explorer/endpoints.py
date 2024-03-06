@@ -423,7 +423,7 @@ def get_hydroserver_info(request):
     response_obj = {}
     SessionMaker = app.get_persistent_store_database(Persistent_Store_Name, as_sessionmaker=True)
     session = SessionMaker()  # Initiate a session
-    hydroservers_group = session.query(Groups).filter(Groups.title == specific_group)[0].hydroserver
+    #hydroservers_group = session.query(Groups).filter(Groups.title == specific_group)[0].hydroserver
     # h1=session.query(Groups).join("hydroserver")
 
     hydroservers_1 = session.query(Groups).filter(Groups.title == specific_group)[0].hydroserver1
@@ -436,6 +436,8 @@ def get_hydroserver_info(request):
             response_obj["title"] = hydroserver.title
             response_obj["description"] = hydroserver.description
             response_obj["siteInfo"] = json.loads(hydroserver.siteinfo)
+            response_obj["server_type"] = "hydroserver1"
+
             return JsonResponse(response_obj)
 
     for hydroserver in hydroservers_2:
@@ -445,6 +447,7 @@ def get_hydroserver_info(request):
             response_obj["title"] = hydroserver.title
             response_obj["description"] = hydroserver.description
             response_obj["siteInfo"] = json.loads(hydroserver.siteinfo)
+            response_obj["server_type"] = "hydroserver2"
             return JsonResponse(response_obj)
 
 
@@ -612,7 +615,7 @@ def available_variables_2(url):
                 if property_id == entry["@iot.id"]:
                     property_name = entry["name"]
                     break
-
+                    
             
             hydroserver_variable_list.append(property_name)
             hydroserver_variable_code_list.append(property_id)
@@ -758,7 +761,7 @@ def soap_group(request, app_workspace):
                 server_type = "hydroserver1"
             else:
                 server_type = "hydroserver2"
-                
+
             return_obj['server_type'] = server_type
             # print(return_obj)
             SessionMaker = app.get_persistent_store_database(

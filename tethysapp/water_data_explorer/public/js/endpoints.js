@@ -270,6 +270,8 @@ get_vars_from_site = function (resultList){
 }
 
 map_layers = function(sites,title,url,serverType){
+  console.log("Running map layers: ");
+  console.log("Sites: ", sites);
   try{
     sites = sites.map(site => {
       // console.log("Map Layers");
@@ -2035,11 +2037,13 @@ $(`#btn-var-search-server`).on("click",showAvailableSites);
 */
 hydroserver_information = function(){
   try{
+    
+
+    // Clear out the search bar in the modal
+    $("#myInput").val('');
     if(layersDict['selectedPointModal']){
-      map2.removeLayer(layersDict['selectedPointModal']);
       map.removeLayer(layersDict['selectedPointModal']);
-      map2.updateSize()
-      map.updateSize()
+      map.updateSize();
     }
     let var_select = $("#variable_choose");
     var_select.empty();
@@ -2055,10 +2059,10 @@ hydroserver_information = function(){
     // site_select.selectpicker("refresh");
     site_select.select();
     let groupActual = this.parentElement.parentNode.id.split("_")[0];
-    groupActual = id_dictionary[groupActual]
-    let hsActual = this.id.split("_")[0];
+    groupActual = id_dictionary[groupActual];
+    let hsId = this.id.split("_")[0];
     // hsActual = hsActual.replace(/-/g, ' ');
-    hsActual = id_dictionary[hsActual]
+    let hsActual = id_dictionary[hsId]
     filterSites['group']=groupActual;
     filterSites['hs']=hsActual;
     $("#hydroserverTitle").html(`${filterSites['hs']} View`);
@@ -2068,52 +2072,58 @@ hydroserver_information = function(){
       dataType: "JSON",
       data: filterSites,
       success: function(result1){
+        console.log("Testing hydroserver info - ", result1);
         try{
           let hs_title = result1['title'];
           var url_UN = "https://geoservices.un.org/arcgis/rest/services/ClearMap_WebTopo/MapServer";
 
-          setTimeout(function(){
-            if(map2 ==undefined){
-              map2 = new ol.Map({
-                     target: 'map2',
-                     layers: [
-                       new ol.layer.Tile({
-                               source: new ol.source.TileArcGISRest({
-                                 url: url_UN
-                               })
-                       })
-                     ],
-                     view: new ol.View({
-                       center: ol.proj.fromLonLat([37.41, 8.82]),
-                       zoom: 4
-                     })
-              });
+          // setTimeout(function(){
+          //   if(map2 ==undefined){
+          //     map2 = new ol.Map({
+          //            target: 'map2',
+          //            layers: [
+          //              new ol.layer.Tile({
+          //                      source: new ol.source.TileArcGISRest({
+          //                        url: url_UN
+          //                      })
+          //              })
+          //            ],
+          //            view: new ol.View({
+          //              center: ol.proj.fromLonLat([37.41, 8.82]),
+          //              zoom: 4
+          //            })
+          //     });
 
-              actualLayerModal = layersDict[`${hs_title}`]
+          //     actualLayerModal = layersDict[`${hs_title}`]
 
-              map2.addLayer(actualLayerModal);
-              map2.getView().fit(actualLayerModal.getSource().getExtent(),{padding:[100,100,100,100]});
-              map2.updateSize();
-            }
-            else{
-              map2.removeLayer(actualLayerModal);
+          //     map2.addLayer(actualLayerModal);
+          //     map2.getView().fit(actualLayerModal.getSource().getExtent(),{padding:[100,100,100,100]});
+          //     map2.updateSize();
+          //   }
+          //   else{
+          //     map2.removeLayer(actualLayerModal);
 
-              actualLayerModal=layersDict[`${hs_title}`];
+          //     actualLayerModal=layersDict[`${hs_title}`];
 
-              map2.addLayer(actualLayerModal);
+          //     map2.addLayer(actualLayerModal);
 
-              map2.getView().fit(actualLayerModal.getSource().getExtent(),{padding:[100,100,100,100]});
-              map2.updateSize();
-            }
+          //     map2.getView().fit(actualLayerModal.getSource().getExtent(),{padding:[100,100,100,100]});
+          //     map2.updateSize();
+          //   }
 
 
-          },600)
+          // },600)
 
           $("#urlHydroserver").html(result1['url']);
           $("#url_WOF").html($("#urlHydroserver").html());
 
+          var descriptionText = result1['description'];
+          if (descriptionText.trim() == "") {
+            descriptionText = "No description found";
+          } 
+          $("#description_Hydroserver").html(descriptionText);
 
-          $("#description_Hydroserver").html(result1['description']);
+          
           var HSTableHtml =
               `<table id="${filterSites['hs']}-info-table" class="table table-striped table-bordered nowrap" width="100%"><tbody>`
           if (result1['siteInfo'].length === 0) {
@@ -2125,20 +2135,45 @@ hydroserver_information = function(){
           }
           else {
               for (var i = 0; i < result1['siteInfo'].length; i++) {
-                option_begin = `<option value=${i}> ${result1['siteInfo'][i]['sitename']} </option>`;
-                site_select.append(option_begin)
-                  HSTableHtml +=
-                 '<tr>'+
-                      `<td> <p id="titleSite">${i+1}.- ${result1['siteInfo'][i]['sitename']}
-                      <button type="button" class="btn btn-primary" id="${result1['siteInfo'][i]['sitecode']}_modal"><i class="bi bi-pin-angle-fill"></i></button></p>
-                        <p>Station/Platform Code: ${result1['siteInfo'][i]['sitecode']}</p>
-                        <p>Network: ${result1['siteInfo'][i]['network']}</p>
-                        <p>Latitude: ${result1['siteInfo'][i]['latitude']}</p>
-                        <p>Longitude: ${result1['siteInfo'][i]['longitude']}</p>
-                      </td>`
-                      +
-                 '</tr>'
+              var latitude;
+              var longitude;
+              if (result1["siteInfo"][i]["latitude"]) {
+                latitude = result1["siteInfo"][i]["latitude"];
+              }
+              if (result1["siteInfo"][i]["longitude"]) {
+                longitude = result1["siteInfo"][i]["longitude"];
+              }
 
+                if (result1["server_type"] == "hydroserver1") {
+                  option_begin = `<option value=${i}> ${result1['siteInfo'][i]['sitename']} </option>`;
+                  site_select.append(option_begin)
+                    HSTableHtml +=
+                  '<tr>'+
+                        `<td> <p id="titleSite">${i+1}.- ${result1['siteInfo'][i]['sitename']}
+                        <button type="button" class="btn btn-primary" id="${result1['siteInfo'][i]['sitecode']}_modal" latitude="${latitude}" longitude="${longitude}"><i class="bi bi-pin-angle-fill"></i></button></p>
+                          <p>Station/Platform Code: ${result1['siteInfo'][i]['sitecode']}</p>
+                          <p>Network: ${result1['siteInfo'][i]['network']}</p>
+                          <p>Latitude: ${latitude}</p>
+                          <p>Longitude: ${longitude}</p>
+                        </td>`
+                        +
+                  '</tr>'
+                } else {
+                  option_begin = `<option value=${i}> ${result1['siteInfo'][i]['name']} </option>`;
+                  site_select.append(option_begin);
+                  HSTableHtml += 
+                  `<tr>` + 
+                    `<td> <p id="titleSite">${i+1}.- ${result1['siteInfo'][i]['name']}
+                      <button type="button" class="btn btn-primary" id="${result1['siteInfo'][i]['sampleFeatureCode']}_modal" latitude="${latitude}" longitude="${longitude}"><i class="bi bi-pin-angle-fill"></i></button></p>
+                      <p>Station/Platform Code: ${result1['siteInfo'][i]['sampleFeatureCode']}</p>
+                      <p>Latitude: ${latitude}</p>
+                      <p>Longitude: ${longitude}</p>
+                    </td>`
+                    +
+                  `</tr>`
+
+
+                }
               }
               // site_select.selectpicker("refresh");
               site_select.select2();
@@ -2157,37 +2192,26 @@ hydroserver_information = function(){
                 let coordinate_modal = [lat_modal,lng_modal];
 
                 $(`#${result1['siteInfo'][i]['sitecode']}_modal`).click(function(){
-                        if(layersDict['selectedPointModal']){
-                          map2.removeLayer(layersDict['selectedPointModal']);
-                          map.removeLayer(layersDict['selectedPointModal']);
-                          map2.updateSize()
-                          map.updateSize()
-                        }
+                  console.log("Clicked");
+                  layersDict[result1["title"]].setStyle(featureStyle(layerColorDict[result1["title"]]));
+                  const centerCoordinates = ol.proj.transform([$(this).attr("longitude"), $(this).attr("latitude")], 'EPSG:4326', 'EPSG:3857');
+                  const padding = 750;
 
-                        let actual_Source = new ol.source.Vector({});
-                        let marker = new ol.Feature({
-                          geometry: new ol.geom.Point(
-                            ol.proj.transform([parseFloat(lng_modal),parseFloat(lat_modal)], 'EPSG:4326','EPSG:3857'))
-                        })
-                        actual_Source.addFeature(marker);
-                        let vectorLayer = new ol.layer.Vector({
-                            source: actual_Source,
-                            style:  new ol.style.Style({
-                                image: new ol.style.Circle({
-                                    radius: 15,
-                                    stroke: new ol.style.Stroke({
-                                        color: `#FF0000`,
-                                        width: 8
-                                    }),
-                                    fill: new ol.style.Fill({
-                                        color: 'rgba(255, 255, 0, 0.63)',
-                                    })
-                                })
-                            })
-                        })
-                        layersDict['selectedPointModal'] = vectorLayer;
-                        map2.addLayer(layersDict['selectedPointModal']);
-                        map.getLayers().insertAt(1, layersDict['selectedPointModal']);
+                  const newExtent = [
+                    centerCoordinates[0] - padding,
+                    centerCoordinates[1] - padding,
+                    centerCoordinates[0] + padding,
+                    centerCoordinates[1] + padding
+                  ];
+
+                  map.getView().fit(newExtent, map.getSize());
+                  $('#modalHydroserInformation').modal('hide');
+                  $(`#${hsId}`).find('.chkbx-layer').prop('checked', true);
+
+                  if(layersDict['selectedPointModal']){
+                    map.removeLayer(layersDict['selectedPointModal']);
+                    map.updateSize();
+                  }                
                 });
 
               }
