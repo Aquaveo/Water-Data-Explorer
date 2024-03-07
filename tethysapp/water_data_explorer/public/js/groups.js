@@ -15,24 +15,45 @@ give_available_services = function(){
           $("#rows_servs").empty();
           var json_response = JSON.parse(data)
           var services_ava = json_response['services']
-          var i = 1;
-          var row = ""
-          services_ava.forEach(function(serv){
-            var title_new = serv['title'].replace(/ /g,"_");
-            row += `<tr>
-                      <th scope="row">${i}</th>
-                      <td><input type="checkbox" class="filter_check" name="server_${i}" value=${title_new}></td>
-                      <td>${serv['title']}</td>
-                    </tr>`
-            i += 1;
-          })
-          $("#available_services").show();
-          $("#modalAddGroupServer").find("#rows_servs").html(row)
-
-          $("#available_services").removeClass("hidden");
+          if (services_ava.length == 0 ) {
+            new Notify ({
+              status: 'error',
+              title: 'Error',
+              text: `There was an error retrieving the different web services contained in the view`,
+              effect: 'fade',
+              speed: 300,
+              customClass: '',
+              customIcon: '',
+              showIcon: true,
+              showCloseButton: true,
+              autoclose: true,
+              autotimeout: 3000,
+              gap: 20,
+              distance: 20,
+              type: 1,
+              position: 'right top'
+            }) 
+          } else {
+            var i = 1;
+            var row = ""
+            services_ava.forEach(function(serv){
+              var title_new = serv['title'].replace(/ /g,"_");
+              row += `<tr>
+                        <th scope="row">${i}</th>
+                        <td><input type="checkbox" class="filter_check" name="server_${i}" value=${title_new}></td>
+                        <td>${serv['title']}</td>
+                      </tr>`
+              i += 1;
+            })
+            $("#available_services").show();
+            $("#modalAddGroupServer").find("#rows_servs").html(row)
+  
+            $("#available_services").removeClass("hidden");
+            
+  
+            $("#btn-check_all").removeClass("hidden");
+          }
           $("#soapAddLoading-group").addClass("hidden")
-
-          $("#btn-check_all").removeClass("hidden");
         }
         catch(e){
           $("#soapAddLoading-group").addClass("hidden");
@@ -1215,8 +1236,32 @@ create_group_hydroservers = function(){
         data: datastring,
         success: function(result) {
             //Returning the geoserver layer metadata from the controller
+            
             try{
               var json_response = JSON.parse(result)
+              console.log(json_response);
+
+              for (var view in json_response.views) {
+                if (json_response.views[view].siteInfo == '\"invalid url\"') {
+                  new Notify ({
+                    status: 'error',
+                    title: 'Error',
+                    text: `The ${json_response.views[view].title} server had an invalid url. Unable to add that server`,
+                    effect: 'fade',
+                    speed: 300,
+                    customClass: '',
+                    customIcon: '',
+                    showIcon: true,
+                    showCloseButton: true,
+                    autoclose: true,
+                    autotimeout: 3000,
+                    gap: 20,
+                    distance: 20,
+                    type: 1,
+                    position: 'right top'
+                  })
+                }
+              }
 
               let group=json_response
               if(group.message !== "There was an error while adding th group.") {

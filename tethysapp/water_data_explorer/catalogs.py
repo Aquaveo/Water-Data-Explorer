@@ -216,8 +216,6 @@ def available_services(request):
 @controller(name='create-group', url='create-group/', app_workspace=True)
 def create_group(request, app_workspace):
     print(request.POST)
-    import pdb
-    pdb.set_trace()
     group_obj = {}
     SessionMaker = app.get_persistent_store_database(Persistent_Store_Name, as_sessionmaker=True)
     session = SessionMaker()  # Initiate a session
@@ -270,7 +268,6 @@ def create_group(request, app_workspace):
 def addMultipleViews(request, hs_list, group, app_workspace):
     import pdb
     pdb.set_trace()
-
     ret_object = []
     for hs in hs_list:
         new_url = hs['url']
@@ -280,10 +277,11 @@ def addMultipleViews(request, hs_list, group, app_workspace):
             # sites_object = water.GetSites()
             sites_object = GetSites_WHOS(new_url)
             sites_parsed_json = json.dumps(sites_object)
-            countries_json = json.dumps(available_regions_2(request, siteinfo=sites_parsed_json,
-                                                            app_workspace=app_workspace))
+            if sites_parsed_json != '"invalid url"':
+                countries_json = json.dumps(available_regions_2(request, siteinfo=sites_parsed_json,
+                                                                app_workspace=app_workspace))
 
-            variable_json = json.dumps(available_variables_2(hs['url']))
+                variable_json = json.dumps(available_variables_2(hs['url']))
             return_obj['title'] = hs['title']
             return_obj['url'] = hs['url']
             return_obj['description'] = hs['description']
@@ -292,24 +290,25 @@ def addMultipleViews(request, hs_list, group, app_workspace):
             return_obj['status'] = "true"
 
             ret_object.append(return_obj)
+           
+            if sites_parsed_json != '"invalid url"':
+                SessionMaker = app.get_persistent_store_database(
+                    Persistent_Store_Name, as_sessionmaker=True)
+                session = SessionMaker()
 
-            SessionMaker = app.get_persistent_store_database(
-                Persistent_Store_Name, as_sessionmaker=True)
-            session = SessionMaker()
+                hydroservers_group = session.query(Groups).filter(Groups.title == group)[0]
 
-            hydroservers_group = session.query(Groups).filter(Groups.title == group)[0]
-
-            hs_one = Hydroserver_Individual_Cuahsi(title=hs['title'],
-                                                   url=hs['url'],
-                                                   description=hs['description'],
-                                                   siteinfo=sites_parsed_json,
-                                                   variables=variable_json,
-                                                   countries=countries_json)
-
-            hydroservers_group.hydroserver1.append(hs_one)
-            session.add(hydroservers_group)
-            session.commit()
-            session.close()
+                hs_one = Hydroserver_Individual_Cuahsi(title=hs['title'],
+                                                    url=hs['url'],
+                                                    description=hs['description'],
+                                                    siteinfo=sites_parsed_json,
+                                                    variables=variable_json,
+                                                    countries=countries_json)
+                
+                hydroservers_group.hydroserver1.append(hs_one)
+                session.add(hydroservers_group)
+                session.commit()
+                session.close()
 
         # CHANGE LAST
         except Exception:
