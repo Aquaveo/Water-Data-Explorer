@@ -899,6 +899,12 @@ function select_variable_change_2() {
   //RETREIVE INTERPOLATION VALUES - NOT YET AVAILABLE
   let units_x = "Time";
   let units_y = $('#variables_graph option:selected').text();
+  if (unit_abbreviation) {
+    units_y += `(${unit_abbreviation})`;
+  } else {
+    
+  }
+
 
 
   let variable_name_legend = units_y;
@@ -922,7 +928,7 @@ function select_variable_change_2() {
         // IF TO AVOID 'CSV' VALUE IN THE DROPDOWN//
         if(selectedDownloadType == "CSV" ){
           var csvData = [];
-          var header = ["Timestamp",`${units_y} (${datastream_values["unit_abbreviation"]})`] //main header.
+          var header = ["Timestamp",`${units_y}`] //main header.
           csvData.push(header);
           for (var i = 0; i < x_values.length; i++){ //data
             var line = [x_values[i],y_values[i]];
