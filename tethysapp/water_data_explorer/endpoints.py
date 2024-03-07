@@ -665,9 +665,6 @@ def soap_group(request, app_workspace):
         else:
             pass
 
-        # import pdb
-        # pdb.set_trace
-        
         # True Extent is on and necessary if the user is trying to add USGS or
         # some of the bigger HydroServers.
         if true_extent == 'on':
