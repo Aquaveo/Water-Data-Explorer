@@ -2147,11 +2147,12 @@ hydroserver_information = function(){
                 if (result1["server_type"] == "hydroserver1") {
                   option_begin = `<option value=${i}> ${result1['siteInfo'][i]['sitename']} </option>`;
                   site_select.append(option_begin)
+                  var siteCode = result1.siteInfo[i].sitecode.trim();
                     HSTableHtml +=
                   '<tr>'+
                         `<td> <p id="titleSite">${i+1}.- ${result1['siteInfo'][i]['sitename']}
-                        <button type="button" class="btn btn-primary" id="${result1['siteInfo'][i]['sitecode']}_modal" latitude="${latitude}" longitude="${longitude}"><i class="bi bi-pin-angle-fill"></i></button></p>
-                          <p>Station/Platform Code: ${result1['siteInfo'][i]['sitecode']}</p>
+                        <button type="button" class="btn btn-primary" id="${siteCode}_modal" latitude="${latitude}" longitude="${longitude}"><i class="bi bi-pin-angle-fill"></i></button></p>
+                          <p>Station/Platform Code: ${siteCode}</p>
                           <p>Network: ${result1['siteInfo'][i]['network']}</p>
                           <p>Latitude: ${latitude}</p>
                           <p>Longitude: ${longitude}</p>
@@ -2161,11 +2162,12 @@ hydroserver_information = function(){
                 } else {
                   option_begin = `<option value=${i}> ${result1['siteInfo'][i]['name']} </option>`;
                   site_select.append(option_begin);
+                  var siteCode = result1.siteInfo[i].samplingFeatureCode.trim();
                   HSTableHtml += 
                   `<tr>` + 
                     `<td> <p id="titleSite">${i+1}.- ${result1['siteInfo'][i]['name']}
-                      <button type="button" class="btn btn-primary" id="${result1['siteInfo'][i]['sampleFeatureCode']}_modal" latitude="${latitude}" longitude="${longitude}"><i class="bi bi-pin-angle-fill"></i></button></p>
-                      <p>Station/Platform Code: ${result1['siteInfo'][i]['sampleFeatureCode']}</p>
+                      <button type="button" class="btn btn-primary" id="${siteCode}_modal" latitude="${latitude}" longitude="${longitude}"><i class="bi bi-pin-angle-fill"></i></button></p>
+                      <p>Station/Platform Code: ${siteCode}</p>
                       <p>Latitude: ${latitude}</p>
                       <p>Longitude: ${longitude}</p>
                     </td>`
@@ -2179,7 +2181,28 @@ hydroserver_information = function(){
               site_select.select2();
 
 
+              function zoomToSelectedSite() {
+                console.log("Clicked");
+                layersDict[result1["title"]].setStyle(featureStyle(layerColorDict[result1["title"]]));
+                const centerCoordinates = ol.proj.transform([$(this).attr("longitude"), $(this).attr("latitude")], 'EPSG:4326', 'EPSG:3857');
+                const padding = 750;
 
+                const newExtent = [
+                  centerCoordinates[0] - padding,
+                  centerCoordinates[1] - padding,
+                  centerCoordinates[0] + padding,
+                  centerCoordinates[1] + padding
+                ];
+
+                map.getView().fit(newExtent, map.getSize());
+                $('#modalHydroserInformation').modal('hide');
+                $(`#${hsId}`).find('.chkbx-layer').prop('checked', true);
+
+                if(layersDict['selectedPointModal']){
+                  map.removeLayer(layersDict['selectedPointModal']);
+                  map.updateSize();
+                }  
+              }
               $("#site_choose").on("change.something", function(){
                   get_vars_from_site(result1['siteInfo']);
               });
@@ -2190,35 +2213,18 @@ hydroserver_information = function(){
                 let lat_modal=result1['siteInfo'][i]['latitude'];
                 let lng_modal=result1['siteInfo'][i]['longitude'];
                 let coordinate_modal = [lat_modal,lng_modal];
-
-                $(`#${result1['siteInfo'][i]['sitecode']}_modal`).click(function(){
-                  console.log("Clicked");
-                  layersDict[result1["title"]].setStyle(featureStyle(layerColorDict[result1["title"]]));
-                  const centerCoordinates = ol.proj.transform([$(this).attr("longitude"), $(this).attr("latitude")], 'EPSG:4326', 'EPSG:3857');
-                  const padding = 750;
-
-                  const newExtent = [
-                    centerCoordinates[0] - padding,
-                    centerCoordinates[1] - padding,
-                    centerCoordinates[0] + padding,
-                    centerCoordinates[1] + padding
-                  ];
-
-                  map.getView().fit(newExtent, map.getSize());
-                  $('#modalHydroserInformation').modal('hide');
-                  $(`#${hsId}`).find('.chkbx-layer').prop('checked', true);
-
-                  if(layersDict['selectedPointModal']){
-                    map.removeLayer(layersDict['selectedPointModal']);
-                    map.updateSize();
-                  }                
-                });
-
+                // console.log(result1.siteInfo[i].samplingFeatureCode);
+                if (result1["server_type"] == "hydroserver1") {
+                  $(`#${result1['siteInfo'][i]['sitecode'].trim()}_modal`).click(zoomToSelectedSite);
+                } else {
+                  $(`#${result1['siteInfo'][i]['samplingFeatureCode'].trim()}_modal`).click(zoomToSelectedSite);
+                }
               }
-
+              
           }
         }
         catch(e){
+          console.log("Error:", e);
           new Notify ({
             status: 'error',
             title: 'Error',

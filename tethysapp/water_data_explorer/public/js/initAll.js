@@ -171,14 +171,14 @@ var water_data_explorer_PACKAGE = (function() {
             type: 'base'
           }),
 
-          new ol.layer.Tile({
-            title: 'United Nations Map', 
-            source: new ol.source.TileArcGISRest({
-              attributions: 'Produced by United Nations Geospatial',
-              url: url_UN
-            }),
-            type: 'base'
-          }),
+          // new ol.layer.Tile({
+          //   title: 'United Nations Map', 
+          //   source: new ol.source.TileArcGISRest({
+          //     attributions: 'Produced by United Nations Geospatial',
+          //     url: url_UN
+          //   }),
+          //   type: 'base'
+          // }),
           new ol.layer.Tile({
             title: 'ArcGIS World Topographic Map',
             type:'base',
