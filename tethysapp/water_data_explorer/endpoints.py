@@ -45,8 +45,6 @@ def get_download_hs(request):
 
 @controller(name='get-variables-hs', url='get-variables-hs/')
 def get_variables_hs(request):
-    # import pdb
-    # pdb.set_trace()
     list_catalog = {}
     # print("get_variables_hs Function")
     specific_group = request.POST.get('group')
@@ -96,9 +94,6 @@ def get_variables_hs(request):
             list_catalog["variables_time_abr"] = timeUnitName
             return JsonResponse({"server_type":"hydroserver1","variables":list_catalog})
             
-    
-    # import pdb
-    # pdb.set_trace()
     for hydroserver in hydroservers_2:
         name = hydroserver.title
         if hs_actual == name:
@@ -601,9 +596,6 @@ def available_variables_2(url):
 
         datastreams_response = requests.get(datastreams_url,headers=headers)
         properties_response = requests.get(properties_url, headers=headers)
-        
-        # import pdb
-        # pdb.set_trace()
 
         datastreams = datastreams_response.json()
         properties = properties_response.json()

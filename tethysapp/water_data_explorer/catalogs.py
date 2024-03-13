@@ -215,9 +215,6 @@ def available_services(request):
 # #####*****************************************************************************************################
 @controller(name='create-group', url='create-group/', app_workspace=True)
 def create_group(request, app_workspace):
-
-    import pdb
-    pdb.set_trace()
     group_obj = {}
     SessionMaker = app.get_persistent_store_database(Persistent_Store_Name, as_sessionmaker=True)
     session = SessionMaker()  # Initiate a session
