@@ -16,7 +16,6 @@
  */
 
 select_variable_change = function(){
-  console.log("Changing variable button pressed");
   try{
     // ARRAY CREATION FOR END AND START TIME //
     let arrayTime = [];
@@ -170,7 +169,6 @@ select_variable_change = function(){
                   $("#download-button").off("click");
                     let funcDown = function(){
                       try{
-                        console.log("Download time");
                         let selectedDownloadType = $('#download_dropdown').val();
                         let selectedDownloadTypeText = $('#download_dropdown option:selected').text();
                         // IF TO AVOID 'DONWLOAD' VALUE IN THE DROPDOWN//
@@ -240,7 +238,6 @@ select_variable_change = function(){
                             let BEGINDATE = x_array[0].replace(" ","T");
                             let ENDDATE = x_array[x_array.length -1].replace(" ","T");
                             let url_download = `${url_base}?request=GetValuesObject&site=${SITE}&variable=${VARIABLE}&beginDate=${BEGINDATE}&endDate=${ENDDATE}&format=WML1`;
-                            //console.log(url_download)
                             fetch(url_download).then(res => res.blob()) // Gets the response and returns it as a blob
                               .then(blob => {
                                 var pom = document.createElement('a');
@@ -686,7 +683,6 @@ select_variable_change = function(){
                       }
                     }
                     $("#download-button").on("click", funcDown);
-                    console.log("Assigned click");
               }
               else{
                 let title_graph=  `${object_request_graphs['site_name']} - ${selectedItemText}
@@ -862,9 +858,7 @@ select_variable_change = function(){
 }
 
 function select_variable_change_2() {
-  console.log("Changing variable button pressed #2");
   let start_date_object = $("#datetimepicker6").datepicker("getDates")[0];
-  console.log(typeof start_date_object);
   let start_date_string = start_date_object.toISOString().split("T")[0];
 
   let end_date_object = $("#datetimepicker7").datepicker("getDates")[0];
@@ -875,7 +869,6 @@ function select_variable_change_2() {
   
   let datastream_values = JSON.parse($("#hydroserver-2-values-input").val())["observed_values"];
   var unit_abbreviation = JSON.parse($("#hydroserver-2-values-input").val())["unit_abbreviation"];
-  console.log(datastream_values);
 
   let arrayTime = [];
   arrayTime.push(start_date_string);
@@ -884,12 +877,8 @@ function select_variable_change_2() {
   var x_values = [];
   var y_values = []; 
 
-  console.log("Datastreawm values:");
-  console.log(datastream_values);
-
   //Filter values by dates selected by user
   datastream_values.forEach(function(set) {
-    console.log(typeof set[0]);
     if (set[0] > start_date_string && set[0] < end_date_string) {
       x_values.push(set[0]);
       y_values.push(set[1]);
@@ -920,7 +909,6 @@ function select_variable_change_2() {
   $("#download-button").off("click");
   let funcDown = function(){
     try{
-      console.log("Download time");
       let selectedDownloadType = $('#download_dropdown').val();
       let selectedDownloadTypeText = $('#download_dropdown option:selected').text();
       // IF TO AVOID 'DONWLOAD' VALUE IN THE DROPDOWN//

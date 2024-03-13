@@ -22,7 +22,8 @@ activate_layer_values = function () {
       evt.stopPropagation();
       $("#graphs").empty();
       let object_request={};
-      //TESTING HERE FOR CLUSTER DETECTION
+      
+      // Cluster zooming when clicked on
       var coordinate = evt.coordinate;
       var features = map.getFeaturesAtPixel(evt.pixel);
       if(features) {
@@ -30,7 +31,6 @@ activate_layer_values = function () {
           return feature.get('features') instanceof Array && feature.get('features').length > 1;        });
         }
         if (isCluster) {
-          console.log("Clicked on a cluster");
           var clusterFeature = features.find(function(feature) {
             return feature.get("features") instanceof Array && feature.get('features').length > 1;
           });
@@ -53,8 +53,6 @@ activate_layer_values = function () {
       // MAKE THE POINT LAYER FOR THE MAP //
       var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature2, layer) {
           if(feature2){
-            console.log("Feature");
-            console.log(feature2);
             if(layersDict['selectedPointModal']){
               map.removeLayer(layersDict['selectedPointModal'])
               map.updateSize()
@@ -100,8 +98,6 @@ activate_layer_values = function () {
         }
         let feature_single = feature.getProperties().features[0].getProperties()
         
-        console.log("Feature Single: ");
-        console.log(feature_single);
         current_station_name = feature_single['name'];
         object_request['hs_url']=feature_single['hs_url'];
         object_request['code']=feature_single['code'];
@@ -120,7 +116,6 @@ activate_layer_values = function () {
               // Clear out the metadata table in modal
               $("#table_div").empty();
               $("#variables_graph").empty();
-              console.log("Testing result:", result);
               // MAKE THE METADATA OF THE SITE TO LOAD IN THE FIRST SLIDE //
               let description_site = document.getElementById('siteDes');
               $("#datetimepicker6").datepicker("setDate", null);
@@ -293,17 +288,7 @@ activate_layer_values = function () {
                   $("#variables_graph").unbind('change');
   
                   $('#variables_graph').bind('change', function(e){
-                    try{
-                    
-                    // var carousel = document.getElementById('carouselExampleIndicators');
-
-                    // // Check if the element exists to avoid errors
-                    // if (carousel) {
-                    //   // Set overflow properties to "auto" or another value as needed
-                    //   carousel.style.overflowY = "";
-                    //   carousel.style.overflowX = "";
-                    // }
-                    
+                    try{                                                      
                       variable_select.select2();
                       var selectedItem = $('#variables_graph').val() -1;
                       var selectedItemText = $('#variables_graph option:selected').text();
@@ -316,10 +301,7 @@ activate_layer_values = function () {
                       object_request2['network']=feature_single['network'];
                       object_request2['variable']=selectedItem;
                       object_request2['code_variable']= code_variable[`${selectedItem}`];
-                      object_request2['times_series'] = result['times_series'];
-                      console.log("Checking results for values: ");
-                      console.log("Features: ", feature_single);
-                      console.log("Result: ", result);
+                      object_request2['times_series'] = result['times_series'];                      
                       time_series_cache = result['times_series'];
                       object_request2['variables_array']=result['variables'];
                       object_request_graphs = JSON.parse(JSON.stringify(object_request2));
@@ -448,7 +430,6 @@ activate_layer_values = function () {
                           <th>Observed Variables</th>
                           <th>Unit</th>
                         </tr>`;
-                  console.log("results:", result);
                   result["datastreams"].forEach(function(datastream) {
                     
                     var variableName = datastream["observed_property_name"];
@@ -528,8 +509,6 @@ activate_layer_values = function () {
                       dataType: "JSON",
                       data: object_request,
                       success: function(result) {
-                        console.log("Testing result");
-                        console.log(result);
                         if (result["observed_values"].length == 0) {
                           new Notify ({
                             status: 'warning',
@@ -550,8 +529,6 @@ activate_layer_values = function () {
                           })
                         } else {
 
-                        
-                        //console.log(result);
                         // THIS IS NECESARRY TO RESET THE DATES OTHERWISE IT IS GOING TO HAVE EMPTY SPACES..
                         $('#datetimepicker6').datepicker('setStartDate', null);
                         $('#datetimepicker6').datepicker('setEndDate', null);
@@ -567,8 +544,6 @@ activate_layer_values = function () {
                         $("#datetimepicker6").datepicker("setEndDate", endDate);
                         $("#datetimepicker7").datepicker("setEndDate", endDate);
                         $("#hydroserver-2-values-input").val("");
-                        console.log(JSON.stringify(result));
-                        console.log("Max: ", result["maximum_time"]);
                         $("#hydroserver-2-values-input").val(JSON.stringify(result));
                       }
                     }

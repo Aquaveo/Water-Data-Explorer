@@ -207,12 +207,10 @@
 
 
           $("#datetimepicker6").datepicker().on("changeDate", function (e) {
-              console.log("changing time");
               $('#datetimepicker7').datepicker('setStartDate', $(this).datepicker('getDate'));
           });
 
           $("#datetimepicker7").datepicker().on("changeDate", function (e) {
-              console.log("changing time");
               $('#datetimepicker6').datepicker('setEndDate', $(this).datepicker('getDate'));
           });
 

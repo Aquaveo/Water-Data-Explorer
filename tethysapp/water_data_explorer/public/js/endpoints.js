@@ -33,7 +33,6 @@ get_vars_from_site = function (resultList){
 
               reque_ob['variable_hs'] = $("#variable_choose")['0'].value;
               $("#variable_choose").off("change.something2").on("change", function(){
-                // console.log("change unbind variable");
               });
               $("#variable_choose").on("change.something2").on("change", function(){
                 reque_ob['variable_hs'] = $("#variable_choose")['0'].value;
@@ -270,14 +269,11 @@ get_vars_from_site = function (resultList){
 }
 
 map_layers = function(sites,title,url,serverType){
-  console.log("Running map layers: ");
-  console.log("Sites: ", sites);
   try{
     sites = sites.map(site => {
-      // console.log("Map Layers");
-      // console.log(sites);
       var currentSiteName;
-      //Account for differences in hydroserver 1 and 2
+
+      // Account for differences in hydroserver 1 and 2
         if (site.sitename) {
           currentSiteName = site.sitename;
         }
@@ -329,7 +325,6 @@ map_layers = function(sites,title,url,serverType){
             }
         }
     })
-    console.log("Sites: ", sites);
     let sitesGeoJSON = {
         type: "FeatureCollection",
         crs: {
@@ -428,8 +423,7 @@ load_individual_hydroservers_group = function(group_name){
            success: result => {
              try{
                let servers = result["hydroserver"]
-               console.log("Servers here: ");
-               console.log(servers);
+      
                //USE A FUNCTION TO FIND THE LI ASSOCIATED WITH THAT GROUP  AND DELETE IT FROM THE MAP AND MAKE ALL
                // THE CHECKBOXES VISIBLE //
                let group_name_e3;
@@ -457,7 +451,7 @@ load_individual_hydroservers_group = function(group_name){
                        variables,
                        serverType
                    } = server
-                   console.log
+      
                    let unique_id_group = uuidv4()
                    id_dictionary[unique_id_group] = title
                    information_model[`${group_name}`].push(title);
@@ -672,8 +666,6 @@ load_individual_hydroservers_group = function(group_name){
 */
 
 add_hydroserver = function(){
-  console.log("Running add hydroserver");
-
   try{
     if($("#extent").is(":checked")){
       var zoom= map.getView().getZoom();
@@ -757,9 +749,7 @@ add_hydroserver = function(){
               
               //Returning the geoserver layer metadata from the controller
               var json_response = JSON.parse(result)
-              console.log("Debugging add hydroserver: ");
-              console.log(result);
-              console.log("Getting server_type: ", result.server_type);
+              
               let group_name = actual_group.split('=')[1];
               // let id_group_separator = `${group_name}_list_separator`;
 
@@ -1020,7 +1010,7 @@ add_hydroserver = function(){
   catch(e){
         $("#soapAddLoading").addClass("hidden");
         $("#btn-add-soap").show();
-        //console.log(error);
+        console.log(error);
         new Notify ({
           status: 'error',
           title: 'Error',
@@ -1626,7 +1616,6 @@ showVariables = function(){
 
 showVariables2 = function(){
  try{
-  console.log(this.parentElement);
    let groupActual = this.parentElement.parentNode.id.split("_")[0];
    groupActual = id_dictionary[groupActual];
    let hsActual = this.id.split("_")[0];
@@ -1643,7 +1632,6 @@ showVariables2 = function(){
        dataType: "JSON",
        data: filterSites,
        success: result => {
-        console.log("Prelim results: ", result);
          try{
           var HSTableHtml =
                   `<table id="${filterSites['hs']}-variable-table" class="table table-striped table-bordered nowrap" width="100%">
@@ -1659,8 +1647,6 @@ showVariables2 = function(){
               variable_array.push({'variables_name': variable_name, 
                            'variables_unit_abr':unit_abr, 
                            'variables_code':variable_code});
-                
-                console.log("PUshing");
               }
             //2) sort:
             variable_array.sort(function(a, b) {
@@ -2053,7 +2039,6 @@ hydroserver_information = function(){
     site_select.empty();
     // $("#site_choose").unbind('change');
     $("#site_choose").off("change.something").on("change", function(){
-      // console.log("change unbind");
     });
 
     // site_select.selectpicker("refresh");
@@ -2072,7 +2057,6 @@ hydroserver_information = function(){
       dataType: "JSON",
       data: filterSites,
       success: function(result1){
-        console.log("Testing hydroserver info - ", result1);
         try{
           let hs_title = result1['title'];
           var url_UN = "https://geoservices.un.org/arcgis/rest/services/ClearMap_WebTopo/MapServer";
@@ -2182,7 +2166,6 @@ hydroserver_information = function(){
 
 
               function zoomToSelectedSite() {
-                console.log("Clicked");
                 layersDict[result1["title"]].setStyle(featureStyle(layerColorDict[result1["title"]]));
                 const centerCoordinates = ol.proj.transform([$(this).attr("longitude"), $(this).attr("latitude")], 'EPSG:4326', 'EPSG:3857');
                 const padding = 750;
@@ -2213,7 +2196,6 @@ hydroserver_information = function(){
                 let lat_modal=result1['siteInfo'][i]['latitude'];
                 let lng_modal=result1['siteInfo'][i]['longitude'];
                 let coordinate_modal = [lat_modal,lng_modal];
-                // console.log(result1.siteInfo[i].samplingFeatureCode);
                 if (result1["server_type"] == "hydroserver1") {
                   $(`#${result1['siteInfo'][i]['sitecode'].trim()}_modal`).click(zoomToSelectedSite);
                 } else {
@@ -2563,11 +2545,8 @@ update_hydroserver = function(){
         data: requestObject,
         success: function(result) {
           try{
-            console.log("Testing Update: ");
-            console.log(result);
             let {siteInfo,sitesAdded,url} = result
             if(layersDict.hasOwnProperty(id_dictionary[hsActual])){
-              console.log("Layers Dict check: ", layersDict[id_dictionary[hsActual]]);
               map.removeLayer(layersDict[hsActual])
             }
 

@@ -240,8 +240,6 @@ disable_map =  function (){
     if(map_block.checked){
       var extent = vectorSource.getExtent();
       extent = ol.extend.pad(extent,100);
-
-      ////console.log(extent);
       map.getView().fit(extent, map.getSize());
       var properties = map.getView().getProperties();
       properties["minZoom"] = map.getView().getZoom();
@@ -373,7 +371,6 @@ clear_coords = function() {
 ************ PURPOSE: THE FUNCTIONS SHOWS THE GRAPHS IN THE LOWER PORTION OF THE MAP ***********
 */
 activate_deactivate_graphs = function(){
-  ////console.log("we ACTIVATEEAAGAG");
   let actual_state=$(this).prop('checked');
   let element_graphs=document.getElementById("graph");
 
@@ -652,7 +649,6 @@ initialize_graphs = function(xArray,yArray,title_graph,xTitle,yTitle,legend1,typ
 
 }
 function featureStyle(myColor) {
-    ////console.log("ahuringa")
     var styleCache = {};
     var style2 =
     function (feature) {
@@ -795,10 +791,8 @@ function change_effect_groups(element_to_check,id_group_separator){
            }
        }
        let server_new_name = id_dictionary[server_name];
-       ////console.log(checkbox);
        map.getLayers().forEach(function(layer) {
          if(layer_object_filter.hasOwnProperty(server_new_name) == false){
-           //console.log("false")
            if(layer instanceof ol.layer.Vector && layer == layersDict[server_new_name]){
              if(element_to_check.checked){
 
@@ -831,7 +825,6 @@ function change_effect_groups(element_to_check,id_group_separator){
 
 function html_for_servers(title,group_name,server_type,isNew){
   try{
-    console.log("Testing: ", server_type);
     let check_var = (( isNew == true ) ? 'checked' : '');
     let newHtml = `
     <li class="ui-state-default" layer-name="${title}" id="${title}" >
@@ -839,7 +832,6 @@ function html_for_servers(title,group_name,server_type,isNew){
     <input class="chkbx-layer" type="checkbox" data-bs-toggle="tooltip" data-placement="bottom" title="Show/Hide View" ${check_var}>
     `;
     if (server_type == "hydroserver1") {
-      console.log("Adding hydroserver 1");
       newHtml += `<button type="button" id="${title}_${group_name}_reload" class="btn btn-sm" >
       <i class="bi bi-arrow-clockwise tool_tip_h" aria-hidden="true" data-bs-toggle="tooltip" data-placement="bottom" title="Update View"></i>
      </button>`;

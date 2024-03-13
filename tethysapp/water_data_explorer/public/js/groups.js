@@ -203,18 +203,14 @@ show_variables_groups = function(){
     dataType: "JSON",
     success: function(data){
       try{
-        // console.log(data);
         variables_list = data['variables'];
         variables_codes_list = data['variables_codes'];
-        // console.log(variables_codes_list);
         const chunk = (arr, size) =>
           Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
             arr.slice(i * size, i * size + size)
           );
         let arr=chunk(variables_list, 2);
         let arr2=chunk(variables_codes_list, 2);
-        // console.log(arr2);
-
 
         var HSTableHtml =
             `<table id="data-table-var" class="table table-striped table-bordered nowrap" width="100%"><tbody>`
@@ -238,7 +234,6 @@ show_variables_groups = function(){
 
 
           HSTableHtml += "</tbody></table>"
-        ////console.log(HSTableHtml)
         $("#modalKeyWordSearch").find("#groups_variables").html(HSTableHtml);
         $("#KeywordLoading").addClass("hidden");
       }
@@ -457,14 +452,12 @@ listener_checkbox = function(list_countries){
 
           variables_list = data['variables'];
           variables_codes_list = data['variables_codes'];
-          // console.log(variables_codes_list);
           const chunk = (arr, size) =>
             Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
               arr.slice(i * size, i * size + size)
             );
           let arr=chunk(variables_list, 2);
           let arr2=chunk(variables_codes_list, 2);
-          // console.log(arr2);
 
 
           var HSTableHtml =
@@ -487,7 +480,6 @@ listener_checkbox = function(list_countries){
                   z = z + 1;
             })
             HSTableHtml += "</tbody></table>"
-          ////console.log(HSTableHtml)
           $("#modalKeyWordSearch").find("#groups_variables").html(HSTableHtml);
           $("#KeywordLoading").addClass("hidden");
         }
@@ -676,9 +668,7 @@ $(document).on("click", "#btn-key-update-variables", function(){
         return this.value.replace(/_/g, ' ');
       }).get() // Get array.
 
-    console.log(countries_selected);
     if (countries_selected.length > 0){
-      ////console.log(countries_selected);
       listener_checkbox(countries_selected)
     }
     else{
@@ -1239,7 +1229,6 @@ create_group_hydroservers = function(){
             
             try{
               var json_response = JSON.parse(result)
-              console.log(json_response);
 
               for (var view in json_response.views) {
                 if (json_response.views[view].siteInfo == '\"invalid url\"') {
@@ -1284,7 +1273,6 @@ create_group_hydroservers = function(){
                 let input_check = li_object.getElementsByClassName("chkbx-layers")[0];
 
                 if(!input_check.checked){
-                  // //console.log("HERE NOT CHECKEC")
                   load_individual_hydroservers_group(title);
                 }
                 input_check.addEventListener("change", function(){
@@ -1310,7 +1298,6 @@ create_group_hydroservers = function(){
                 });
 
                 $(".ui-state-default").click(function(){
-                  //console.log("hola");
                 });
                     $("#soapAddLoading-group").addClass("hidden")
                     $("#btn-add-addHydro").show()
@@ -1536,7 +1523,6 @@ load_group_hydroservers = function(){
        dataType: "JSON",
        success: result => {
           try{
-            console.log("Testing: ", result);
             let groups =result["hydroservers"];
 
             $(".divForServers").empty() //Resetting the catalog
@@ -2478,13 +2464,11 @@ catalog_filter = function(){
               Object.keys(id_dictionary).forEach(function(key) {
                 if(id_dictionary[key] == hs ){
                   hs_new2 = key;
-                  // console.log(hs_available);
                   new_hs_available.push(hs_new2);
 
                 }
               });
             })
-            // console.log(new_hs_available);
             let sitesObj =  JSON.parse(result)['stations'];
             map.getLayers().forEach(function(layer) {
               if(layer instanceof ol.layer.Vector){

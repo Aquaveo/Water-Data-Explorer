@@ -215,7 +215,6 @@ def available_services(request):
 # #####*****************************************************************************************################
 @controller(name='create-group', url='create-group/', app_workspace=True)
 def create_group(request, app_workspace):
-    print(request.POST)
     group_obj = {}
     SessionMaker = app.get_persistent_store_database(Persistent_Store_Name, as_sessionmaker=True)
     session = SessionMaker()  # Initiate a session
@@ -321,13 +320,9 @@ def addMultipleViews(request, hs_list, group, app_workspace):
 @controller(name='load-groups', url='load-groups/')
 def get_groups_list(request):
     list_catalog = {}
-    # print("get_groups_list controllers.py FUNCTION inside")
-    print("Groups list is running \n\n\n\n")
-
 
     SessionMaker = app.get_persistent_store_database(Persistent_Store_Name, as_sessionmaker=True)
 
-    # print(SessionMaker)
     session = SessionMaker()  # Initiate a session
 
     # Query DB for hydroservers
@@ -340,7 +335,7 @@ def get_groups_list(request):
         layer_obj["description"] = group.description
 
         hydroserver_groups_list.append(layer_obj)
-
+    
     list_catalog["hydroservers"] = hydroserver_groups_list
 
     list2 = {}
