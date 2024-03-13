@@ -134,7 +134,7 @@ select_variable_change = function(){
                   let variable_name_legend = `${result1['variablename']}`;
 
                   // TYPE CHART //
-                  let type= "scatter";
+                  let type = "scatter";
 
                   // MAKING THE REQUEST OBJECT FOR DOWNLOAD CALLED "active_map_feature_graphs" //
 
@@ -157,12 +157,12 @@ select_variable_change = function(){
                     //initialize_graphs(x_array,y_array,title_graph,units_y, units_x,variable_name_legend,type,x_array_interpolation,y_array_interpolation);
                     initialize_graphs(x_array,y_array,title_graph,units_y, units_x,variable_name_legend,type);
 
-
+                  }
                   if(chart_type ==="Whisker and Box"){
 
                     //initialize_graphs(undefined,y_array,title_graph,undefined, undefined,undefined,"whisker");
-                    initialize_graphs(undefined,y_array,title_graph,undefined, undefined,undefined,"whisker");
-                    
+                    //initialize_graphs(undefined,y_array,title_graph,undefined, undefined,undefined,"whisker");
+                    initialize_graphs(x_array, y_array, title_graph, units_x, units_y, variable_name_legend, "whisker");
                   }
                   $("#graphAddLoading").addClass("hidden")
 
@@ -686,6 +686,7 @@ select_variable_change = function(){
                     }
                     $("#download-button").on("click", funcDown);
               }
+              
               else{
                 let title_graph=  `${object_request_graphs['site_name']} - ${selectedItemText}
                 No Data Available`
@@ -730,7 +731,7 @@ select_variable_change = function(){
               
                 }
               }
-            }
+            
             catch(e){
               console.log(e);
               $("#graphAddLoading").addClass("hidden")
@@ -890,6 +891,7 @@ function select_variable_change_2() {
   //RETREIVE INTERPOLATION VALUES - NOT YET AVAILABLE
   let units_x = "Time";
   let units_y = $('#variables_graph option:selected').text();
+  title_graph = units_y;
   if (unit_abbreviation) {
     units_y += `(${unit_abbreviation})`;
   } else {
@@ -901,11 +903,11 @@ function select_variable_change_2() {
   let variable_name_legend = units_y;
 
   if(chart_type === "Scatter") {
-    initialize_graphs(x_values, y_values, "Title Here", units_x, units_y, variable_name_legend,"scatter");
+    initialize_graphs(x_values, y_values, title_graph, units_x, units_y, variable_name_legend,"scatter");
   }
 
   if(chart_type === "Whisker and Box") {
-    initialize_graphs(x_values, y_values, "Title Here", units_x, units_y, variable_name_legend,"whisker");
+    initialize_graphs(x_values, y_values, title_graph, units_x, units_y, variable_name_legend,"whisker");
   }
 
   $("#download-button").off("click");
