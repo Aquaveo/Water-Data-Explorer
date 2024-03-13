@@ -1215,101 +1215,171 @@ create_group_hydroservers = function(){
     }
     //MAKE THE AJAX REQUEST///
     let elementForm= $("#modalAddGroupServerForm");
-    let datastring= elementForm.serialize();
-    $("#soapAddLoading-group").removeClass("hidden");
-    let unique_id_group = uuidv4()
-    id_dictionary[unique_id_group] = title
-    $.ajax({
-        type: "POST",
-        url: `create-group/`,
-        dataType: "HTML",
-        data: datastring,
-        success: function(result) {
-            //Returning the geoserver layer metadata from the controller
-            
-            try{
-              var json_response = JSON.parse(result)
+    var selectedServers = $("#table-check-services .filter_check:checked").closest("tr");
+    console.log(selectedServers);
+    var numOfDuplicates = 0;
+    var duplicateServersString = "";
 
-              for (var view in json_response.views) {
-                if (json_response.views[view].siteInfo == '\"invalid url\"') {
-                  new Notify ({
-                    status: 'error',
-                    title: 'Error',
-                    text: `The ${json_response.views[view].title} server had an invalid url. Unable to add that server`,
-                    effect: 'fade',
-                    speed: 300,
-                    customClass: '',
-                    customIcon: '',
-                    showIcon: true,
-                    showCloseButton: true,
-                    autoclose: true,
-                    autotimeout: 3000,
-                    gap: 20,
-                    distance: 20,
-                    type: 1,
-                    position: 'right top'
-                  })
-                }
-              }
+    selectedServers.each(function() {
+      var server_name = $(this).find('td:last').text();
+      if (server_name in layersDict) {
+        
+        if (numOfDuplicates >= 1) {
+          duplicateServersString += ", " + server_name;
+        } else {
+          foundDuplicateServer = true;
+          duplicateServersString = server_name; 
+        }
+        numOfDuplicates += 1;
+      }
+    });
 
-              let group=json_response
-              if(group.message !== "There was an error while adding th group.") {
-                let title=group.title;
-                let description=group.description;
-                information_model[`${title}`] = [];
-                let new_title = unique_id_group;
+    if (numOfDuplicates == 1) {
+      $modalAddGroupHydro.find(".warning").html(`<b>You already have a server with the name ${duplicateServersString}.</b>`);
 
-                let id_group_separator = `${new_title}_list_separator`;
+    } else if (numOfDuplicates > 1) {
+      $modalAddGroupHydro.find(".warning").html(`<b>You already have servers with the names: ${duplicateServersString}.</b>`);
+    } else {
+      $modalAddGroupHydro.find(".warning").html("");
+      let datastring= elementForm.serialize();
+      $("#soapAddLoading-group").removeClass("hidden");
+      let unique_id_group = uuidv4()
+      id_dictionary[unique_id_group] = title;
+      $.ajax({
+          type: "POST",
+          url: `create-group/`,
+          dataType: "HTML",
+          data: datastring,
+          success: function(result) {
+              //Returning the geoserver layer metadata from the controller
+              
+              try{
+                var json_response = JSON.parse(result)
 
-
-                let newHtml;
-                newHtml = html_for_groups(can_delete_hydrogroups, new_title, id_group_separator);
-                
-                $(newHtml).appendTo("#current-Groupservers");
-
-                $(`#${title}-noGroups`).show();
-
-                let li_object = document.getElementById(`${new_title}`);
-                let input_check = li_object.getElementsByClassName("chkbx-layers")[0];
-
-                if(!input_check.checked){
-                  load_individual_hydroservers_group(title);
-                }
-                input_check.addEventListener("change", function(){
-                  change_effect_groups(this,id_group_separator);
-                });
-
-
-                let $title="#"+new_title;
-                let $title_list="#"+new_title+"list";
-
-                $($title).click(function(){
-                  $("#pop-up_description2").html("");
-
-                  actual_group = `&actual-group=${title}`;
-
-                  let description_html=`
-                  <h3>Catalog Title</h3>
-                  <p>${title}</p>
-                  <h3>Catalog Description</h3>
-                  <p>${description}</p>`;
-                  $("#pop-up_description2").html(description_html);
-
-                });
-
-                $(".ui-state-default").click(function(){
-                });
-                    $("#soapAddLoading-group").addClass("hidden")
-                    $("#btn-add-addHydro").show()
-
-                    $("#modalAddGroupServer").modal("hide")
-                    $("#modalAddGroupServerForm").each(function() {
-                        this.reset()
-                    })
+                for (var view in json_response.views) {
+                  if (json_response.views[view].siteInfo == '\"invalid url\"') {
                     new Notify ({
-                      status: 'success',
-                      title: 'Success',
-                      text: `Successfully added the group of views to the database`,
+                      status: 'error',
+                      title: 'Error',
+                      text: `The ${json_response.views[view].title} server had an invalid url. Unable to add that server`,
+                      effect: 'fade',
+                      speed: 300,
+                      customClass: '',
+                      customIcon: '',
+                      showIcon: true,
+                      showCloseButton: true,
+                      autoclose: true,
+                      autotimeout: 3000,
+                      gap: 20,
+                      distance: 20,
+                      type: 1,
+                      position: 'right top'
+                    })
+                  }
+                }
+
+                let group=json_response
+                if(group.message !== "There was an error while adding th group.") {
+                  let title=group.title;
+                  let description=group.description;
+                  information_model[`${title}`] = [];
+                  let new_title = unique_id_group;
+
+                  let id_group_separator = `${new_title}_list_separator`;
+
+
+                  let newHtml;
+                  newHtml = html_for_groups(can_delete_hydrogroups, new_title, id_group_separator);
+                  
+                  $(newHtml).appendTo("#current-Groupservers");
+
+                  $(`#${title}-noGroups`).show();
+
+                  let li_object = document.getElementById(`${new_title}`);
+                  let input_check = li_object.getElementsByClassName("chkbx-layers")[0];
+
+                  if(!input_check.checked){
+                    load_individual_hydroservers_group(title);
+                  }
+                  input_check.addEventListener("change", function(){
+                    change_effect_groups(this,id_group_separator);
+                  });
+
+
+                  let $title="#"+new_title;
+                  let $title_list="#"+new_title+"list";
+
+                  $($title).click(function(){
+                    $("#pop-up_description2").html("");
+
+                    actual_group = `&actual-group=${title}`;
+
+                    let description_html=`
+                    <h3>Catalog Title</h3>
+                    <p>${title}</p>
+                    <h3>Catalog Description</h3>
+                    <p>${description}</p>`;
+                    $("#pop-up_description2").html(description_html);
+
+                  });
+
+                  $(".ui-state-default").click(function(){
+                  });
+                      $("#soapAddLoading-group").addClass("hidden")
+                      $("#btn-add-addHydro").show()
+
+                      $("#modalAddGroupServer").modal("hide")
+                      $("#modalAddGroupServerForm").each(function() {
+                          this.reset()
+                      })
+                      new Notify ({
+                        status: 'success',
+                        title: 'Success',
+                        text: `Successfully added the group of views to the database`,
+                        effect: 'fade',
+                        speed: 300,
+                        customClass: '',
+                        customIcon: '',
+                        showIcon: true,
+                        showCloseButton: true,
+                        autoclose: true,
+                        autotimeout: 3000,
+                        gap: 20,
+                        distance: 20,
+                        type: 1,
+                        position: 'right top'
+                      })
+                      // $.notify(
+                      //     {
+                      //         message: `Successfully Created Group of views to the database`
+                      //     },
+                      //     {
+                      //         type: "success",
+                      //         allow_dismiss: true,
+                      //         z_index: 20000,
+                      //         delay: 5000,
+                      //         animate: {
+                      //           enter: 'animated fadeInRight',
+                      //           exit: 'animated fadeOutRight'
+                      //         },
+                      //         onShow: function() {
+                      //             this.css({'width':'auto','height':'auto'});
+                      //         }
+                      //     }
+                      // )
+                      $("#modalAddGroupServer").modal("hide");
+                      $("#rows_servs").empty();
+                      $("#available_services").hide();
+                      $("#no-groups-label").addClass("hidden");
+                }
+
+                else {
+                    $("#soapAddLoading-group").addClass("hidden")
+                    $("#btn-add-addHydro").show();
+                    new Notify ({
+                      status: 'error',
+                      title: 'Error',
+                      text: `Failed to add to the group. Please check and try again`,
                       effect: 'fade',
                       speed: 300,
                       customClass: '',
@@ -1325,10 +1395,10 @@ create_group_hydroservers = function(){
                     })
                     // $.notify(
                     //     {
-                    //         message: `Successfully Created Group of views to the database`
+                    //         message: `Failed to add to the group. Please check and try again.`
                     //     },
                     //     {
-                    //         type: "success",
+                    //         type: "danger",
                     //         allow_dismiss: true,
                     //         z_index: 20000,
                     //         delay: 5000,
@@ -1341,54 +1411,51 @@ create_group_hydroservers = function(){
                     //         }
                     //     }
                     // )
-                    $("#modalAddGroupServer").modal("hide");
-                    $("#rows_servs").empty();
-                    $("#available_services").hide();
-                    $("#no-groups-label").addClass("hidden");
+                }
+                $("#btn-check_all").addClass("hidden");
+              }
+              catch(e){
+                $("soapAddLoading-group").addClass("hidden");
+                $("#btn-add-addHydro").show();
+                new Notify ({
+                  status: 'error',
+                  title: 'Error',
+                  text: `There was an error adding the group of views`,
+                  effect: 'fade',
+                  speed: 300,
+                  customClass: '',
+                  customIcon: '',
+                  showIcon: true,
+                  showCloseButton: true,
+                  autoclose: true,
+                  autotimeout: 3000,
+                  gap: 20,
+                  distance: 20,
+                  type: 1,
+                  position: 'right top'
+                })
+                // $.notify(
+                //     {
+                //         message: `There was an error adding the group of views`
+                //     },
+                //     {
+                //         type: "danger",
+                //         allow_dismiss: true,
+                //         z_index: 20000,
+                //         delay: 5000,
+                //         animate: {
+                //           enter: 'animated fadeInRight',
+                //           exit: 'animated fadeOutRight'
+                //         },
+                //         onShow: function() {
+                //             this.css({'width':'auto','height':'auto'});
+                //         }
+                //     }
+                // )
               }
 
-              else {
-                  $("#soapAddLoading-group").addClass("hidden")
-                  $("#btn-add-addHydro").show();
-                  new Notify ({
-                    status: 'error',
-                    title: 'Error',
-                    text: `Failed to add to the group. Please check and try again`,
-                    effect: 'fade',
-                    speed: 300,
-                    customClass: '',
-                    customIcon: '',
-                    showIcon: true,
-                    showCloseButton: true,
-                    autoclose: true,
-                    autotimeout: 3000,
-                    gap: 20,
-                    distance: 20,
-                    type: 1,
-                    position: 'right top'
-                  })
-                  // $.notify(
-                  //     {
-                  //         message: `Failed to add to the group. Please check and try again.`
-                  //     },
-                  //     {
-                  //         type: "danger",
-                  //         allow_dismiss: true,
-                  //         z_index: 20000,
-                  //         delay: 5000,
-                  //         animate: {
-                  //           enter: 'animated fadeInRight',
-                  //           exit: 'animated fadeOutRight'
-                  //         },
-                  //         onShow: function() {
-                  //             this.css({'width':'auto','height':'auto'});
-                  //         }
-                  //     }
-                  // )
-              }
-              $("#btn-check_all").addClass("hidden");
-            }
-            catch(e){
+          },
+          error: function(error) {
               $("soapAddLoading-group").addClass("hidden");
               $("#btn-add-addHydro").show();
               new Notify ({
@@ -1426,51 +1493,14 @@ create_group_hydroservers = function(){
               //         }
               //     }
               // )
-            }
+          }
 
-        },
-        error: function(error) {
-            $("soapAddLoading-group").addClass("hidden");
-            $("#btn-add-addHydro").show();
-            new Notify ({
-              status: 'error',
-              title: 'Error',
-              text: `There was an error adding the group of views`,
-              effect: 'fade',
-              speed: 300,
-              customClass: '',
-              customIcon: '',
-              showIcon: true,
-              showCloseButton: true,
-              autoclose: true,
-              autotimeout: 3000,
-              gap: 20,
-              distance: 20,
-              type: 1,
-              position: 'right top'
-            })
-            // $.notify(
-            //     {
-            //         message: `There was an error adding the group of views`
-            //     },
-            //     {
-            //         type: "danger",
-            //         allow_dismiss: true,
-            //         z_index: 20000,
-            //         delay: 5000,
-            //         animate: {
-            //           enter: 'animated fadeInRight',
-            //           exit: 'animated fadeOutRight'
-            //         },
-            //         onShow: function() {
-            //             this.css({'width':'auto','height':'auto'});
-            //         }
-            //     }
-            // )
-        }
+      })
 
-    })
-  }
+      }
+    
+    
+      }
   catch(error){
     $("soapAddLoading-group").addClass("hidden");
     new Notify ({

@@ -894,9 +894,7 @@ function select_variable_change_2() {
   title_graph = units_y;
   if (unit_abbreviation) {
     units_y += `(${unit_abbreviation})`;
-  } else {
-    
-  }
+  } 
 
 
 
