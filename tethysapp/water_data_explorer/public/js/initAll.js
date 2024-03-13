@@ -399,7 +399,7 @@ var water_data_explorer_PACKAGE = (function() {
         new Notify ({
           status: 'error',
           title: 'Error',
-          text: `Unable to initialize the map of the Data Explorer`,
+          text: `Unable to initialize the Data Explorer map`,
           effect: 'fade',
           speed: 300,
           customClass: '',
@@ -448,7 +448,7 @@ var water_data_explorer_PACKAGE = (function() {
           new Notify ({
             status: 'success',
             title: 'Water Data Explorer',
-            text: 'Tip: You can give name to the Data Explorer by going into the settings',
+            text: 'Tip: You can give a name to the Data Explorer in settings',
             effect: 'fade',
             speed: 200,
             customClass: '',

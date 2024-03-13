@@ -620,7 +620,7 @@ load_search_group_modal = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `Problem loading the Filter for the groups of views`,
+      text: `There was a problem loading the filter for the groups of views`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -723,7 +723,7 @@ available_regions_group = function(){
           new Notify ({
             status: 'error',
             title: 'Error',
-            text: `There was an retriving the regions available in the WaterOneFlow web service`,
+            text: `There was a problem retrieving the regions available in the WaterOneFlow web service`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -764,7 +764,7 @@ available_regions_group = function(){
         new Notify ({
           status: 'error',
           title: 'Error',
-          text: `There was an retrieving the regions available in the WaterOneFlow web service`,
+          text: `There was a problem retrieving the regions available in the WaterOneFlow web service`,
           effect: 'fade',
           speed: 300,
           customClass: '',
@@ -806,7 +806,7 @@ available_regions_group = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `We are having a problem to recognize the actual group for the request`,
+      text: `We are having a problem recognizing the actual group for the request`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -1057,7 +1057,7 @@ show_variables_group = function(){
           new Notify ({
             status: 'error',
             title: 'Error',
-            text: `There was an error retrieving the variables from the selected group Web Service`,
+            text: `There was an error retrieving the variables from the selected group's Web Service(s)`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -1098,7 +1098,7 @@ show_variables_group = function(){
         new Notify ({
           status: 'error',
           title: 'Error',
-          text: `There was an error retrieving the variables from the selected group Web Service`,
+          text: `There was an error retrieving the variables from the selected group's Web Service(s)`,
           effect: 'fade',
           speed: 300,
           customClass: '',
@@ -1139,7 +1139,7 @@ show_variables_group = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `There was an retriving the input data from the Web Service`,
+      text: `There was a problem retriving the input data from the Web Service`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -1309,7 +1309,7 @@ create_group_hydroservers = function(){
                     new Notify ({
                       status: 'success',
                       title: 'Success',
-                      text: `Successfully Created Group of views to the database`,
+                      text: `Successfully added the group of views to the database`,
                       effect: 'fade',
                       speed: 300,
                       customClass: '',
@@ -1716,7 +1716,7 @@ remove_individual_hydroservers_group = function(group_name){
             new Notify ({
               status: 'error',
               title: 'Error',
-              text: `We are having an error updating the interface, please reload the page`,
+              text: `We are having an issue updating the interface, please reload the page`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -1756,7 +1756,7 @@ remove_individual_hydroservers_group = function(group_name){
           new Notify ({
             status: 'error',
             title: 'Error',
-            text: `We are having an error trying to delete the selected servers from the groups`,
+            text: `We are having an issue trying to delete the selected servers from the groups`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -1795,7 +1795,7 @@ remove_individual_hydroservers_group = function(group_name){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `We are having an error trying to recognize the actual group`,
+      text: `We are having an issue trying to recognize the actual group`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -1878,7 +1878,7 @@ make_list_groups = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `We are having an error trying to make the list of groups in the application`,
+      text: `We are having an issue trying to make the list of groups in the application`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -1975,7 +1975,7 @@ get_hs_list_from_hydroserver = function(){
               new Notify ({
                 status: 'error',
                 title: 'Error',
-                text: `We are having an error trying to get the list of servers that are in the group`,
+                text: `We are having an issue trying to get the list of servers that are in the group`,
                 effect: 'fade',
                 speed: 300,
                 customClass: '',
@@ -2015,7 +2015,7 @@ get_hs_list_from_hydroserver = function(){
               new Notify ({
                 status: 'error',
                 title: 'Error',
-                text: `We are having an error trying to get the list of servers that are in the group`,
+                text: `We are having an issue trying to get the list of servers that are in the group`,
                 effect: 'fade',
                 speed: 300,
                 customClass: '',
@@ -2054,7 +2054,7 @@ get_hs_list_from_hydroserver = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `We are having an error trying to recognize the actual group`,
+      text: `We are having an issue recognizing the actual group`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -2170,7 +2170,7 @@ delete_group_of_hydroservers = function(){
             new Notify ({
               status: 'success',
               title: 'Success',
-              text: `Successfully Deleted Group!`,
+              text: `Successfully deleted group!`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -2212,7 +2212,7 @@ delete_group_of_hydroservers = function(){
             new Notify ({
               status: 'error',
               title: 'Error',
-              text: `We are having an error deleting the selected groups of views`,
+              text: `We are having an error deleting the selected group(s) of views`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -2254,7 +2254,7 @@ delete_group_of_hydroservers = function(){
             new Notify ({
               status: 'error',
               title: 'Error',
-              text: `We are having an error deleting the selected groups of views`,
+              text: `We are having an error deleting the selected group(s) of views`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -2616,7 +2616,7 @@ catalog_filter = function(){
             new Notify ({
               status: 'error',
               title: 'Error',
-              text: `Something were wrong when filtering the web services by region`,
+              text: `Something went wrong when filtering the web services by region`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -2782,7 +2782,7 @@ catalog_filter_server = function(){
             new Notify ({
               status: 'error',
               title: 'Error',
-              text: `Something were wrong when applying the filter with variables and regions`,
+              text: `Something went wrong when applying the filter with variables and regions`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -2823,7 +2823,7 @@ catalog_filter_server = function(){
           new Notify ({
             status: 'error',
             title: 'Error',
-            text: `Something were wrong when applying the filter with variables and regions`,
+            text: `Something went wrong when applying the filter with variables and regions`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -3040,7 +3040,7 @@ generateListServices = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `There is a problem retrieving the list of services from the Web service Endpoint`,
+      text: `There was a problem retrieving the list of services from the Web Service endpoint`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -3107,7 +3107,7 @@ load_search_modal = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `We are having an error trying to load the menu`,
+      text: `We are having an issue trying to load the menu`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -3210,7 +3210,7 @@ general_search = function(id_search_input, id_table){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `We are having a problem trying doing the search`,
+      text: `We are having a problem searching in variables`,
       effect: 'fade',
       speed: 300,
       customClass: '',

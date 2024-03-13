@@ -265,7 +265,7 @@ disable_map =  function (){
     new Notify ({
       status: 'warning',
       title: 'Warning',
-      text: `Boundary layer was not setup, please go to settings and set up the boundary layer`,
+      text: `Boundary layer was not set up, please go to settings and set up the boundary layer`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -620,7 +620,7 @@ initialize_graphs = function(xArray,yArray,title_graph,xTitle,yTitle,legend1,typ
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `Unable to initialize the graphs`,
+      text: `Unable to initialize graphs`,
       effect: 'fade',
       speed: 300,
       customClass: '',

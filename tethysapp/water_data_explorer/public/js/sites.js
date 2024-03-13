@@ -22,7 +22,7 @@ activate_layer_values = function () {
       evt.stopPropagation();
       $("#graphs").empty();
       let object_request={};
-      
+
       // Cluster zooming when clicked on
       var coordinate = evt.coordinate;
       var features = map.getFeaturesAtPixel(evt.pixel);
@@ -583,7 +583,7 @@ activate_layer_values = function () {
               new Notify ({
                 status: 'error',
                 title: 'Error',
-                text: `The is an error retrieving the complete data of the station/platform`,
+                text: `There was an issue retrieving the complete data of the station/platform`,
                 effect: 'fade',
                 speed: 300,
                 customClass: '',
@@ -625,7 +625,7 @@ activate_layer_values = function () {
             new Notify ({
               status: 'error',
               title: 'Error',
-              text: `There is an error to retrieve the values for the ${feature_single['name']} site`,
+              text: `There was an issue retrieving the values for the ${feature_single['name']} site`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -672,7 +672,7 @@ activate_layer_values = function () {
     new Notify ({
       status: 'warning',
       title: 'Warning',
-      text: `Unable to retrieve information of the selected site`,
+      text: `Unable to retrieve information for the selected site`,
       effect: 'fade',
       speed: 300,
       customClass: '',

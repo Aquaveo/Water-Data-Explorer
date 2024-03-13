@@ -112,7 +112,7 @@ get_vars_from_site = function (resultList){
               new Notify ({
                 status: 'error',
                 title: 'Error',
-                text: `There is no variables in the selected site`,
+                text: `There are no variables in the selected site`,
                 effect: 'fade',
                 speed: 300,
                 customClass: '',
@@ -362,7 +362,7 @@ map_layers = function(sites,title,url,serverType){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `Seems that there is no sites in the service`,
+      text: "No sites were found in the service",
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -581,7 +581,7 @@ load_individual_hydroservers_group = function(group_name){
                new Notify ({
                 status: 'error',
                 title: 'Error',
-                text: `Something went wrong loading the hydroservers for the group called ${group_name}. Please see the console for details.`,
+                text: `Something went wrong loading the hydroservers for ${group_name}. Please see the console for details.`,
                 effect: 'fade',
                 speed: 300,
                 customClass: '',
@@ -623,7 +623,7 @@ load_individual_hydroservers_group = function(group_name){
              new Notify ({
               status: 'error',
               title: 'Error',
-              text: `Something went wrong loading the hydroservers for the group called ${group_name}. Please see the console for details.`,
+              text: `Something went wrong loading the hydroservers for ${group_name}. Please see the console for details.`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -972,7 +972,7 @@ add_hydroserver = function(){
               new Notify ({
                 status: 'error',
                 title: 'Error',
-                text: `Invalid WaterOneFlow web service Url. Please check and try again.`,
+                text: `Invalid WaterOneFlow web service Url. Please check the url and try again.`,
                 effect: 'fade',
                 speed: 300,
                 customClass: '',
@@ -1117,7 +1117,7 @@ delete_hydroserver= function(){
               new Notify ({
                 status: 'success',
                 title: 'Success',
-                text: `Successfully Deleted the Web Service!`,
+                text: `Successfully deleted the Web Service!`,
                 effect: 'fade',
                 speed: 300,
                 customClass: '',
@@ -1156,7 +1156,7 @@ delete_hydroserver= function(){
             new Notify ({
               status: 'info',
               title: 'Alert',
-              text: `We got a problem updating the interface after deleting the Web Service, please reload your page `,
+              text: `We had a problem updating the interface after deleting the Web Service, please reload your page `,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -1306,7 +1306,7 @@ delete_hydroserver_Individual= function(group,server){
               new Notify ({
                 status: 'success',
                 title: 'Success',
-                text: `Successfully Deleted the Web service!`,
+                text: `Successfully deleted the Web service!`,
                 effect: 'fade',
                 speed: 300,
                 customClass: '',
@@ -1344,7 +1344,7 @@ delete_hydroserver_Individual= function(group,server){
             new Notify ({
               status: 'error',
               title: 'Error',
-              text: `We have a problem updating the interface, please reload the page`,
+              text: `We had a problem updating the interface, please reload the page`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -1382,7 +1382,7 @@ delete_hydroserver_Individual= function(group,server){
           new Notify ({
             status: 'error',
             title: 'Error',
-            text: `Something went wrong while deleting the selected web services`,
+            text: `Something went wrong while deleting the selected web service(s)`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -1703,7 +1703,7 @@ showVariables2 = function(){
            new Notify ({
             status: 'error',
             title: 'Error',
-            text: `There is a problem retrieving the variables of the ${hsActual} Web Service`,
+            text: `There was a problem retrieving the variables of the ${hsActual} Web Service`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -1744,7 +1744,7 @@ showVariables2 = function(){
         new Notify ({
           status: 'error',
           title: 'Error',
-          text: `There is no variables in the ${hsActual} Web Service`,
+          text: `There are no variables in the ${hsActual} Web Service`,
           effect: 'fade',
           speed: 300,
           customClass: '',
@@ -1785,7 +1785,7 @@ showVariables2 = function(){
   new Notify ({
     status: 'error',
     title: 'Error',
-    text: `We are having problems recognizing the actual servers selected to delete. WE ARE WORKING ON IT :)`,
+    text: `We are having problems recognizing the actual servers selected to delete.`, // WE ARE WORKING ON IT :)`,
     effect: 'fade',
     speed: 300,
     customClass: '',
@@ -1901,7 +1901,7 @@ showAvailableSites = function(){
             new Notify ({
               status: 'error',
               title: 'Error',
-              text: `There is a problem showing the available sites in the web service/s`,
+              text: `There was a problem displaying the available sites in the web service/s`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -1941,7 +1941,7 @@ showAvailableSites = function(){
          new Notify ({
           status: 'error',
           title: 'Error',
-          text: `There is a problem showing the available sites in the web service/s`,
+          text: `There was a problem displaying the available sites in the web service/s`,
           effect: 'fade',
           speed: 300,
           customClass: '',
@@ -2210,7 +2210,7 @@ hydroserver_information = function(){
           new Notify ({
             status: 'error',
             title: 'Error',
-            text: `There is a problem retriving information for the selected Web Service`,
+            text: `There was a problem retriving information for the selected Web Service`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -2249,7 +2249,7 @@ hydroserver_information = function(){
         new Notify ({
           status: 'error',
           title: 'Error',
-          text: `There is a problem retriving information for the selected Web Service`,
+          text: `There was a problem retriving information for the selected Web Service`,
           effect: 'fade',
           speed: 300,
           customClass: '',
@@ -2352,7 +2352,7 @@ searchSites = function() {
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `Seems that we are having problems with the Search Bar, Please search manually for the site.`,
+      text: `We are having problems with the Search Bar, Please search manually for the desired site.`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -2456,7 +2456,7 @@ update_hydroserver_2 = function() {
         new Notify ({
           status: 'success',
           title: 'Success',
-          text: `Successfully updated the Web Service , ${result["sitesAdded"]} have been added to the Map.`,
+          text: `Successfully updated the Web Service , ${result["sitesAdded"]} sites have been added to the Map.`,
           effect: 'fade',
           speed: 300,
           customClass: '',
@@ -2477,7 +2477,7 @@ update_hydroserver_2 = function() {
           new Notify ({
             status: 'error',
             title: 'Error',
-            text:  `There was an error updating the Web Service 1`,
+            text:  `There was an error updating the Web Service`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -2505,7 +2505,7 @@ update_hydroserver_2 = function() {
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `There was an error Updating the selected Web Service.`,
+      text: `There was an error updating the selected Web Service.`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -2566,7 +2566,7 @@ update_hydroserver = function(){
             new Notify ({
               status: 'success',
               title: 'Success',
-              text: `Successfully updated the Web Service , ${sitesAdded} have been added to the Map.`,
+              text: `Successfully updated the Web Service , ${sitesAdded} sites have been added to the Map.`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -2605,7 +2605,7 @@ update_hydroserver = function(){
             new Notify ({
               status: 'error',
               title: 'Error',
-              text:  `There was an error updating the Web Service 1`,
+              text:  `There was an error updating the Web Service`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -2685,7 +2685,7 @@ update_hydroserver = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `There was an error Updating the selected Web Service.`,
+      text: `There was an error updating the selected Web Service.`,
       effect: 'fade',
       speed: 300,
       customClass: '',
