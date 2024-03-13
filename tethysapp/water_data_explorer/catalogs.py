@@ -264,10 +264,7 @@ def create_group(request, app_workspace):
     # print(group_obj['views'])
     return JsonResponse(group_obj)
 
-
 def addMultipleViews(request, hs_list, group, app_workspace):
-    import pdb
-    pdb.set_trace()
     ret_object = []
     for hs in hs_list:
         new_url = hs['url']
