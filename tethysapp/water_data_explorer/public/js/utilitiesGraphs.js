@@ -162,7 +162,7 @@ select_variable_change = function(){
 
                     //initialize_graphs(undefined,y_array,title_graph,undefined, undefined,undefined,"whisker");
                     initialize_graphs(undefined,y_array,title_graph,undefined, undefined,undefined,"whisker");
-                  
+                    
                   }
                   $("#graphAddLoading").addClass("hidden")
 
@@ -193,10 +193,11 @@ select_variable_change = function(){
                             document.body.appendChild(link);
                             link.click();
                             document.body.removeChild(link);
+                            console.log("TEsting: ", object_request_graphs);
                             new Notify ({
                               status: 'success',
                               title: 'Success',
-                              text: `Download completed for the ${object_request_graphs['variable']} variable in CSV format`,
+                              text: `Download completed for the variable ${object_request_graphs.variables_array[object_request_graphs.variable]} in CSV format`, // {} here
                               effect: 'fade',
                               speed: 300,
                               customClass: '',
@@ -310,6 +311,7 @@ select_variable_change = function(){
                                   pom.draggable = true;
                                   pom.classList.add('dragout');
                                   pom.click();
+                                  
                                   $("#graphAddLoading").addClass("hidden");
                                   new Notify ({
                                     status: 'success',
@@ -692,7 +694,7 @@ select_variable_change = function(){
                 new Notify ({
                   status: 'warning',
                   title: 'Warning',
-                  text: `There is no data for this variable, Sorry`,
+                  text: `There is no data available for this variable`,
                   effect: 'fade',
                   speed: 300,
                   customClass: '',
