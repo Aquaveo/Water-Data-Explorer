@@ -15,24 +15,45 @@ give_available_services = function(){
           $("#rows_servs").empty();
           var json_response = JSON.parse(data)
           var services_ava = json_response['services']
-          var i = 1;
-          var row = ""
-          services_ava.forEach(function(serv){
-            var title_new = serv['title'].replace(/ /g,"_");
-            row += `<tr>
-                      <th scope="row">${i}</th>
-                      <td><input type="checkbox" class="filter_check" name="server_${i}" value=${title_new}></td>
-                      <td>${serv['title']}</td>
-                    </tr>`
-            i += 1;
-          })
-          $("#available_services").show();
-          $("#modalAddGroupServer").find("#rows_servs").html(row)
-
-          $("#available_services").removeClass("hidden");
+          if (services_ava.length == 0 ) {
+            new Notify ({
+              status: 'error',
+              title: 'Error',
+              text: `There was an error retrieving the different web services contained in the view`,
+              effect: 'fade',
+              speed: 300,
+              customClass: '',
+              customIcon: '',
+              showIcon: true,
+              showCloseButton: true,
+              autoclose: true,
+              autotimeout: 3000,
+              gap: 20,
+              distance: 20,
+              type: 1,
+              position: 'right top'
+            }) 
+          } else {
+            var i = 1;
+            var row = ""
+            services_ava.forEach(function(serv){
+              var title_new = serv['title'].replace(/ /g,"_");
+              row += `<tr>
+                        <th scope="row">${i}</th>
+                        <td><input type="checkbox" class="filter_check" name="server_${i}" value=${title_new}></td>
+                        <td>${serv['title']}</td>
+                      </tr>`
+              i += 1;
+            })
+            $("#available_services").show();
+            $("#modalAddGroupServer").find("#rows_servs").html(row)
+  
+            $("#available_services").removeClass("hidden");
+            
+  
+            $("#btn-check_all").removeClass("hidden");
+          }
           $("#soapAddLoading-group").addClass("hidden")
-
-          $("#btn-check_all").removeClass("hidden");
         }
         catch(e){
           $("#soapAddLoading-group").addClass("hidden");
@@ -182,18 +203,14 @@ show_variables_groups = function(){
     dataType: "JSON",
     success: function(data){
       try{
-        // console.log(data);
         variables_list = data['variables'];
         variables_codes_list = data['variables_codes'];
-        // console.log(variables_codes_list);
         const chunk = (arr, size) =>
           Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
             arr.slice(i * size, i * size + size)
           );
         let arr=chunk(variables_list, 2);
         let arr2=chunk(variables_codes_list, 2);
-        // console.log(arr2);
-
 
         var HSTableHtml =
             `<table id="data-table-var" class="table table-striped table-bordered nowrap" width="100%"><tbody>`
@@ -217,7 +234,6 @@ show_variables_groups = function(){
 
 
           HSTableHtml += "</tbody></table>"
-        ////console.log(HSTableHtml)
         $("#modalKeyWordSearch").find("#groups_variables").html(HSTableHtml);
         $("#KeywordLoading").addClass("hidden");
       }
@@ -436,14 +452,12 @@ listener_checkbox = function(list_countries){
 
           variables_list = data['variables'];
           variables_codes_list = data['variables_codes'];
-          // console.log(variables_codes_list);
           const chunk = (arr, size) =>
             Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
               arr.slice(i * size, i * size + size)
             );
           let arr=chunk(variables_list, 2);
           let arr2=chunk(variables_codes_list, 2);
-          // console.log(arr2);
 
 
           var HSTableHtml =
@@ -466,7 +480,6 @@ listener_checkbox = function(list_countries){
                   z = z + 1;
             })
             HSTableHtml += "</tbody></table>"
-          ////console.log(HSTableHtml)
           $("#modalKeyWordSearch").find("#groups_variables").html(HSTableHtml);
           $("#KeywordLoading").addClass("hidden");
         }
@@ -607,7 +620,7 @@ load_search_group_modal = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `Problem loading the Filter for the groups of views`,
+      text: `There was a problem loading the filter for the groups of views`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -655,9 +668,7 @@ $(document).on("click", "#btn-key-update-variables", function(){
         return this.value.replace(/_/g, ' ');
       }).get() // Get array.
 
-    console.log(countries_selected);
     if (countries_selected.length > 0){
-      ////console.log(countries_selected);
       listener_checkbox(countries_selected)
     }
     else{
@@ -712,7 +723,7 @@ available_regions_group = function(){
           new Notify ({
             status: 'error',
             title: 'Error',
-            text: `There was an retriving the regions available in the WaterOneFlow web service`,
+            text: `There was a problem retrieving the regions available in the WaterOneFlow web service`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -753,7 +764,7 @@ available_regions_group = function(){
         new Notify ({
           status: 'error',
           title: 'Error',
-          text: `There was an retrieving the regions available in the WaterOneFlow web service`,
+          text: `There was a problem retrieving the regions available in the WaterOneFlow web service`,
           effect: 'fade',
           speed: 300,
           customClass: '',
@@ -795,7 +806,7 @@ available_regions_group = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `We are having a problem to recognize the actual group for the request`,
+      text: `We are having a problem recognizing the actual group for the request`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -1046,7 +1057,7 @@ show_variables_group = function(){
           new Notify ({
             status: 'error',
             title: 'Error',
-            text: `There was an error retrieving the variables from the selected group Web Service`,
+            text: `There was an error retrieving the variables from the selected group's Web Service(s)`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -1087,7 +1098,7 @@ show_variables_group = function(){
         new Notify ({
           status: 'error',
           title: 'Error',
-          text: `There was an error retrieving the variables from the selected group Web Service`,
+          text: `There was an error retrieving the variables from the selected group's Web Service(s)`,
           effect: 'fade',
           speed: 300,
           customClass: '',
@@ -1128,7 +1139,7 @@ show_variables_group = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `There was an retriving the input data from the Web Service`,
+      text: `There was a problem retriving the input data from the Web Service`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -1204,80 +1215,171 @@ create_group_hydroservers = function(){
     }
     //MAKE THE AJAX REQUEST///
     let elementForm= $("#modalAddGroupServerForm");
-    let datastring= elementForm.serialize();
-    $("#soapAddLoading-group").removeClass("hidden");
-    let unique_id_group = uuidv4()
-    id_dictionary[unique_id_group] = title
-    $.ajax({
-        type: "POST",
-        url: `create-group/`,
-        dataType: "HTML",
-        data: datastring,
-        success: function(result) {
-            //Returning the geoserver layer metadata from the controller
-            try{
-              var json_response = JSON.parse(result)
+    var selectedServers = $("#table-check-services .filter_check:checked").closest("tr");
+    console.log(selectedServers);
+    var numOfDuplicates = 0;
+    var duplicateServersString = "";
 
-              let group=json_response
-              if(group.message !== "There was an error while adding th group.") {
-                let title=group.title;
-                let description=group.description;
-                information_model[`${title}`] = [];
-                let new_title = unique_id_group;
+    selectedServers.each(function() {
+      var server_name = $(this).find('td:last').text();
+      if (server_name in layersDict) {
+        
+        if (numOfDuplicates >= 1) {
+          duplicateServersString += ", " + server_name;
+        } else {
+          foundDuplicateServer = true;
+          duplicateServersString = server_name; 
+        }
+        numOfDuplicates += 1;
+      }
+    });
 
-                let id_group_separator = `${new_title}_list_separator`;
+    if (numOfDuplicates == 1) {
+      $modalAddGroupHydro.find(".warning").html(`<b>You already have a server with the name ${duplicateServersString}.</b>`);
 
+    } else if (numOfDuplicates > 1) {
+      $modalAddGroupHydro.find(".warning").html(`<b>You already have servers with the names: ${duplicateServersString}.</b>`);
+    } else {
+      $modalAddGroupHydro.find(".warning").html("");
+      let datastring= elementForm.serialize();
+      $("#soapAddLoading-group").removeClass("hidden");
+      let unique_id_group = uuidv4()
+      id_dictionary[unique_id_group] = title;
+      $.ajax({
+          type: "POST",
+          url: `create-group/`,
+          dataType: "HTML",
+          data: datastring,
+          success: function(result) {
+              //Returning the geoserver layer metadata from the controller
+              
+              try{
+                var json_response = JSON.parse(result)
 
-                let newHtml;
-                newHtml = html_for_groups(can_delete_hydrogroups, new_title, id_group_separator);
-                
-                $(newHtml).appendTo("#current-Groupservers");
-
-                $(`#${title}-noGroups`).show();
-
-                let li_object = document.getElementById(`${new_title}`);
-                let input_check = li_object.getElementsByClassName("chkbx-layers")[0];
-
-                if(!input_check.checked){
-                  // //console.log("HERE NOT CHECKEC")
-                  load_individual_hydroservers_group(title);
-                }
-                input_check.addEventListener("change", function(){
-                  change_effect_groups(this,id_group_separator);
-                });
-
-
-                let $title="#"+new_title;
-                let $title_list="#"+new_title+"list";
-
-                $($title).click(function(){
-                  $("#pop-up_description2").html("");
-
-                  actual_group = `&actual-group=${title}`;
-
-                  let description_html=`
-                  <h3>Catalog Title</h3>
-                  <p>${title}</p>
-                  <h3>Catalog Description</h3>
-                  <p>${description}</p>`;
-                  $("#pop-up_description2").html(description_html);
-
-                });
-
-                $(".ui-state-default").click(function(){
-                  //console.log("hola");
-                });
-                    $("#soapAddLoading-group").addClass("hidden")
-                    $("#btn-add-addHydro").show()
-
-                    $("#modalAddGroupServer").modal("hide")
-                    $("#modalAddGroupServerForm").each(function() {
-                        this.reset()
-                    })
+                for (var view in json_response.views) {
+                  if (json_response.views[view].siteInfo == '\"invalid url\"') {
                     new Notify ({
-                      status: 'success',
-                      title: 'Success',
-                      text: `Successfully Created Group of views to the database`,
+                      status: 'error',
+                      title: 'Error',
+                      text: `The ${json_response.views[view].title} server had an invalid url. Unable to add that server`,
+                      effect: 'fade',
+                      speed: 300,
+                      customClass: '',
+                      customIcon: '',
+                      showIcon: true,
+                      showCloseButton: true,
+                      autoclose: true,
+                      autotimeout: 3000,
+                      gap: 20,
+                      distance: 20,
+                      type: 1,
+                      position: 'right top'
+                    })
+                  }
+                }
+
+                let group=json_response
+                if(group.message !== "There was an error while adding th group.") {
+                  let title=group.title;
+                  let description=group.description;
+                  information_model[`${title}`] = [];
+                  let new_title = unique_id_group;
+
+                  let id_group_separator = `${new_title}_list_separator`;
+
+
+                  let newHtml;
+                  newHtml = html_for_groups(can_delete_hydrogroups, new_title, id_group_separator);
+                  
+                  $(newHtml).appendTo("#current-Groupservers");
+
+                  $(`#${title}-noGroups`).show();
+
+                  let li_object = document.getElementById(`${new_title}`);
+                  let input_check = li_object.getElementsByClassName("chkbx-layers")[0];
+
+                  if(!input_check.checked){
+                    load_individual_hydroservers_group(title);
+                  }
+                  input_check.addEventListener("change", function(){
+                    change_effect_groups(this,id_group_separator);
+                  });
+
+
+                  let $title="#"+new_title;
+                  let $title_list="#"+new_title+"list";
+
+                  $($title).click(function(){
+                    $("#pop-up_description2").html("");
+
+                    actual_group = `&actual-group=${title}`;
+
+                    let description_html=`
+                    <h3>Catalog Title</h3>
+                    <p>${title}</p>
+                    <h3>Catalog Description</h3>
+                    <p>${description}</p>`;
+                    $("#pop-up_description2").html(description_html);
+
+                  });
+
+                  $(".ui-state-default").click(function(){
+                  });
+                      $("#soapAddLoading-group").addClass("hidden")
+                      $("#btn-add-addHydro").show()
+
+                      $("#modalAddGroupServer").modal("hide")
+                      $("#modalAddGroupServerForm").each(function() {
+                          this.reset()
+                      })
+                      new Notify ({
+                        status: 'success',
+                        title: 'Success',
+                        text: `Successfully added the group of views to the database`,
+                        effect: 'fade',
+                        speed: 300,
+                        customClass: '',
+                        customIcon: '',
+                        showIcon: true,
+                        showCloseButton: true,
+                        autoclose: true,
+                        autotimeout: 3000,
+                        gap: 20,
+                        distance: 20,
+                        type: 1,
+                        position: 'right top'
+                      })
+                      // $.notify(
+                      //     {
+                      //         message: `Successfully Created Group of views to the database`
+                      //     },
+                      //     {
+                      //         type: "success",
+                      //         allow_dismiss: true,
+                      //         z_index: 20000,
+                      //         delay: 5000,
+                      //         animate: {
+                      //           enter: 'animated fadeInRight',
+                      //           exit: 'animated fadeOutRight'
+                      //         },
+                      //         onShow: function() {
+                      //             this.css({'width':'auto','height':'auto'});
+                      //         }
+                      //     }
+                      // )
+                      $("#modalAddGroupServer").modal("hide");
+                      $("#rows_servs").empty();
+                      $("#available_services").hide();
+                      $("#no-groups-label").addClass("hidden");
+                }
+
+                else {
+                    $("#soapAddLoading-group").addClass("hidden")
+                    $("#btn-add-addHydro").show();
+                    new Notify ({
+                      status: 'error',
+                      title: 'Error',
+                      text: `Failed to add to the group. Please check and try again`,
                       effect: 'fade',
                       speed: 300,
                       customClass: '',
@@ -1293,10 +1395,10 @@ create_group_hydroservers = function(){
                     })
                     // $.notify(
                     //     {
-                    //         message: `Successfully Created Group of views to the database`
+                    //         message: `Failed to add to the group. Please check and try again.`
                     //     },
                     //     {
-                    //         type: "success",
+                    //         type: "danger",
                     //         allow_dismiss: true,
                     //         z_index: 20000,
                     //         delay: 5000,
@@ -1309,53 +1411,51 @@ create_group_hydroservers = function(){
                     //         }
                     //     }
                     // )
-                    $("#modalAddGroupServer").modal("hide");
-                    $("#rows_servs").empty();
-                    $("#available_services").hide();
+                }
+                $("#btn-check_all").addClass("hidden");
+              }
+              catch(e){
+                $("soapAddLoading-group").addClass("hidden");
+                $("#btn-add-addHydro").show();
+                new Notify ({
+                  status: 'error',
+                  title: 'Error',
+                  text: `There was an error adding the group of views`,
+                  effect: 'fade',
+                  speed: 300,
+                  customClass: '',
+                  customIcon: '',
+                  showIcon: true,
+                  showCloseButton: true,
+                  autoclose: true,
+                  autotimeout: 3000,
+                  gap: 20,
+                  distance: 20,
+                  type: 1,
+                  position: 'right top'
+                })
+                // $.notify(
+                //     {
+                //         message: `There was an error adding the group of views`
+                //     },
+                //     {
+                //         type: "danger",
+                //         allow_dismiss: true,
+                //         z_index: 20000,
+                //         delay: 5000,
+                //         animate: {
+                //           enter: 'animated fadeInRight',
+                //           exit: 'animated fadeOutRight'
+                //         },
+                //         onShow: function() {
+                //             this.css({'width':'auto','height':'auto'});
+                //         }
+                //     }
+                // )
               }
 
-              else {
-                  $("#soapAddLoading-group").addClass("hidden")
-                  $("#btn-add-addHydro").show();
-                  new Notify ({
-                    status: 'error',
-                    title: 'Error',
-                    text: `Failed to add to the group. Please check and try again`,
-                    effect: 'fade',
-                    speed: 300,
-                    customClass: '',
-                    customIcon: '',
-                    showIcon: true,
-                    showCloseButton: true,
-                    autoclose: true,
-                    autotimeout: 3000,
-                    gap: 20,
-                    distance: 20,
-                    type: 1,
-                    position: 'right top'
-                  })
-                  // $.notify(
-                  //     {
-                  //         message: `Failed to add to the group. Please check and try again.`
-                  //     },
-                  //     {
-                  //         type: "danger",
-                  //         allow_dismiss: true,
-                  //         z_index: 20000,
-                  //         delay: 5000,
-                  //         animate: {
-                  //           enter: 'animated fadeInRight',
-                  //           exit: 'animated fadeOutRight'
-                  //         },
-                  //         onShow: function() {
-                  //             this.css({'width':'auto','height':'auto'});
-                  //         }
-                  //     }
-                  // )
-              }
-              $("#btn-check_all").addClass("hidden");
-            }
-            catch(e){
+          },
+          error: function(error) {
               $("soapAddLoading-group").addClass("hidden");
               $("#btn-add-addHydro").show();
               new Notify ({
@@ -1393,51 +1493,14 @@ create_group_hydroservers = function(){
               //         }
               //     }
               // )
-            }
+          }
 
-        },
-        error: function(error) {
-            $("soapAddLoading-group").addClass("hidden");
-            $("#btn-add-addHydro").show();
-            new Notify ({
-              status: 'error',
-              title: 'Error',
-              text: `There was an error adding the group of views`,
-              effect: 'fade',
-              speed: 300,
-              customClass: '',
-              customIcon: '',
-              showIcon: true,
-              showCloseButton: true,
-              autoclose: true,
-              autotimeout: 3000,
-              gap: 20,
-              distance: 20,
-              type: 1,
-              position: 'right top'
-            })
-            // $.notify(
-            //     {
-            //         message: `There was an error adding the group of views`
-            //     },
-            //     {
-            //         type: "danger",
-            //         allow_dismiss: true,
-            //         z_index: 20000,
-            //         delay: 5000,
-            //         animate: {
-            //           enter: 'animated fadeInRight',
-            //           exit: 'animated fadeOutRight'
-            //         },
-            //         onShow: function() {
-            //             this.css({'width':'auto','height':'auto'});
-            //         }
-            //     }
-            // )
-        }
+      })
 
-    })
-  }
+      }
+    
+    
+      }
   catch(error){
     $("soapAddLoading-group").addClass("hidden");
     new Notify ({
@@ -1495,57 +1558,62 @@ load_group_hydroservers = function(){
             $(".divForServers").empty() //Resetting the catalog
             let extent = ol.extent.createEmpty()
             ind = 1;
-            groups.forEach(group => {
-                let {
-                    title,
-                    description
-                } = group
-                let unique_id_group = uuidv4()
-                id_dictionary[unique_id_group] = title;
+            if (groups.length > 0) {
+              groups.forEach(group => {
+                  let {
+                      title,
+                      description
+                  } = group
+                  let unique_id_group = uuidv4()
+                  id_dictionary[unique_id_group] = title;
 
-                information_model[`${title}`] = []
+                  information_model[`${title}`] = []
 
-                let new_title = unique_id_group;
-                let id_group_separator = `${new_title}_list_separator`;
-
-
-                $(`#${new_title}-noGroups`).show();
-
-                let newHtml;
-
-                newHtml = html_for_groups(can_delete_hydrogroups, new_title, id_group_separator);
-                
-                $(newHtml).appendTo("#current-Groupservers");
+                  let new_title = unique_id_group;
+                  let id_group_separator = `${new_title}_list_separator`;
 
 
-                let li_object = document.getElementById(`${new_title}`);
-                let input_check = li_object.getElementsByClassName("chkbx-layers")[0];
-                load_individual_hydroservers_group(title);
-                let servers_checks = document.getElementById(`${id_group_separator}`).getElementsByClassName("chkbx-layers");
-                input_check.addEventListener("change", function(){
-                  change_effect_groups(this,id_group_separator);
-                });
+                  $(`#${new_title}-noGroups`).show();
+
+                  let newHtml;
+
+                  newHtml = html_for_groups(can_delete_hydrogroups, new_title, id_group_separator);
+                  
+                  $(newHtml).appendTo("#current-Groupservers");
 
 
-                let $title="#"+new_title;
-                let $title_list="#"+new_title+"list";
+                  let li_object = document.getElementById(`${new_title}`);
+                  let input_check = li_object.getElementsByClassName("chkbx-layers")[0];
+                  load_individual_hydroservers_group(title);
+                  let servers_checks = document.getElementById(`${id_group_separator}`).getElementsByClassName("chkbx-layers");
+                  input_check.addEventListener("change", function(){
+                    change_effect_groups(this,id_group_separator);
+                  });
 
-                $($title).click(function(){
-                  $("#pop-up_description2").html("");
 
-                  actual_group = `&actual-group=${title}`;
+                  let $title="#"+new_title;
+                  let $title_list="#"+new_title+"list";
 
-                  let description_html=`
-                  <h3>Catalog Title</h3>
-                  <p>${title}</p>
-                  <h3>Catalog Description</h3>
-                  <p>${description}</p>`;
-                  $("#pop-up_description2").html(description_html);
+                  $($title).click(function(){
+                    $("#pop-up_description2").html("");
 
-                });
-                ind = ind +1;
+                    actual_group = `&actual-group=${title}`;
 
-            })
+                    let description_html=`
+                    <h3>Catalog Title</h3>
+                    <p>${title}</p>
+                    <h3>Catalog Description</h3>
+                    <p>${description}</p>`;
+                    $("#pop-up_description2").html(description_html);
+
+                  });
+                  ind = ind +1;
+
+              });
+          } else {
+              // If there are no groups yet, show the no groups label
+              $("#no-groups-label").removeClass("hidden");
+          }
           }
           catch(e){
             $("#GeneralLoading").addClass("hidden")
@@ -1678,7 +1746,7 @@ remove_individual_hydroservers_group = function(group_name){
             new Notify ({
               status: 'error',
               title: 'Error',
-              text: `We are having an error updating the interface, please reload the page`,
+              text: `We are having an issue updating the interface, please reload the page`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -1718,7 +1786,7 @@ remove_individual_hydroservers_group = function(group_name){
           new Notify ({
             status: 'error',
             title: 'Error',
-            text: `We are having an error trying to delete the selected servers from the groups`,
+            text: `We are having an issue trying to delete the selected servers from the groups`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -1757,7 +1825,7 @@ remove_individual_hydroservers_group = function(group_name){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `We are having an error trying to recognize the actual group`,
+      text: `We are having an issue trying to recognize the actual group`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -1840,7 +1908,7 @@ make_list_groups = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `We are having an error trying to make the list of groups in the application`,
+      text: `We are having an issue trying to make the list of groups in the application`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -1937,7 +2005,7 @@ get_hs_list_from_hydroserver = function(){
               new Notify ({
                 status: 'error',
                 title: 'Error',
-                text: `We are having an error trying to get the list of servers that are in the group`,
+                text: `We are having an issue trying to get the list of servers that are in the group`,
                 effect: 'fade',
                 speed: 300,
                 customClass: '',
@@ -1977,7 +2045,7 @@ get_hs_list_from_hydroserver = function(){
               new Notify ({
                 status: 'error',
                 title: 'Error',
-                text: `We are having an error trying to get the list of servers that are in the group`,
+                text: `We are having an issue trying to get the list of servers that are in the group`,
                 effect: 'fade',
                 speed: 300,
                 customClass: '',
@@ -2016,7 +2084,7 @@ get_hs_list_from_hydroserver = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `We are having an error trying to recognize the actual group`,
+      text: `We are having an issue recognizing the actual group`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -2089,6 +2157,7 @@ delete_group_of_hydroservers = function(){
               Object.keys(id_dictionary).forEach(function(key) {
                 if(id_dictionary[key] == group ){
                   group_name_e3 = key;
+                  delete id_dictionary[key];
                 }
               });
               let element=document.getElementById(group_name_e3);
@@ -2107,6 +2176,7 @@ delete_group_of_hydroservers = function(){
                 Object.keys(id_dictionary).forEach(function(key) {
                   if(id_dictionary[key] == hydroserver ){
                     new_title = key;
+                    delete id_dictionary[key];
                   }
                 });
                 map.removeLayer(layersDict[hydroserver]);
@@ -2130,7 +2200,7 @@ delete_group_of_hydroservers = function(){
             new Notify ({
               status: 'success',
               title: 'Success',
-              text: `Successfully Deleted Group!`,
+              text: `Successfully deleted group!`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -2144,6 +2214,10 @@ delete_group_of_hydroservers = function(){
               type: 1,
               position: 'right top'
             })
+
+            if(Object.keys(id_dictionary).length == 0) {
+              $("#no-groups-label").removeClass("hidden");
+            }
               // $.notify(
               //     {
               //         message: `Successfully Deleted Group!`
@@ -2168,7 +2242,7 @@ delete_group_of_hydroservers = function(){
             new Notify ({
               status: 'error',
               title: 'Error',
-              text: `We are having an error deleting the selected groups of views`,
+              text: `We are having an error deleting the selected group(s) of views`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -2210,7 +2284,7 @@ delete_group_of_hydroservers = function(){
             new Notify ({
               status: 'error',
               title: 'Error',
-              text: `We are having an error deleting the selected groups of views`,
+              text: `We are having an error deleting the selected group(s) of views`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -2420,13 +2494,11 @@ catalog_filter = function(){
               Object.keys(id_dictionary).forEach(function(key) {
                 if(id_dictionary[key] == hs ){
                   hs_new2 = key;
-                  // console.log(hs_available);
                   new_hs_available.push(hs_new2);
 
                 }
               });
             })
-            // console.log(new_hs_available);
             let sitesObj =  JSON.parse(result)['stations'];
             map.getLayers().forEach(function(layer) {
               if(layer instanceof ol.layer.Vector){
@@ -2445,6 +2517,7 @@ catalog_filter = function(){
               let title = sitesObj[i]['title']
               let url = sitesObj[i]['url']
               let sites = sitesObj[i]['sites'];
+              // SERVER TYPE NEEDS TO BE PASSED INTO map_layers FOR THIS TO WORK PROPERLY IF THIS FEATURE IS EVER IMPLEMENTED
               var vectorLayer = map_layers(sites,title,url)[0]
               var vectorSource = map_layers(sites,title,url)[1]
               map.getLayers().forEach(function(layer) {
@@ -2573,7 +2646,7 @@ catalog_filter = function(){
             new Notify ({
               status: 'error',
               title: 'Error',
-              text: `Something were wrong when filtering the web services by region`,
+              text: `Something went wrong when filtering the web services by region`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -2739,7 +2812,7 @@ catalog_filter_server = function(){
             new Notify ({
               status: 'error',
               title: 'Error',
-              text: `Something were wrong when applying the filter with variables and regions`,
+              text: `Something went wrong when applying the filter with variables and regions`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -2780,7 +2853,7 @@ catalog_filter_server = function(){
           new Notify ({
             status: 'error',
             title: 'Error',
-            text: `Something were wrong when applying the filter with variables and regions`,
+            text: `Something went wrong when applying the filter with variables and regions`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -2997,7 +3070,7 @@ generateListServices = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `There is a problem retrieving the list of services from the Web service Endpoint`,
+      text: `There was a problem retrieving the list of services from the Web Service endpoint`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -3064,7 +3137,7 @@ load_search_modal = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `We are having an error trying to load the menu`,
+      text: `We are having an issue trying to load the menu`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -3167,7 +3240,7 @@ general_search = function(id_search_input, id_table){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `We are having a problem trying doing the search`,
+      text: `We are having a problem searching in variables`,
       effect: 'fade',
       speed: 300,
       customClass: '',

@@ -61,7 +61,6 @@ var water_data_explorer_PACKAGE = (function() {
         }
         if(endpointGeoServer ==="None"){
           endpointGeoServer = "Whole_world";
-          ////console.log(endpointGeoServer);
         }
         if(geoServerWorkspace ==="None"){
           geoServerWorkspace= "Whole_world";
@@ -99,8 +98,7 @@ var water_data_explorer_PACKAGE = (function() {
           vectorSource.once('change',function(e){
             if(vectorSource.getState() === 'ready') {
               var extent = vectorSource.getExtent();
-              ////console.log(extent);
-              map.getView().fit(extent, map.getSize());
+              map.getView().fit(extent, map.getSize(),{padding: [100,100,100,100]});
 
               //disable zoom out //
               var properties = map.getView().getProperties();
@@ -171,14 +169,14 @@ var water_data_explorer_PACKAGE = (function() {
             type: 'base'
           }),
 
-          new ol.layer.Tile({
-            title: 'United Nations Map', 
-            source: new ol.source.TileArcGISRest({
-              attributions: 'Produced by United Nations Geospatial',
-              url: url_UN
-            }),
-            type: 'base'
-          }),
+          // new ol.layer.Tile({
+          //   title: 'United Nations Map', 
+          //   source: new ol.source.TileArcGISRest({
+          //     attributions: 'Produced by United Nations Geospatial',
+          //     url: url_UN
+          //   }),
+          //   type: 'base'
+          // }),
           new ol.layer.Tile({
             title: 'ArcGIS World Topographic Map',
             type:'base',
@@ -252,32 +250,28 @@ var water_data_explorer_PACKAGE = (function() {
         })
 
         layersDict = {}
-        // layers = [baseLayer, vector_layer, shpLayer];
-        // layers = layers.push(vector_layer);
-        // layers = layers.push(shpLayer);
-        // console.log(layers);
-          map = new ol.Map({
-              target: "map",
-              layers: layers,
-              view: new ol.View({
-                // -25.30066, -57.63591
-                  center: [17.670578, -49.082926],
-                  projection: projection,
-                  zoom: myZoom
-              }),
-              controls: ol.control
-                  .defaults()
-                  .extend([
-                      new ol.control.ZoomSlider(),
-                      new ol.control.FullScreen(),
-                      new ol.control.Attribution({
-                        collapsible: true,
-                        collapsed: false,
-                        tipLabel: 'Produced by United Nations Geospatial'
-                      })
-                  ]),
-              crossOrigin: "anonymous",
-              // interactions: ol.interaction.defaults({ dragPan: false}),
+        map = new ol.Map({
+            target: "map",
+            layers: layers,
+            view: new ol.View({
+              // -25.30066, -57.63591
+                center: [17.670578, -49.082926],
+                projection: projection,
+                zoom: myZoom
+            }),
+            controls: ol.control
+                .defaults()
+                .extend([
+                    new ol.control.ZoomSlider(),
+                    new ol.control.FullScreen(),
+                    new ol.control.Attribution({
+                      collapsible: true,
+                      collapsed: false,
+                      tipLabel: 'Produced by United Nations Geospatial'
+                    })
+                ]),
+            crossOrigin: "anonymous",
+            // interactions: ol.interaction.defaults({ dragPan: false}),
           })
 
 
@@ -405,7 +399,7 @@ var water_data_explorer_PACKAGE = (function() {
         new Notify ({
           status: 'error',
           title: 'Error',
-          text: `Unable to initialize the map of the Data Explorer`,
+          text: `Unable to initialize the Data Explorer map`,
           effect: 'fade',
           speed: 300,
           customClass: '',
@@ -454,7 +448,7 @@ var water_data_explorer_PACKAGE = (function() {
           new Notify ({
             status: 'success',
             title: 'Water Data Explorer',
-            text: 'Tip: You can give name to the Data Explorer by going into the settings',
+            text: 'Tip: You can give a name to the Data Explorer in settings',
             effect: 'fade',
             speed: 200,
             customClass: '',
@@ -647,7 +641,6 @@ var water_data_explorer_PACKAGE = (function() {
 
       $('#checkbox-label').on('show.bs.tooltip change', function (e) {
           $this = $(this);
-          console.log("hoppp");
           if (e.type == 'show' && $this.find(":checkbox").is(":checked")) {
               e.preventDefault();
           } else if (e.type == 'change') {

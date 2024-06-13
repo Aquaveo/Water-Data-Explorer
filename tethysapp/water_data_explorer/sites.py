@@ -5,6 +5,8 @@ import pandas as pd
 import pywaterml.waterML as pwml
 from datetime import datetime
 
+import requests
+
 from django.template.loader import render_to_string
 from tethys_sdk.routing import controller
 
@@ -13,6 +15,43 @@ from django.http import JsonResponse
 
 Persistent_Store_Name = 'catalog_db'
 
+@controller(name='get-datastream-values', url='get-datastream-values')
+def get_datastream_values_hydroserver_2(request):
+    url = request.POST.get("url")
+    datastream_id = request.POST.get("datastream_id")
+    
+    observed_values = {}
+    headers = {'accept':'application/json'}
+    try:
+        #original url - stop at 1000 values
+        #url_observed_values = f"{data['url']}/api/sensorthings/v1.1/Datastreams('{data['datastream_id']}')/Observations?$resultFormat=dataArray&$top=1000"
+        url_observed_values = f"{url}/api/sensorthings/v1.1/Datastreams('{datastream_id}')/Observations?$resultFormat=dataArray&$top=5000"
+        url_datastream_info = f"{url}/api/sensorthings/v1.1/Datastreams('{datastream_id}')"
+
+        # start_datetime = datetime.fromisoformat(data["start_time"])
+        # end_datetime = datetime.fromisoformat(data["end_time"])
+        info_response = requests.get(url_datastream_info, headers=headers)
+        values_response = requests.get(url_observed_values,headers=headers)
+
+        if info_response.status_code == 200:
+            observed_values["unit_abbreviation"] = info_response.json().get("unitOfMeasurement").get("symbol")
+
+        if values_response.status_code == 200:
+            observed_values['observed_values'] = values_response.json().get('value')[0].get('dataArray',[])
+            
+            timestamps = [observed_value[0] for observed_value in observed_values["observed_values"]]
+            dates = [datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ").strftime('%m-%d-%Y') for timestamp in timestamps]
+            
+            minimum_timestamp = min(dates)
+            maximum_timestamp = max(dates)
+
+            observed_values["minimum_time"] = minimum_timestamp
+            observed_values["maximum_time"] = maximum_timestamp
+
+    except Exception as e:
+        print(e)
+
+    return JsonResponse(observed_values)
 
 
 @controller(name='get-values-hs', url='get-values-hs/')
@@ -48,6 +87,8 @@ def get_values_hs(request):
             - timeUnitName: array containing time units used for the time series.
             - timeSupport: array containing booleans that indicates if the variables support time.
     """
+   
+    
     return_obj = {}
     hs_url = request.POST.get('hs_url')
     # print(hs_url)
@@ -56,45 +97,112 @@ def get_values_hs(request):
     site_desc = network + ':' + site_code
 
     # SessionMaker = app.get_persistent_store_database(Persistent_Store_Name, as_sessionmaker=True)
-    # session = SessionMaker()  # Initiate a session
-    client = Client(hs_url)
-    try:
-        response_info = GetSiteInfo(client, site_desc)['siteInfo']
-        df = pd.DataFrame.from_dict(response_info)
 
-        if df.empty:
-            return_obj['country'] = []
-            return_obj['variables'] = []
-            return_obj['units'] = []
-            return_obj['codes'] = []
-            return_obj['organization'] = []
-            return_obj['times_series'] = []
-            return_obj['geolo'] = []
-            return_obj['timeUnitName'] = []
-            return_obj['TimeSupport'] = []
-            return_obj['dataType'] = []
+    if request.POST.get("server_type") == "hydroserver1":
+        # session = SessionMaker()  # Initiate a session
+        client = Client(hs_url)
+        try:
+            response_info = GetSiteInfo(client, site_desc)['siteInfo']
+            df = pd.DataFrame.from_dict(response_info)
+            print(df["variableCode"].tolist())
+
+            if df.empty:
+                return_obj['country'] = []
+                return_obj['variables'] = []
+                return_obj['units'] = []
+                return_obj['codes'] = []
+                return_obj['organization'] = []
+                return_obj['times_series'] = []
+                return_obj['geolo'] = []
+                return_obj['timeUnitName'] = []
+                return_obj['TimeSupport'] = []
+                return_obj['dataType'] = []
+                return JsonResponse(return_obj)
+            pd.set_option('display.max_columns', None)
+            return_obj['country'] = df['country'].tolist()[0]
+            return_obj['variables'] = df['variableName'].tolist()
+            return_obj['units'] = df['unitAbbreviation'].tolist()
+            return_obj['codes'] = df['variableCode'].tolist()
+            return_obj['timeUnitName'] = df['timeUnitName'].tolist()
+            return_obj['timeSupport'] = df['timeSupport'].tolist()
+            return_obj['dataType'] = df['dataType'].tolist()
+
+            obj_var_desc = {}
+            obj_var_times_s = {}
+            for vari, desc, times_s in zip(df['variableCode'].tolist(), df['organization'].tolist(),
+                                        df['variableTimeInterval'].tolist()):
+                obj_var_desc[vari] = desc
+                obj_var_times_s[vari] = times_s
+            return_obj['organization'] = obj_var_desc
+            return_obj['times_series'] = obj_var_times_s
+            return_obj['geolo'] = df['geolocation'].tolist()[0]
+
+        except Exception:
             return JsonResponse(return_obj)
-        pd.set_option('display.max_columns', None)
-        return_obj['country'] = df['country'].tolist()[0]
-        return_obj['variables'] = df['variableName'].tolist()
-        return_obj['units'] = df['unitAbbreviation'].tolist()
-        return_obj['codes'] = df['variableCode'].tolist()
-        return_obj['timeUnitName'] = df['timeUnitName'].tolist()
-        return_obj['timeSupport'] = df['timeSupport'].tolist()
-        return_obj['dataType'] = df['dataType'].tolist()
+    else: # Hydroserver2
+        
+        return_obj["datastreams"] = []
+        
+        
+        site_info_response = requests.get(f"{hs_url}/api/data/things/{site_code}")
+        if site_info_response.status_code == 200: 
+            site_info = site_info_response.json()
+            organization_name = None
+            for owner in site_info["owners"]:
+                if owner["isPrimaryOwner"]:
+                    if owner["organizationName"] is not None:
+                        organization_name = owner["organizationName"]
 
-        obj_var_desc = {}
-        obj_var_times_s = {}
-        for vari, desc, times_s in zip(df['variableCode'].tolist(), df['organization'].tolist(),
-                                       df['variableTimeInterval'].tolist()):
-            obj_var_desc[vari] = desc
-            obj_var_times_s[vari] = times_s
-        return_obj['organization'] = obj_var_desc
-        return_obj['times_series'] = obj_var_times_s
-        return_obj['geolo'] = df['geolocation'].tolist()[0]
-        return JsonResponse(return_obj)
-    except Exception:
-        return JsonResponse(return_obj)
+           
+            return_obj["country"] = site_info["country"]
+            return_obj["organization"] = organization_name
+            
+        datastreams_response = requests.get(f"{hs_url}/api/data/things/{site_code}/datastreams")
+        if datastreams_response.status_code == 200:
+            metadata_response = requests.get(f"{hs_url}/api/data/things/{site_code}/metadata")
+            if metadata_response.status_code == 200:
+                datastreams = datastreams_response.json()
+                metadata = metadata_response.json()
+
+                for datastream_dict in datastreams:
+                    
+                    datastream_id = datastream_dict["id"]
+                    observed_property_id = datastream_dict["observedPropertyId"]
+                    unit_id = datastream_dict["unitId"]
+
+                    for metadata_dict in metadata["observedProperties"]:
+                        if metadata_dict["id"] == observed_property_id:
+                            observed_property_name = metadata_dict["name"]
+                            observed_property_code = metadata_dict["code"]
+                            break
+
+                    for unit_dict in metadata["units"]:
+                        if unit_dict["id"] == unit_id:
+                            unit_name = unit_dict["name"]
+                            unit_abbreviation = unit_dict["symbol"]
+                            break
+
+                    return_obj["datastreams"].append({"datastream_id": datastream_id, 
+                                                      "observed_property_id": observed_property_id, 
+                                                      "observed_property_name": observed_property_name,
+                                                      "observed_property_code":observed_property_code,
+                                                      "unit_id": unit_id,
+                                                      "unit_name": unit_name,
+                                                      "unit_abbreviation": unit_abbreviation})
+
+                    
+                return_obj["datastreams"] = sorted(return_obj["datastreams"], key=lambda x: x["observed_property_name"])
+
+
+
+
+        
+
+        
+        
+    
+    return JsonResponse(return_obj)
+    
 
 
 @controller(name='get-values-graph-hs', url='get-values-graph-hs/')
@@ -130,6 +238,9 @@ def get_values_graph_hs(request):
     site_desc = network + ':' + site_code
     water = pwml.WaterMLOperations(url=hs_url)
     values = water.GetValues(site_desc, variable_desc, start_date, end_date, format='json')
+    print("Testing values: ")
+    #print(type(values))
+    print(values)
     # print(values)
     df = pd.DataFrame.from_dict(values['values'])
     # print(df)

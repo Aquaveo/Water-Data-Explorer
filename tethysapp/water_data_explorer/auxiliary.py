@@ -25,6 +25,8 @@ from datetime import datetime, timedelta
 
 from .app import WaterDataExplorer as app
 
+import requests
+
 
 extract_base_path = '/tmp'
 
@@ -45,10 +47,22 @@ def GetSites_WHOS(url):
 
         sites_object = parseJSON(sites_json)
 
-        return sites_object
-
-    except Exception:
+    except Exception as e:
+        
+        print(f"Except details: {e}")
         sites_object = {}
+
+        #Try for hydroserver 2
+        
+        api_url = url.split("?WSDL")[0] + "/api/data/things"
+        headers = {"Content-Type": "application/json"}
+
+        response = requests.get(api_url, headers=headers)
+        if response.status_code == 200:
+            sites_object = response.json()
+        else:
+            #error here
+            return "invalid url"
 
     return sites_object
 

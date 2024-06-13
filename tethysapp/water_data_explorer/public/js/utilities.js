@@ -239,7 +239,7 @@ disable_map =  function (){
     let vectorSource = layerBoundary.getSource();
     if(map_block.checked){
       var extent = vectorSource.getExtent();
-      ////console.log(extent);
+      extent = ol.extend.pad(extent,100);
       map.getView().fit(extent, map.getSize());
       var properties = map.getView().getProperties();
       properties["minZoom"] = map.getView().getZoom();
@@ -265,7 +265,7 @@ disable_map =  function (){
     new Notify ({
       status: 'warning',
       title: 'Warning',
-      text: `Boundary layer was not setup, please go to settings and set up the boundary layer`,
+      text: `Boundary layer was not set up, please go to settings and set up the boundary layer`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -371,7 +371,6 @@ clear_coords = function() {
 ************ PURPOSE: THE FUNCTIONS SHOWS THE GRAPHS IN THE LOWER PORTION OF THE MAP ***********
 */
 activate_deactivate_graphs = function(){
-  ////console.log("we ACTIVATEEAAGAG");
   let actual_state=$(this).prop('checked');
   let element_graphs=document.getElementById("graph");
 
@@ -443,6 +442,52 @@ cleanGraphs = function(){
 
 }
 /*
+Performs essentially the same function as initialie_graphs, just doesn't perform interpolation. 
+This will be used for graphing data from hydroserver2 servers.
+*/
+initialize_graphs_2 = function(xArray,yArray, title_graph, xTitel, yTitle, legend1, type) {
+  let element_graphs=document.getElementById("graph");
+  $("#graphs").empty();
+  let element_map =document.getElementById("map");
+    //make the down part visible and also give the design of the model//
+
+
+
+  if($( window ).width() > 320 && $( window ).width() <= 480){
+    element_graphs.style.cssText=  "display: flex; flex-direction: column;";
+  }
+  else{
+    element_graphs.style.cssText=  "display: flex !important; flex-direction: row;";
+  }
+
+  map.updateSize();
+    var config = {
+       modeBarButtonsToRemove: ['hoverClosestCartesian', 'hoverCompareCartesian','resetScale2d','toggleSpikelines'],
+       displaylogo: false,
+       responsive:true
+    };
+
+    if(type === "scatter"){
+      var trace1 = {
+        x: xArray,
+        y: yArray,
+        mode: 'lines',
+        type: type,
+        name: legend1,
+        text: [],
+        marker: { size: 5 },
+        line: {color: '#17BECF'}
+      };
+      var interpolation_trace;
+      var data = [];
+      data.push(trace1);
+
+      
+    }
+
+}
+
+/*
 ************ FUNCTION NAME: INITIALIZE_GRAPHS **********************
 ************ PURPOSE: INITIALIZES ANY GRAH IN THE TIME SERIE OR BEGINNING ***********
 */
@@ -461,9 +506,6 @@ initialize_graphs = function(xArray,yArray,title_graph,xTitle,yTitle,legend1,typ
     else{
       element_graphs.style.cssText=  "display: flex !important; flex-direction: row;";
     }
-
-
-
 
     map.updateSize();
     var config = {
@@ -538,7 +580,7 @@ initialize_graphs = function(xArray,yArray,title_graph,xTitle,yTitle,legend1,typ
         },
       };
 
-
+      $("#plots").empty();
       Plotly.newPlot('plots', data, layout, config);
 
     }
@@ -578,7 +620,7 @@ initialize_graphs = function(xArray,yArray,title_graph,xTitle,yTitle,legend1,typ
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `Unable to initialize the graphs`,
+      text: `Unable to initialize graphs`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -607,7 +649,6 @@ initialize_graphs = function(xArray,yArray,title_graph,xTitle,yTitle,legend1,typ
 
 }
 function featureStyle(myColor) {
-    ////console.log("ahuringa")
     var styleCache = {};
     var style2 =
     function (feature) {
@@ -642,11 +683,10 @@ function featureStyle(myColor) {
 
 
 function get_new_color(){
-  var color_new = colors_unique[Math.floor(Math.random() * colors_unique.length)];
-  if (!colors_used.includes(color_new)) {
-    colors_used.push(color_new)
-    return color_new
-  }
+
+  var color_new = colors_unique[currentColorIndex];
+  currentColorIndex += 1;
+  return color_new;
 
 }
 
@@ -751,10 +791,8 @@ function change_effect_groups(element_to_check,id_group_separator){
            }
        }
        let server_new_name = id_dictionary[server_name];
-       ////console.log(checkbox);
        map.getLayers().forEach(function(layer) {
          if(layer_object_filter.hasOwnProperty(server_new_name) == false){
-           //console.log("false")
            if(layer instanceof ol.layer.Vector && layer == layersDict[server_new_name]){
              if(element_to_check.checked){
 
@@ -785,16 +823,23 @@ function change_effect_groups(element_to_check,id_group_separator){
   }
 }
 
-function html_for_servers(title,group_name,isNew){
+function html_for_servers(title,group_name,server_type,isNew){
   try{
     let check_var = (( isNew == true ) ? 'checked' : '');
     let newHtml = `
     <li class="ui-state-default" layer-name="${title}" id="${title}" >
     <span class="server-name tool_tip_h" data-bs-toggle="tooltip" data-placement="right" title="${id_dictionary[title]}">${id_dictionary[title]}</span>
     <input class="chkbx-layer" type="checkbox" data-bs-toggle="tooltip" data-placement="bottom" title="Show/Hide View" ${check_var}>
-    <button type="button" id="${title}_${group_name}_reload" class="btn btn-sm" >
-     <i class="bi bi-arrow-clockwise tool_tip_h" aria-hidden="true" data-bs-toggle="tooltip" data-placement="bottom" title="Update View"></i>
-    </button>
+    `;
+    if (server_type == "hydroserver1") {
+      newHtml += `<button type="button" id="${title}_${group_name}_reload" class="btn btn-sm" >
+      <i class="bi bi-arrow-clockwise tool_tip_h" aria-hidden="true" data-bs-toggle="tooltip" data-placement="bottom" title="Update View"></i>
+     </button>`;
+    }
+    else {
+      newHtml += `<button type="button" class="btn btn-sm empty-update-button" disabled></button>`;
+    }
+    newHtml += `
     <button type="button" id="${title}_zoom" class="btn btn-sm" >
      <i class="bi bi-geo-alt-fill tool_tip_h" aria-hidden="true" data-bs-toggle="tooltip" data-placement="bottom" title="Zoom to View"></i>
     </button>
@@ -861,6 +906,29 @@ getIconLegend = function(style,server) {
 
     // Convert DOM object to string to overcome from some SVG manipulation related oddities
     return $('<div>').append(svgElem).html();
+  }
+  catch(e){
+    console.log(e);
+  }
+
+}
+
+/**
+* check_if_exists function.
+* Function to check if a groups/service has already been created
+  * @param {string} name_to_check - name of the group or service
+  * @return {boolean} isThere - boolean to see if the group/service exists
+* */
+check_if_exists = function(name_to_check){
+  try{
+      isThere = false;
+  Object.keys(id_dictionary).forEach(function(key){
+    if(id_dictionary[key].toLowerCase() == name_to_check.toLowerCase()){
+      isThere = true;
+      return isThere
+    }
+  })
+  return isThere
   }
   catch(e){
     console.log(e);

@@ -12,16 +12,14 @@
                 <p class="hsinfo">Description</p>
                 <p id="description_Hydroserver"></p>
                 <p class="hsinfo"> Endpoint/URL </p>
-                <span id="urlHydroserver"></span> <span> <button onclick="copyToClipboard('#urlHydroserver')" class="btn btn-light btn-sm tool_tip_h" data-bs-toggle="tooltip" title="copy"> 
-                  <i class="bi bi-clipboard"></i>
-                </button></span>
+                <span id="urlHydroserver"></span>
 
                 <div class="image_button">
-                  <h3>Analysis Tools</h3>
+                  <!-- <h3>Analysis Tools</h3>
                   <p>The Water Data Explorer application uses a python package called "Pywaterml". The Pywaterml allows to access WaterOneFlow (WOF) web services
-                   and retrieve information in different formats. </p>
+                   and retrieve information in different formats. </p> -->
 
-                   <span class="hsinfo"> Documentation </span>
+                   <!-- <span class="hsinfo"> Documentation </span>
                    <span>
                      <a href="https://gist.github.com/romer8/2ea44f0a9536e4cdad8ed7242ca27933" target="_blank" class="tool_tip_h" data-bs-toggle="tooltip" title="Google Colab Pywaterml Tutorial">
                        <img src="{% static 'water_data_explorer/images/colab_icon.png' %}" alt="google_colab" />
@@ -35,8 +33,8 @@
                         </a>
                    </span>
                    <br>
-                   <br>
-                  <span class="hsinfo"> Python Notebooks </span>
+                   <br> -->
+                  <!-- <span class="hsinfo"> Python Notebooks </span>
                   <span>
 
                     <a href="https://gist.github.com/romer8/89c851014afb276b0f20cb61c9c731f6" target="_blank" class="tool_tip_h" data-bs-toggle="tooltip" title="Open in Google Colab">
@@ -47,15 +45,17 @@
                     <button id="btn-download-colab" class="btn btn-light"  data-bs-toggle="modal" data-bs-target="#modalPrompDownload" > 
                       <i class="bi bi-download"></i>
                     </button>
-                  </span>
+                  </span> -->
                 </div>
 
-                <br>
+                <!-- <br>
                 <h2 class="hsinfo">Explore Stations/Platforms: </h2>
                 <div id="map2">
                 </div>
-                <br>
+                <br> -->
                 <p class="hsinfo">List of Stations/Platforms:</p>
+                <p>Below, click on the pin button next to any station to locate it on the map.</p>
+
                 <input type="text" id="myInput" placeholder="Search for Stations/Platforms names" title="Type in a name">
                 <div id="infoTable">
 

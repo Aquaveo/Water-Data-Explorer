@@ -33,7 +33,6 @@ get_vars_from_site = function (resultList){
 
               reque_ob['variable_hs'] = $("#variable_choose")['0'].value;
               $("#variable_choose").off("change.something2").on("change", function(){
-                // console.log("change unbind variable");
               });
               $("#variable_choose").on("change.something2").on("change", function(){
                 reque_ob['variable_hs'] = $("#variable_choose")['0'].value;
@@ -66,10 +65,11 @@ get_vars_from_site = function (resultList){
                   },
                   error:function(){
                     $("#downloading_loading").addClass("hidden");
+
                     new Notify ({
                       status: 'error',
                       title: 'Error',
-                      text: 'Something went wrong when downloading a python notebook for the site',
+                      text:  `Something went wrong when downloading a python notebook for the site`,
                       effect: 'fade',
                       speed: 300,
                       customClass: '',
@@ -82,7 +82,7 @@ get_vars_from_site = function (resultList){
                       distance: 20,
                       type: 1,
                       position: 'right top'
-                    })
+                    }) 
                     // $.notify(
                     //     {
                     //         message: `Something went wrong when downloading a python notebook for the site`
@@ -110,9 +110,9 @@ get_vars_from_site = function (resultList){
             else{
               $("#downloading_loading").addClass("hidden");
               new Notify ({
-                status: 'warning',
+                status: 'error',
                 title: 'Error',
-                text: 'There is no variables in the selected site',
+                text: `There are no variables in the selected site`,
                 effect: 'fade',
                 speed: 300,
                 customClass: '',
@@ -125,7 +125,7 @@ get_vars_from_site = function (resultList){
                 distance: 20,
                 type: 1,
                 position: 'right top'
-              })
+              }) 
               // $.notify(
               //     {
               //         message: `There is no variables in the selected site`
@@ -149,9 +149,9 @@ get_vars_from_site = function (resultList){
           catch(e){
             $("#downloading_loading").addClass("hidden");
             new Notify ({
-              status: 'warning',
+              status: 'error',
               title: 'Error',
-              text: 'Something went wrong when loading the variables for the site',
+              text: `Something went wrong when loading the variables for the site`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -164,7 +164,7 @@ get_vars_from_site = function (resultList){
               distance: 20,
               type: 1,
               position: 'right top'
-            }) 
+            })
             // $.notify(
             //     {
             //         message: `Something went wrong when loading the variables for the site`
@@ -189,9 +189,9 @@ get_vars_from_site = function (resultList){
         error:function(){
           $("#downloading_loading").addClass("hidden");
           new Notify ({
-            status: 'warning',
+            status: 'error',
             title: 'Error',
-            text: 'Something went wrong when loading the variables for the site',
+            text: `Something went wrong when loading the variables for the site`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -204,7 +204,7 @@ get_vars_from_site = function (resultList){
             distance: 20,
             type: 1,
             position: 'right top'
-          }) 
+          })
           // $.notify(
           //     {
           //         message: `Something went wrong when loading the variables for the site`
@@ -230,9 +230,9 @@ get_vars_from_site = function (resultList){
     console.log(error)
     $("#downloading_loading").addClass("hidden");
     new Notify ({
-      status: 'warning',
+      status: 'error',
       title: 'Error',
-      text: 'Something went wrong when loading the variables for the site',
+      text: `Something went wrong when loading the variables for the site`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -245,7 +245,7 @@ get_vars_from_site = function (resultList){
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     // $.notify(
     //     {
     //         message: `Something went wrong when loading the variables for the site`
@@ -268,9 +268,37 @@ get_vars_from_site = function (resultList){
 
 }
 
-map_layers = function(sites,title,url){
+map_layers = function(sites,title,url,serverType){
   try{
     sites = sites.map(site => {
+      var currentSiteName;
+
+      // Account for differences in hydroserver 1 and 2
+        if (site.sitename) {
+          currentSiteName = site.sitename;
+        }
+        else  {
+          currentSiteName = site.name;
+        }
+
+        var currentSiteCode;
+        if (site.sitecode) {
+          currentSiteCode = site.sitecode;
+        } else if(site.id) {
+          currentSiteCode = site.id;
+        } else {
+          currentSiteCode = "Site Code not found";
+        }
+
+        var currentSiteNetwork;
+        if (site.network) {
+          currentSiteNetwork = site.network;
+        } else {
+          currentSiteNetwork = "No network found";
+        }
+
+
+
         return {
             type: "Feature",
             geometry: {
@@ -285,17 +313,18 @@ map_layers = function(sites,title,url){
                 )
             },
             properties: {
-                name: site.sitename,
-                code: site.sitecode,
-                network: site.network,
+                
+                name: currentSiteName,
+                code: currentSiteCode,
+                network: currentSiteNetwork,
                 hs_url: url,
                 hs_name: title,
                 lon: parseFloat(site.longitude),
-                lat: parseFloat(site.latitude)
+                lat: parseFloat(site.latitude),
+                server_type:serverType
             }
         }
     })
-
     let sitesGeoJSON = {
         type: "FeatureCollection",
         crs: {
@@ -305,6 +334,7 @@ map_layers = function(sites,title,url){
             }
         },
         features: sites
+        
     }
 
     const vectorSource = new ol.source.Vector({
@@ -330,9 +360,9 @@ map_layers = function(sites,title,url){
   }
   catch(error){
     new Notify ({
-      status: 'warning',
+      status: 'error',
       title: 'Error',
-      text: 'Seems that there is no sites in the service',
+      text: "No sites were found in the service",
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -345,7 +375,7 @@ map_layers = function(sites,title,url){
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     // $.notify(
     //     {
     //         message: `Seems that there is no sites in the service`
@@ -370,7 +400,7 @@ map_layers = function(sites,title,url){
 }
 
 /*
-****** FU1NCTION NAME : load_individual_hydroservers_group*********
+****** FUNCTION NAME : load_individual_hydroservers_group*********
 ****** FUNCTION PURPOSE: LOADS THE SERVERS OF A HYDROSERVER WHEN THE HYDROSERVER GROUPS IS CLICKED*********
 */
 load_individual_hydroservers_group = function(group_name){
@@ -393,6 +423,7 @@ load_individual_hydroservers_group = function(group_name){
            success: result => {
              try{
                let servers = result["hydroserver"]
+      
                //USE A FUNCTION TO FIND THE LI ASSOCIATED WITH THAT GROUP  AND DELETE IT FROM THE MAP AND MAKE ALL
                // THE CHECKBOXES VISIBLE //
                let group_name_e3;
@@ -403,7 +434,7 @@ load_individual_hydroservers_group = function(group_name){
                });
                let extent = ol.extent.createEmpty()
                let id_group_separator = `${group_name_e3}_list_separator`;
-
+              
                if(servers.length <= 0){
                  $(`#${group_name_e3}-noGroups`).show();
                }
@@ -412,23 +443,27 @@ load_individual_hydroservers_group = function(group_name){
                }
 
                servers.forEach(function(server){
+                  
                    let {
                        title,
                        url,
-                       siteInfo
+                       siteInfo,
+                       variables,
+                       serverType
                    } = server
+      
                    let unique_id_group = uuidv4()
                    id_dictionary[unique_id_group] = title
                    information_model[`${group_name}`].push(title);
-
+                  
                    let new_title = unique_id_group;
 
-                     let newHtml = html_for_servers(new_title,group_name_e3);
+                     let newHtml = html_for_servers(new_title,group_name_e3,serverType=serverType);
                      $(newHtml).appendTo(`#${id_group_separator}`);
 
                      $(`#${new_title}_variables`).on("click",showVariables2);
                      $(`#${new_title}_variables_info`).on("click",hydroserver_information);
-                     $(`#${new_title}_${group_name_e3}_reload`).on("click",update_hydroserver);
+                     $(`#${new_title}_${group_name_e3}_reload`).on("click",update_hydroserver_2);
 
 
                      let lis = document.getElementById(`${id_group_separator}`).getElementsByTagName("li");
@@ -480,8 +515,8 @@ load_individual_hydroservers_group = function(group_name){
                      if (typeof(sites) == "string"){
                        sites = JSON.parse(siteInfo);
                      }
-                     var vectorLayer = map_layers(sites,title,url)[0]
-                     var vectorSource = map_layers(sites,title,url)[1]
+                     var vectorLayer = map_layers(sites,title,url,serverType)[0]
+                     var vectorSource = map_layers(sites,title,url,serverType)[1]
 
                      let test_style = new ol.style.Style({
                        image: new ol.style.Circle({
@@ -520,7 +555,8 @@ load_individual_hydroservers_group = function(group_name){
                          map.removeLayer(layersDict['selectedPoint'])
                          map.updateSize();
                        }
-                       map.getView().fit(vectorSource.getExtent());
+                       
+                       map.getView().fit(vectorSource.getExtent(),{padding:[100,100,100,100]});
                        map.updateSize();
                        map.getLayers().forEach(function(layer) {
                          if (!(title in layer_object_filter)){
@@ -545,7 +581,7 @@ load_individual_hydroservers_group = function(group_name){
                new Notify ({
                 status: 'error',
                 title: 'Error',
-                text: `Something went wrong loading the hydroservers for the group called ${group_name}. Please see the console for details.`,
+                text: `Something went wrong loading the hydroservers for ${group_name}. Please see the console for details.`,
                 effect: 'fade',
                 speed: 300,
                 customClass: '',
@@ -558,7 +594,7 @@ load_individual_hydroservers_group = function(group_name){
                 distance: 20,
                 type: 1,
                 position: 'right top'
-              }) 
+              })
               //  $.notify(
               //      {
               //          message: `Something went wrong loading the hydroservers for the group called ${group_name}. Please see the console for details.`
@@ -587,7 +623,7 @@ load_individual_hydroservers_group = function(group_name){
              new Notify ({
               status: 'error',
               title: 'Error',
-              text: `Something went wrong loading the hydroservers for the group called ${group_name}. Please see the console for details.`,
+              text: `Something went wrong loading the hydroservers for ${group_name}. Please see the console for details.`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -600,7 +636,7 @@ load_individual_hydroservers_group = function(group_name){
               distance: 20,
               type: 1,
               position: 'right top'
-            }) 
+            })
               //  $.notify(
               //      {
               //          message: `Something went wrong loading the hydroservers for the group called ${group_name}. Please see the console for details.`
@@ -653,6 +689,9 @@ add_hydroserver = function(){
     if($("#soap-title").val() == ""){
       $modalAddSOAP.find(".warning").html(  "<b>Please enter a title. This field cannot be blank.</b>")
       return false
+    } else if (check_if_exists($("#soap-title").val())) {
+      $modalAddSOAP.find(".warning").html(  "<b>Please enter a different title, a web service with that name already exists.</b>")
+      return false;
     }
     else {
       $modalAddSOAP.find(".warning").html("")
@@ -664,14 +703,21 @@ add_hydroserver = function(){
                   "<b>Please zoom in further to be able to access the NWIS Values</b>"
               )
           return false
-      }
+    } else if ($("#soap-url").val() == "") {
+      $modalAddSOAP
+              .find(".warning")
+              .html(
+                  "<b>Please enter an endpoint/url. This field cannot be blank.</b>"
+              )
+              return false;
+    }
       else {
           $modalAddSOAP.find(".warning").html("")
       }
       if ($("#soap-title").val() != "") {
         var regex = new RegExp("^(?![0-9]*$)[a-zA-Z0-9]+$")
         var specials=/[*|\":<>[\]{}`\\()';@&$]/;
-
+        
         var title = $("#soap-title").val()
         // if (!regex.test(title)) {
         if (specials.test(title)){
@@ -700,9 +746,10 @@ add_hydroserver = function(){
           data: datastring,
           success: function(result) {
             try{
-
+              
               //Returning the geoserver layer metadata from the controller
               var json_response = JSON.parse(result)
+              
               let group_name = actual_group.split('=')[1];
               // let id_group_separator = `${group_name}_list_separator`;
 
@@ -725,16 +772,16 @@ add_hydroserver = function(){
 
                     $(`#${group_name_e3}-noGroups`).hide();
 
-                      let {title, siteInfo, url, group} = json_response
-
-
+                      let {title, siteInfo, url, group, server_type} = json_response
                         let sites = siteInfo
+                        let server_type_test = server_type;
 
                         if (typeof(sites) == "string"){
                           sites = JSON.parse(siteInfo);
                         }
-                        var vectorLayer = map_layers(sites,title,url)[0]
-                        var vectorSource = map_layers(sites,title,url)[1]
+                        
+                        var vectorLayer = map_layers(sites,title,url,server_type)[0]
+                        var vectorSource = map_layers(sites,title,url,server_type)[1]
 
                         let test_style = new ol.style.Style({
                           image: new ol.style.Circle({
@@ -756,11 +803,10 @@ add_hydroserver = function(){
                        }
                        $(`#${new_title}-row-legend`).prepend($(getIconLegend(test_style,title)));
 
-
                         map.addLayer(vectorLayer);
 
                         vectorLayer.set("selectable", true)
-                        map.getView().fit(vectorSource.getExtent());
+                        map.getView().fit(vectorSource.getExtent(),{padding:[100,100,100,100]});
                         map.updateSize();
                         layersDict[title] = vectorLayer;
 
@@ -770,14 +816,14 @@ add_hydroserver = function(){
                            $(newHtml).appendTo(`#${id_group_separator}`);
                            $(`#${new_title}_variables`).on("click",showVariables2);
                            $(`#${new_title}_variables_info`).on("click",hydroserver_information);
-                           $(`#${new_title}_${group_name_e3}_reload`).on("click",update_hydroserver);
+                           $(`#${new_title}_${group_name_e3}_reload`).on("click",update_hydroserver_2);
 
                           // MAKES THE LAYER INVISIBLE
 
                           let lis = document.getElementById("current-Groupservers").getElementsByTagName("li");
                           let li_arrays = Array.from(lis);
                           let input_check = li_arrays.filter(x => new_title === x.attributes['layer-name'].value)[0].getElementsByClassName("chkbx-layer")[0];
-
+                          input_check.checked = true;
                           input_check.addEventListener("change", function(){
                             if(layersDict['selectedPointModal']){
                               map.removeLayer(layersDict['selectedPointModal'])
@@ -814,7 +860,7 @@ add_hydroserver = function(){
                               map.removeLayer(layersDict['selectedPoint'])
                               map.updateSize();
                             }
-                            map.getView().fit(vectorSource.getExtent());
+                            map.getView().fit(vectorSource.getExtent(),{padding:[100,100,100,100]});
                             map.updateSize();
                             map.getLayers().forEach(function(layer) {
                               if (!(title in layer_object_filter)){
@@ -832,6 +878,7 @@ add_hydroserver = function(){
                             input_check.checked = true;
 
                           });
+
                           new Notify ({
                             status: 'success',
                             title: 'Success',
@@ -848,7 +895,8 @@ add_hydroserver = function(){
                             distance: 20,
                             type: 1,
                             position: 'right top'
-                          }) 
+                          })
+                          $("#no-groups-label").hide();
                           // $.notify(
                           //     {
                           //         message: `Successfully Added the WaterOneFlow Service to the Map`
@@ -885,7 +933,6 @@ add_hydroserver = function(){
                   status: 'error',
                   title: 'Error',
                   text: `We are having problems adding the WaterOneFlow web service`,
-                  effect: 'fade',
                   speed: 300,
                   customClass: '',
                   customIcon: '',
@@ -897,7 +944,7 @@ add_hydroserver = function(){
                   distance: 20,
                   type: 1,
                   position: 'right top'
-                }) 
+                })
                 // $.notify(
                 //     {
                 //         message: `We are having problems adding the WaterOneFlow web service`
@@ -925,7 +972,7 @@ add_hydroserver = function(){
               new Notify ({
                 status: 'error',
                 title: 'Error',
-                text: `Invalid WaterOneFlow web service Url. Please check and try again.`,
+                text: `Invalid WaterOneFlow web service Url. Please check the url and try again.`,
                 effect: 'fade',
                 speed: 300,
                 customClass: '',
@@ -938,7 +985,7 @@ add_hydroserver = function(){
                 distance: 20,
                 type: 1,
                 position: 'right top'
-              }) 
+              })
               // $.notify(
               //     {
               //         message: `Invalid WaterOneFlow web service Url. Please check and try again.`
@@ -963,7 +1010,7 @@ add_hydroserver = function(){
   catch(e){
         $("#soapAddLoading").addClass("hidden");
         $("#btn-add-soap").show();
-        //console.log(error);
+        console.log(error);
         new Notify ({
           status: 'error',
           title: 'Error',
@@ -980,7 +1027,7 @@ add_hydroserver = function(){
           distance: 20,
           type: 1,
           position: 'right top'
-        }) 
+        })
         // $.notify(
         //     {
         //         message: `We are having problems adding the WaterOneFlow web service`
@@ -1063,11 +1110,14 @@ delete_hydroserver= function(){
                 $(`#${group_name_e3}-noGroups`).show();
 
               }
+
+              delete id_dictionary[new_title];
+
               $(`#${new_title}deleteID`).remove();
               new Notify ({
                 status: 'success',
                 title: 'Success',
-                text: `Successfully Deleted the Web Service!`,
+                text: `Successfully deleted the Web Service!`,
                 effect: 'fade',
                 speed: 300,
                 customClass: '',
@@ -1080,7 +1130,7 @@ delete_hydroserver= function(){
                 distance: 20,
                 type: 1,
                 position: 'right top'
-              }) 
+              })
               // $.notify(
               //     {
               //         message: `Successfully Deleted the Web Service!`
@@ -1104,9 +1154,9 @@ delete_hydroserver= function(){
           }
           catch(e){
             new Notify ({
-              status: 'error',
-              title: 'Error',
-              text: `We got a problem updating the interface after deleting the Web Service, please reload your page`,
+              status: 'info',
+              title: 'Alert',
+              text: `We had a problem updating the interface after deleting the Web Service, please reload your page `,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -1119,7 +1169,8 @@ delete_hydroserver= function(){
               distance: 20,
               type: 1,
               position: 'right top'
-            }) 
+            })
+
             // $.notify(
             //     {
             //         message: `We got a problem updating the interface after deleting the Web Service, please reload your page `
@@ -1157,7 +1208,7 @@ delete_hydroserver= function(){
             distance: 20,
             type: 1,
             position: 'right top'
-          }) 
+          })
             // $.notify(
             //     {
             //         message: `Something went wrong while deleting the selected web services`
@@ -1196,7 +1247,7 @@ delete_hydroserver= function(){
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     // $.notify(
     //     {
     //         message: `We are having problems recognizing the actual group or groups to delete.`
@@ -1255,7 +1306,7 @@ delete_hydroserver_Individual= function(group,server){
               new Notify ({
                 status: 'success',
                 title: 'Success',
-                text: `Successfully Deleted the Web service!`,
+                text: `Successfully deleted the Web service!`,
                 effect: 'fade',
                 speed: 300,
                 customClass: '',
@@ -1268,7 +1319,7 @@ delete_hydroserver_Individual= function(group,server){
                 distance: 20,
                 type: 1,
                 position: 'right top'
-              }) 
+              })
               // $.notify(
               //     {
               //         message: `Successfully Deleted the Web service!`
@@ -1291,9 +1342,9 @@ delete_hydroserver_Individual= function(group,server){
           }
           catch(e){
             new Notify ({
-              status: 'warning',
-              title: 'Info',
-              text: `We have a problem updating the interface, please reload the page`,
+              status: 'error',
+              title: 'Error',
+              text: `We had a problem updating the interface, please reload the page`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -1306,7 +1357,7 @@ delete_hydroserver_Individual= function(group,server){
               distance: 20,
               type: 1,
               position: 'right top'
-            }) 
+            })
             // $.notify(
             //     {
             //         message: `We have a problem updating the interface, please reload the page`
@@ -1331,7 +1382,7 @@ delete_hydroserver_Individual= function(group,server){
           new Notify ({
             status: 'error',
             title: 'Error',
-            text: `Something went wrong while deleting the selected web services`,
+            text: `Something went wrong while deleting the selected web service(s)`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -1344,7 +1395,7 @@ delete_hydroserver_Individual= function(group,server){
             distance: 20,
             type: 1,
             position: 'right top'
-          }) 
+          })
             // $.notify(
             //     {
             //         message: `Something went wrong while deleting the selected web services`
@@ -1383,7 +1434,7 @@ delete_hydroserver_Individual= function(group,server){
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     // $.notify(
     //     {
     //         message: `We are having problems recognizing the actual servers selected to delete`
@@ -1463,7 +1514,7 @@ showVariables = function(){
                 distance: 20,
                 type: 1,
                 position: 'right top'
-              }) 
+              })
               // $.notify(
               //     {
               //         message: `Something went wrong retrieving the variables of the selected web services`
@@ -1501,7 +1552,7 @@ showVariables = function(){
             distance: 20,
             type: 1,
             position: 'right top'
-          }) 
+          })
             //  $.notify(
             //      {
             //          message: `Something went wrong retrieving the variables of the selected web services`
@@ -1541,7 +1592,7 @@ showVariables = function(){
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     //  $.notify(
     //      {
     //          message: `We are having problems recognizing the actual group of Web services`
@@ -1582,59 +1633,77 @@ showVariables2 = function(){
        data: filterSites,
        success: result => {
          try{
-           //1) combine the arrays:
-          var list_e = [];
-          for (var j = 0; j <result['variables_name'].length; j++)
-              list_e.push({'variables_name': result['variables_name'][j], 'variables_unit_abr': result['variables_unit_abr'][j], 'variables_code':result['variables_code'][j]});
+          var HSTableHtml =
+                  `<table id="${filterSites['hs']}-variable-table" class="table table-striped table-bordered nowrap" width="100%">
+                      <thead><th>Observed Variable</th><th>Unit</th><th> WHOS Variable Code</th></thead>
+                  <tbody>`;
+          if (result["server_type"] == "hydroserver1") {
+            //1) combine the arrays:
+            var variable_array = [];
+            for (var j = 0; j <result["variables"]["variables_name"].length; j++) {
+              var variable_name = result["variables"]["variables_name"][j];
+              var unit_abr = result["variables"]["variables_unit_abr"][j];
+              var variable_code = result["variables"]["variables_code"][j];
+              variable_array.push({'variables_name': variable_name, 
+                           'variables_unit_abr':unit_abr, 
+                           'variables_code':variable_code});
+              }
+            //2) sort:
+            variable_array.sort(function(a, b) {
+                return ((a.variables_name < b.variables_name) ? -1 : ((a.variables_name == b.variables_name) ? 0 : 1));
 
-          //2) sort:
-          list_e.sort(function(a, b) {
-              return ((a.variables_name < b.variables_name) ? -1 : ((a.variables_name == b.variables_name) ? 0 : 1));
+            });
+          
+              if (variable_array.length === 0) {
+                  $modalVariables
+                      .find(".modal-body")
+                      .html(
+                          "<b>There are no variables in the Hydroserver.</b>"
+                      )
+              }
+              // Display out the variables information
+              else {
+                  for (var i = 0; i < variable_array.length; i++) {
+                      HSTableHtml +=
+                      '<tr class="odd gradeX2">'+
+                          `<td>${variable_array[i]['variables_name']}</td>
+                          <td>${variable_array[i]['variables_unit_abr']}</td>
+                          <td>${variable_array[i]['variables_code']}</td>
 
-          });
+                          `
+                          +
+                      '</tr>'
+                  }
+                  HSTableHtml += "</tbody></table>"
+                  $modalVariables.find("#hideScroll2").html(HSTableHtml)
+              }
+          } else { // Hydroserver2
+            console.log(result);
+            for (var variable in result.variables) {
+              HSTableHtml += 
+              `<tr class="odd gradeX2">
+                  <td>${variable}</td>
+                  <td>${result.variables[variable].unit_name} (${result.variables[variable].abbreviation})</td>
+                  <td>${result.variables[variable].variable_code}</td>
+                </tr>
+              ` ;
+            }
 
-          //3) separate them back out:
-          for (var k = 0; k < list_e.length; k++) {
-              result['variables_name'][k] = list_e[k].variables_name;
-              result['variables_unit_abr'][k] = list_e[k].variables_unit_abr;
-              result['variables_code'][k] = list_e[k].variables_code;
+            HSTableHtml += "</tbody></table>";
+            $modalVariables.find("#hideScroll2").html(HSTableHtml)
+
+            
+
           }
-
-             // console.log(result);
-             var HSTableHtml =
-                 `<table id="${filterSites['hs']}-variable-table" class="table table-striped table-bordered nowrap" width="100%">
-                    <thead><th>Observed Variable</th><th>Unit</th><th> WHOS Variable Code</th></thead>
-                 <tbody>`
-             if (result['variables_name'].length === 0) {
-                 $modalVariables
-                     .find(".modal-body")
-                     .html(
-                         "<b>There are no variables in the Hydroserver.</b>"
-                     )
-             }
-             else {
-                 for (var i = 0; i < result['variables_name'].length; i++) {
-                     HSTableHtml +=
-                    '<tr class="odd gradeX2">'+
-                         `<td>${result['variables_name'][i]}</td>
-                         <td>${result['variables_unit_abr'][i]}</td>
-                         <td>${result['variables_code'][i]}</td>
-
-                         `
-                         +
-                    '</tr>'
-                 }
-                 HSTableHtml += "</tbody></table>"
-                 $modalVariables.find("#hideScroll2").html(HSTableHtml)
-             }
              $("#variablesLoading2").addClass("hidden");
          }
          catch(e){
+          console.log("Error: ", e);
            $("#variablesLoading2").addClass("hidden");
            new Notify ({
-            status: 'warning',
-            title: 'Info',
-            text: `There is a problem retrieving the variables of the ${hsActual} Web Service`,
+            status: 'error',
+            title: 'Error',
+            text: `There was a problem retrieving the variables of the ${hsActual} Web Service`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -1647,7 +1716,7 @@ showVariables2 = function(){
             distance: 20,
             type: 1,
             position: 'right top'
-          }) 
+          })
             //  $.notify(
             //      {
             //          message: `There is a problem retrieving the variables of the ${hsActual} Web Service`
@@ -1673,9 +1742,9 @@ showVariables2 = function(){
       error: function(error) {
         $("#variablesLoading2").addClass("hidden");
         new Notify ({
-          status: 'warning',
-          title: 'Info',
-          text: `There is no variables in the ${hsActual} Web Service`,
+          status: 'error',
+          title: 'Error',
+          text: `There are no variables in the ${hsActual} Web Service`,
           effect: 'fade',
           speed: 300,
           customClass: '',
@@ -1688,7 +1757,7 @@ showVariables2 = function(){
           distance: 20,
           type: 1,
           position: 'right top'
-        }) 
+        })
           // $.notify(
           //     {
           //         message: `There is no variables in the ${hsActual} Web Service`
@@ -1715,8 +1784,8 @@ showVariables2 = function(){
  catch(e){
   new Notify ({
     status: 'error',
-    title: 'error',
-    text: `We are having problems recognizing the actual servers selected to delete. WE ARE WORKING ON IT :)`,
+    title: 'Error',
+    text: `We are having problems recognizing the actual servers selected to delete.`, // WE ARE WORKING ON IT :)`,
     effect: 'fade',
     speed: 300,
     customClass: '',
@@ -1729,7 +1798,7 @@ showVariables2 = function(){
     distance: 20,
     type: 1,
     position: 'right top'
-  }) 
+  })
   //  $.notify(
   //      {
   //          message: `We are having problems recognizing the actual servers selected to delete. WE ARE WORKING ON IT :)`
@@ -1785,6 +1854,7 @@ showAvailableSites = function(){
             let sites = result['hydroserver'];
             let title = filterSites['hs'];
             let url = layersDict[title].getSource().getFeatures()[0].getProperties().features[0].getProperties().hs_url
+            // THESE CALLS TO MAP_LAYERS WILL NEED THE SERVER TYPE TO BE PASSED IN TO THEM IF THIS FEATURE IS EVER IMPLEMENTED
             const vectorLayer =  map_layers(sites,title,url)[0]
             const vectorSource =  map_layers(sites,title,url)[1]
             map.getLayers().forEach(function(layer) {
@@ -1830,8 +1900,8 @@ showAvailableSites = function(){
             $("#variablesLoading").removeClass("hidden");
             new Notify ({
               status: 'error',
-              title: 'error',
-              text: `There is a problem showing the available sites in the web service/s`,
+              title: 'Error',
+              text: `There was a problem displaying the available sites in the web service/s`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -1844,7 +1914,7 @@ showAvailableSites = function(){
               distance: 20,
               type: 1,
               position: 'right top'
-            }) 
+            })
               // $.notify(
               //     {
               //         message: `There is a problem showing the available sites in the web service/s`
@@ -1870,8 +1940,8 @@ showAvailableSites = function(){
          $("#variablesLoading").removeClass("hidden");
          new Notify ({
           status: 'error',
-          title: 'error',
-          text: `There is a problem showing the available sites in the web service/s`,
+          title: 'Error',
+          text: `There was a problem displaying the available sites in the web service/s`,
           effect: 'fade',
           speed: 300,
           customClass: '',
@@ -1884,7 +1954,7 @@ showAvailableSites = function(){
           distance: 20,
           type: 1,
           position: 'right top'
-        }) 
+        })
           //  $.notify(
           //      {
           //          message: `There is a problem showing the available sites in the web service/s`
@@ -1911,7 +1981,7 @@ showAvailableSites = function(){
     $("#variablesLoading").addClass("hidden");
     new Notify ({
       status: 'error',
-      title: 'error',
+      title: 'Error',
       text: `We are having problems recognizing the web services selected`,
       effect: 'fade',
       speed: 300,
@@ -1925,7 +1995,7 @@ showAvailableSites = function(){
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     // $.notify(
     //     {
     //         message: `We are having problems recognizing the web services selected`
@@ -1953,11 +2023,13 @@ $(`#btn-var-search-server`).on("click",showAvailableSites);
 */
 hydroserver_information = function(){
   try{
+    
+
+    // Clear out the search bar in the modal
+    $("#myInput").val('');
     if(layersDict['selectedPointModal']){
-      map2.removeLayer(layersDict['selectedPointModal']);
       map.removeLayer(layersDict['selectedPointModal']);
-      map2.updateSize()
-      map.updateSize()
+      map.updateSize();
     }
     let var_select = $("#variable_choose");
     var_select.empty();
@@ -1967,16 +2039,15 @@ hydroserver_information = function(){
     site_select.empty();
     // $("#site_choose").unbind('change');
     $("#site_choose").off("change.something").on("change", function(){
-      // console.log("change unbind");
     });
 
     // site_select.selectpicker("refresh");
     site_select.select();
     let groupActual = this.parentElement.parentNode.id.split("_")[0];
-    groupActual = id_dictionary[groupActual]
-    let hsActual = this.id.split("_")[0];
+    groupActual = id_dictionary[groupActual];
+    let hsId = this.id.split("_")[0];
     // hsActual = hsActual.replace(/-/g, ' ');
-    hsActual = id_dictionary[hsActual]
+    let hsActual = id_dictionary[hsId]
     filterSites['group']=groupActual;
     filterSites['hs']=hsActual;
     $("#hydroserverTitle").html(`${filterSites['hs']} View`);
@@ -1990,48 +2061,53 @@ hydroserver_information = function(){
           let hs_title = result1['title'];
           var url_UN = "https://geoservices.un.org/arcgis/rest/services/ClearMap_WebTopo/MapServer";
 
-          setTimeout(function(){
-            if(map2 ==undefined){
-              map2 = new ol.Map({
-                     target: 'map2',
-                     layers: [
-                       new ol.layer.Tile({
-                               source: new ol.source.TileArcGISRest({
-                                 url: url_UN
-                               })
-                       })
-                     ],
-                     view: new ol.View({
-                       center: ol.proj.fromLonLat([37.41, 8.82]),
-                       zoom: 4
-                     })
-              });
+          // setTimeout(function(){
+          //   if(map2 ==undefined){
+          //     map2 = new ol.Map({
+          //            target: 'map2',
+          //            layers: [
+          //              new ol.layer.Tile({
+          //                      source: new ol.source.TileArcGISRest({
+          //                        url: url_UN
+          //                      })
+          //              })
+          //            ],
+          //            view: new ol.View({
+          //              center: ol.proj.fromLonLat([37.41, 8.82]),
+          //              zoom: 4
+          //            })
+          //     });
 
-              actualLayerModal = layersDict[`${hs_title}`]
+          //     actualLayerModal = layersDict[`${hs_title}`]
 
-              map2.addLayer(actualLayerModal);
-              map2.getView().fit(actualLayerModal.getSource().getExtent());
-              map2.updateSize();
-            }
-            else{
-              map2.removeLayer(actualLayerModal);
+          //     map2.addLayer(actualLayerModal);
+          //     map2.getView().fit(actualLayerModal.getSource().getExtent(),{padding:[100,100,100,100]});
+          //     map2.updateSize();
+          //   }
+          //   else{
+          //     map2.removeLayer(actualLayerModal);
 
-              actualLayerModal=layersDict[`${hs_title}`];
+          //     actualLayerModal=layersDict[`${hs_title}`];
 
-              map2.addLayer(actualLayerModal);
+          //     map2.addLayer(actualLayerModal);
 
-              map2.getView().fit(actualLayerModal.getSource().getExtent());
-              map2.updateSize();
-            }
+          //     map2.getView().fit(actualLayerModal.getSource().getExtent(),{padding:[100,100,100,100]});
+          //     map2.updateSize();
+          //   }
 
 
-          },600)
+          // },600)
 
           $("#urlHydroserver").html(result1['url']);
           $("#url_WOF").html($("#urlHydroserver").html());
 
+          var descriptionText = result1['description'];
+          if (descriptionText.trim() == "") {
+            descriptionText = "No description found";
+          } 
+          $("#description_Hydroserver").html(descriptionText);
 
-          $("#description_Hydroserver").html(result1['description']);
+          
           var HSTableHtml =
               `<table id="${filterSites['hs']}-info-table" class="table table-striped table-bordered nowrap" width="100%"><tbody>`
           if (result1['siteInfo'].length === 0) {
@@ -2043,26 +2119,73 @@ hydroserver_information = function(){
           }
           else {
               for (var i = 0; i < result1['siteInfo'].length; i++) {
-                option_begin = `<option value=${i}> ${result1['siteInfo'][i]['sitename']} </option>`;
-                site_select.append(option_begin)
-                  HSTableHtml +=
-                 '<tr>'+
-                      `<td> <p id="titleSite">${i+1}.- ${result1['siteInfo'][i]['sitename']}
-                      <button type="button" class="btn btn-primary" id="${result1['siteInfo'][i]['sitecode']}_modal"><i class="bi bi-pin-angle-fill"></i></button></p>
-                        <p>Station/Platform Code: ${result1['siteInfo'][i]['sitecode']}</p>
-                        <p>Network: ${result1['siteInfo'][i]['network']}</p>
-                        <p>Latitude: ${result1['siteInfo'][i]['latitude']}</p>
-                        <p>Longitude: ${result1['siteInfo'][i]['longitude']}</p>
-                      </td>`
-                      +
-                 '</tr>'
+              var latitude;
+              var longitude;
+              if (result1["siteInfo"][i]["latitude"]) {
+                latitude = result1["siteInfo"][i]["latitude"];
+              }
+              if (result1["siteInfo"][i]["longitude"]) {
+                longitude = result1["siteInfo"][i]["longitude"];
+              }
 
+                if (result1["server_type"] == "hydroserver1") {
+                  option_begin = `<option value=${i}> ${result1['siteInfo'][i]['sitename']} </option>`;
+                  site_select.append(option_begin)
+                  var siteCode = result1.siteInfo[i].sitecode.trim();
+                    HSTableHtml +=
+                  '<tr>'+
+                        `<td> <p id="titleSite">${i+1}.- ${result1['siteInfo'][i]['sitename']}
+                        <button type="button" class="btn btn-primary" id="${siteCode}_modal" latitude="${latitude}" longitude="${longitude}"><i class="bi bi-pin-angle-fill"></i></button></p>
+                          <p>Station/Platform Code: ${siteCode}</p>
+                          <p>Network: ${result1['siteInfo'][i]['network']}</p>
+                          <p>Latitude: ${latitude}</p>
+                          <p>Longitude: ${longitude}</p>
+                        </td>`
+                        +
+                  '</tr>'
+                } else {
+                  option_begin = `<option value=${i}> ${result1['siteInfo'][i]['name']} </option>`;
+                  site_select.append(option_begin);
+                  var siteCode = result1.siteInfo[i].samplingFeatureCode.trim();
+                  HSTableHtml += 
+                  `<tr>` + 
+                    `<td> <p id="titleSite">${i+1}.- ${result1['siteInfo'][i]['name']}
+                      <button type="button" class="btn btn-primary" id="${siteCode}_modal" latitude="${latitude}" longitude="${longitude}"><i class="bi bi-pin-angle-fill"></i></button></p>
+                      <p>Station/Platform Code: ${siteCode}</p>
+                      <p>Latitude: ${latitude}</p>
+                      <p>Longitude: ${longitude}</p>
+                    </td>`
+                    +
+                  `</tr>`
+
+
+                }
               }
               // site_select.selectpicker("refresh");
               site_select.select2();
 
 
+              function zoomToSelectedSite() {
+                layersDict[result1["title"]].setStyle(featureStyle(layerColorDict[result1["title"]]));
+                const centerCoordinates = ol.proj.transform([$(this).attr("longitude"), $(this).attr("latitude")], 'EPSG:4326', 'EPSG:3857');
+                const padding = 750;
 
+                const newExtent = [
+                  centerCoordinates[0] - padding,
+                  centerCoordinates[1] - padding,
+                  centerCoordinates[0] + padding,
+                  centerCoordinates[1] + padding
+                ];
+
+                map.getView().fit(newExtent, map.getSize());
+                $('#modalHydroserInformation').modal('hide');
+                $(`#${hsId}`).find('.chkbx-layer').prop('checked', true);
+
+                if(layersDict['selectedPointModal']){
+                  map.removeLayer(layersDict['selectedPointModal']);
+                  map.updateSize();
+                }  
+              }
               $("#site_choose").on("change.something", function(){
                   get_vars_from_site(result1['siteInfo']);
               });
@@ -2073,50 +2196,21 @@ hydroserver_information = function(){
                 let lat_modal=result1['siteInfo'][i]['latitude'];
                 let lng_modal=result1['siteInfo'][i]['longitude'];
                 let coordinate_modal = [lat_modal,lng_modal];
-
-                $(`#${result1['siteInfo'][i]['sitecode']}_modal`).click(function(){
-                        if(layersDict['selectedPointModal']){
-                          map2.removeLayer(layersDict['selectedPointModal']);
-                          map.removeLayer(layersDict['selectedPointModal']);
-                          map2.updateSize()
-                          map.updateSize()
-                        }
-
-                        let actual_Source = new ol.source.Vector({});
-                        let marker = new ol.Feature({
-                          geometry: new ol.geom.Point(
-                            ol.proj.transform([parseFloat(lng_modal),parseFloat(lat_modal)], 'EPSG:4326','EPSG:3857'))
-                        })
-                        actual_Source.addFeature(marker);
-                        let vectorLayer = new ol.layer.Vector({
-                            source: actual_Source,
-                            style:  new ol.style.Style({
-                                image: new ol.style.Circle({
-                                    radius: 15,
-                                    stroke: new ol.style.Stroke({
-                                        color: `#FF0000`,
-                                        width: 8
-                                    }),
-                                    fill: new ol.style.Fill({
-                                        color: 'rgba(255, 255, 0, 0.63)',
-                                    })
-                                })
-                            })
-                        })
-                        layersDict['selectedPointModal'] = vectorLayer;
-                        map2.addLayer(layersDict['selectedPointModal']);
-                        map.getLayers().insertAt(1, layersDict['selectedPointModal']);
-                });
-
+                if (result1["server_type"] == "hydroserver1") {
+                  $(`#${result1['siteInfo'][i]['sitecode'].trim()}_modal`).click(zoomToSelectedSite);
+                } else {
+                  $(`#${result1['siteInfo'][i]['samplingFeatureCode'].trim()}_modal`).click(zoomToSelectedSite);
+                }
               }
-
+              
           }
         }
         catch(e){
+          console.log("Error:", e);
           new Notify ({
             status: 'error',
-            title: 'error',
-            text: `There is a problem retriving information for the selected Web Service`,
+            title: 'Error',
+            text: `There was a problem retriving information for the selected Web Service`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -2129,7 +2223,7 @@ hydroserver_information = function(){
             distance: 20,
             type: 1,
             position: 'right top'
-          }) 
+          })
           // $.notify(
           //     {
           //         message: `There is a problem retriving information for the selected Web Service`
@@ -2155,7 +2249,7 @@ hydroserver_information = function(){
         new Notify ({
           status: 'error',
           title: 'Error',
-          text: `There is a problem retriving information for the selected Web Service`,
+          text: `There was a problem retriving information for the selected Web Service`,
           effect: 'fade',
           speed: 300,
           customClass: '',
@@ -2168,7 +2262,7 @@ hydroserver_information = function(){
           distance: 20,
           type: 1,
           position: 'right top'
-        }) 
+        })
           // $.notify(
           //     {
           //         message: `There is a problem retriving information for the selected Web Service`
@@ -2210,7 +2304,7 @@ hydroserver_information = function(){
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     // $.notify(
     //     {
     //         message: `We are having problems recognizing the selected Web Service`
@@ -2258,7 +2352,7 @@ searchSites = function() {
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `Seems that we are having problems with the Search Bar, Please search manually for the site.`,
+      text: `We are having problems with the Search Bar, Please search manually for the desired site.`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -2271,7 +2365,7 @@ searchSites = function() {
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     // $.notify(
     //     {
     //         message: `Seems that we are having problems with the Search Bar, Please search manually for the site.`
@@ -2296,10 +2390,142 @@ searchSites = function() {
 document.getElementById('myInput').addEventListener("keyup", searchSites);
 
 
-update_hydroserver = function(){
-  try{
+update_hydroserver_2 = function() {
+  try {
+    // Display the loading animation GIF
+    $("#GeneralLoading").css({
+      position:'fixed',
+      "z-index": 9999,
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)'
+    });
+   $("#GeneralLoading").removeClass("hidden");
+
+
     let hsActual = this.id.split("_")[0];
-    let group_name = this.id.split("_")[1]
+    let group_name = this.id.split("_")[1];
+    
+    
+    var vectorLayer = layersDict[id_dictionary[hsActual]];
+    var source = vectorLayer.getSource()
+    var features = source.getFeatures();
+
+    let requestObject = {
+      hs: id_dictionary[hsActual],
+      group: id_dictionary[group_name]
+    }
+    
+    
+    $.ajax({
+      type: "POST",
+      url: `soap-update/`,
+      dataType: "JSON",
+      data: requestObject,
+      success: function(result) {
+        try {
+          layersDict[id_dictionary[hsActual]].getSource().clear();
+
+          var vectorLayer = map_layers(result["siteInfo"], 
+                                       id_dictionary[hsActual],
+                                       result["url"],
+                                       "hydroserver1")[0]; // This feature is only available for hydroserver1, 
+                                                           // this will always be hydroserver1 for now
+
+        var vectorSource = map_layers(result["siteInfo"],
+                                      id_dictionary[hsActual],
+                                      result["url"],
+                                      "hydroserver1")[1]; // This feature is only available for hydroserver1, 
+                                                          // this will always be hydroserver1 for now
+
+        // Add features to the map and make them visible by default
+        map.addLayer(vectorLayer);
+        vectorLayer.setStyle(featureStyle(layerColorDict[id_dictionary[hsActual]]));
+        vectorLayer.set("selectable", true);
+        layersDict[id_dictionary[hsActual]] = vectorLayer;
+
+        map.getView().fit(vectorSource.getExtent(),{padding:[100,100,100,100]});
+        map.updateSize();
+
+        // Check the show/hide view checkbox by default
+        $(`#${hsActual}`).find('.chkbx-layer').prop('checked', true);
+
+        // Hide the loading animation GIF  
+        $("#GeneralLoading").addClass("hidden");
+
+        new Notify ({
+          status: 'success',
+          title: 'Success',
+          text: `Successfully updated the Web Service , ${result["sitesAdded"]} sites have been added to the Map.`,
+          effect: 'fade',
+          speed: 300,
+          customClass: '',
+          customIcon: '',
+          showIcon: true,
+          showCloseButton: true,
+          autoclose: true,
+          autotimeout: 3000,
+          gap: 20,
+          distance: 20,
+          type: 1,
+          position: 'right top'
+        })
+
+        } catch(e){
+          // Hide the loading animation GIF
+          $("#GeneralLoading").addClass("hidden");
+          new Notify ({
+            status: 'error',
+            title: 'Error',
+            text:  `There was an error updating the Web Service`,
+            effect: 'fade',
+            speed: 300,
+            customClass: '',
+            customIcon: '',
+            showIcon: true,
+            showCloseButton: true,
+            autoclose: true,
+            autotimeout: 3000,
+            gap: 20,
+            distance: 20,
+            type: 1,
+            position: 'right top'
+          })
+
+        }
+      }
+    });
+
+    
+    
+  }
+  catch (e){
+    // Hide the loading animation GIF
+    $("#GeneralLoading").addClass("hidden");
+    new Notify ({
+      status: 'error',
+      title: 'Error',
+      text: `There was an error updating the selected Web Service.`,
+      effect: 'fade',
+      speed: 300,
+      customClass: '',
+      customIcon: '',
+      showIcon: true,
+      showCloseButton: true,
+      autoclose: true,
+      autotimeout: 3000,
+      gap: 20,
+      distance: 20,
+      type: 1,
+      position: 'right top'
+    })
+  }
+}
+
+update_hydroserver = function(){
+  try {
+    let hsActual = this.id.split("_")[0];
+    let group_name = this.id.split("_")[1];
     let requestObject = {
       hs: id_dictionary[hsActual],
       group: id_dictionary[group_name]
@@ -2320,7 +2546,7 @@ update_hydroserver = function(){
         success: function(result) {
           try{
             let {siteInfo,sitesAdded,url} = result
-            if(layersDict.hasOwnProperty(hsActual)){
+            if(layersDict.hasOwnProperty(id_dictionary[hsActual])){
               map.removeLayer(layersDict[hsActual])
             }
 
@@ -2328,9 +2554,8 @@ update_hydroserver = function(){
             const vectorLayer = map_layers(sites,hsActual,url)[0]
             const vectorSource = map_layers(sites,hsActual,url)[1]
 
-
             map.addLayer(vectorLayer)
-            ol.extent.extend(extent, vectorSource.getExtent())
+            ol.extent.extend(extent, vectorSource.getExtent(),{padding:[100,100,100,100]})
             vectorLayer.set("selectable", true)
             layersDict[hsActual] = vectorLayer;
 
@@ -2341,7 +2566,7 @@ update_hydroserver = function(){
             new Notify ({
               status: 'success',
               title: 'Success',
-              text: `Successfully updated the Web Service , ${sitesAdded} have been added to the Map.`,
+              text: `Successfully updated the Web Service , ${sitesAdded} sites have been added to the Map.`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -2354,7 +2579,7 @@ update_hydroserver = function(){
               distance: 20,
               type: 1,
               position: 'right top'
-            }) 
+            })
               // $.notify(
               //     {
               //         message: `Successfully updated the Web Service , ${sitesAdded} have been added to the Map.`
@@ -2380,7 +2605,7 @@ update_hydroserver = function(){
             new Notify ({
               status: 'error',
               title: 'Error',
-              text: `There was an error updating the Web Service`,
+              text:  `There was an error updating the Web Service`,
               effect: 'fade',
               speed: 300,
               customClass: '',
@@ -2393,10 +2618,10 @@ update_hydroserver = function(){
               distance: 20,
               type: 1,
               position: 'right top'
-            }) 
+            })
             // $.notify(
             //     {
-            //         message: `There was an error updating the Web Service`
+            //         message: `There was an error updating the Web Service 1`
             //     },
             //     {
             //         type: "success",
@@ -2419,7 +2644,7 @@ update_hydroserver = function(){
           new Notify ({
             status: 'error',
             title: 'Error',
-            text: `There was an error updating the Web Service`,
+            text: `There was an error updating the Web Service.`,
             effect: 'fade',
             speed: 300,
             customClass: '',
@@ -2432,7 +2657,7 @@ update_hydroserver = function(){
             distance: 20,
             type: 1,
             position: 'right top'
-          }) 
+          })
           // $.notify(
           //     {
           //         message: `There was an error updating the Web Service.`
@@ -2460,7 +2685,7 @@ update_hydroserver = function(){
     new Notify ({
       status: 'error',
       title: 'Error',
-      text: `There was an error updating the Web Service`,
+      text: `There was an error updating the selected Web Service.`,
       effect: 'fade',
       speed: 300,
       customClass: '',
@@ -2473,7 +2698,7 @@ update_hydroserver = function(){
       distance: 20,
       type: 1,
       position: 'right top'
-    }) 
+    })
     // $.notify(
     //     {
     //         message: `There was an error Updating the selected Web Service.`

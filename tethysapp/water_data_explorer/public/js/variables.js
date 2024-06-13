@@ -16,6 +16,7 @@ var colors,
     wmsSource,
     actualLayerModal,
     actualCoordinatesModal=[],
+    currentColorIndex=0,
     colors_unique =  [
 "#63b598", "#ce7d78", "#ea9e70", "#a48a9e", "#c6e1e8", "#648177" ,"#0d5ac1" ,
 "#f205e6" ,"#1c0365" ,"#14a9ad" ,"#4ca2f9" ,"#a4e43f" ,"#d298e2" ,"#6119d0",
@@ -120,9 +121,12 @@ var filter_words,
     activate_deactivate_graphs,
     activate_layer_values,
     initialize_graphs,
+    current_station_name,
+    current_variable_code,
     object_request_graphs ={},
     select_variable_change,
     select_variable_change2,
+    hydroserver_2_observed_values,
     codes_variables_array={},
     change_type_graphs_individual,
     add_boundary_map,
@@ -183,7 +187,8 @@ var filter_words,
     responsive_graphs,
     time_series_cache = {},
     layer_selected_countries = {},
-    generateListServices;
+    generateListServices,
+    check_if_exists;
   /************************************************************************
  *                    PRIVATE FUNCTION IMPLEMENTATIONS : How are these private? JS has no concept of that
  *************************************************************************/
