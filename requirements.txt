@@ -4,5 +4,5 @@ pyshp
 geopandas
 suds-community
 pywaterml
-numpy=1.21
+numpy=1.26.4
 
