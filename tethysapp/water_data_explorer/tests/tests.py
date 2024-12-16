@@ -2,7 +2,7 @@
 from tethys_sdk.testing import TethysTestCase
 
 # Use if your app has persistent stores that will be tested against.
-# Your app class from app.py must be passed as an argument to the TethysTestCase functions to both
+# Your app class from App.py must be passed as an argument to the TethysTestCase functions to both
 # create and destroy the temporary persistent stores for your app used during testing
 # from ..app import WaterDataExplorer
 
@@ -30,22 +30,22 @@ To run any tests:
                 PORT: 5435
 
     4. Enter tethys test command.
-       The general form is: "tethys test -f tethys_apps.tethysapp.<app_name>.<folder_name>.<file_name>.<class_name>.
+       The general form is: "tethys test -f tethys_apps.tethysApp.<app_name>.<folder_name>.<file_name>.<class_name>.
        <function_name>"
        See below for specific examples
 
         To run all tests across this app:
-            Test command: "tethys test -f tethys_apps.tethysapp.water_data_explorer"
+            Test command: "tethys test -f tethys_apps.tethysApp.water_data_explorer"
 
         To run all tests in this file:
-            Test command: "tethys test -f tethys_apps.tethysapp.water_data_explorer.tests.tests"
+            Test command: "tethys test -f tethys_apps.tethysApp.water_data_explorer.tests.tests"
 
         To run tests in the WaterDataExplorerTestCase class:
-            Test command: "tethys test -f tethys_apps.tethysapp.water_data_explorer.tests.tests.
+            Test command: "tethys test -f tethys_apps.tethysApp.water_data_explorer.tests.tests.
             WaterDataExplorerTestCase"
 
         To run only the test_if_tethys_platform_is_great function in the WaterDataExplorerTestCase class:
-            Test command: "tethys test -f tethys_apps.tethysapp.water_data_explorer.tests.tests.
+            Test command: "tethys test -f tethys_apps.tethysApp.water_data_explorer.tests.tests.
             WaterDataExplorerTestCase.test_if_tethys_platform_is_great"
 
 To learn more about writing tests, see:
@@ -56,7 +56,7 @@ To learn more about writing tests, see:
 
 class WaterDataExplorerTestCase(TethysTestCase):
     """
-    In this class you may define as many functions as you'd like to test different aspects of your app.
+    In this class you may define as many functions as you'd like to test different aspects of your App.
     Each function must start with the word "test" for it to be recognized and executed during testing.
     You could also create multiple TethysTestCase classes within this or other python files to organize your tests.
     """
@@ -113,7 +113,7 @@ class WaterDataExplorerTestCase(TethysTestCase):
 
     def test_if_tethys_platform_is_great(self):
         """
-        This is an example test function that can be modified to test a specific aspect of your app.
+        This is an example test function that can be modified to test a specific aspect of your App.
         It is required that the function name begins with the word "test" or it will not be executed.
         Generally, the code written here will consist of many assert methods.
         A list of assert methods is included here for reference or to get you started:

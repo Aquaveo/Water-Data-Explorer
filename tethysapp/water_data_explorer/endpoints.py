@@ -18,7 +18,7 @@ from tethys_sdk.routing import controller
 
 from .auxiliary import GetSites_WHOS
 from django.http import JsonResponse
-from .app import WaterDataExplorer as app
+from .app import App
 
 Persistent_Store_Name = "catalog_db"
 logging.getLogger("pywaterml.waterML").setLevel(logging.CRITICAL)
@@ -57,7 +57,7 @@ def get_variables_hs(request):
     hs_actual = request.POST.get("hs")
     hs_actual = hs_actual.replace("-", " ")
     # print("HS", hs_actual)
-    SessionMaker = app.get_persistent_store_database(
+    SessionMaker = App.get_persistent_store_database(
         Persistent_Store_Name, as_sessionmaker=True
     )
 
@@ -181,7 +181,7 @@ def get_available_sites(request):
         specific_hydroserver = request.POST.get("hs")
         specific_variables = request.POST.getlist("variables[]")
         list_catalog = {}
-        SessionMaker = app.get_persistent_store_database(
+        SessionMaker = App.get_persistent_store_database(
             Persistent_Store_Name, as_sessionmaker=True
         )
 
@@ -444,7 +444,7 @@ def get_hydroserver_info(request):
     specific_group = request.POST.get("group")
     specific_hs = request.POST.get("hs")
     response_obj = {}
-    SessionMaker = app.get_persistent_store_database(
+    SessionMaker = App.get_persistent_store_database(
         Persistent_Store_Name, as_sessionmaker=True
     )
     session = SessionMaker()  # Initiate a session
@@ -501,7 +501,7 @@ def upload_hs(request, app_workspace):
     ):
         specific_group = request.POST.get("group")
         specific_hs = request.POST.get("hs")
-        SessionMaker = app.get_persistent_store_database(
+        SessionMaker = App.get_persistent_store_database(
             Persistent_Store_Name, as_sessionmaker=True
         )
         session = SessionMaker()  # Initiate a session
@@ -736,7 +736,7 @@ def soap_group(request, app_workspace):
             return_obj["group"] = group
             return_obj["status"] = "true"
 
-            SessionMaker = app.get_persistent_store_database(
+            SessionMaker = App.get_persistent_store_database(
                 Persistent_Store_Name, as_sessionmaker=True
             )
             session = SessionMaker()
@@ -818,7 +818,7 @@ def soap_group(request, app_workspace):
 
             return_obj["server_type"] = server_type
             # print(return_obj)
-            SessionMaker = app.get_persistent_store_database(
+            SessionMaker = App.get_persistent_store_database(
                 Persistent_Store_Name, as_sessionmaker=True
             )
             session = SessionMaker()
@@ -875,7 +875,7 @@ def soap_group(request, app_workspace):
 @controller(name="delete-group-hydroserver", url="delete-group-hydroserver/")
 def delete_group_hydroserver(request):
     list_catalog = {}
-    SessionMaker = app.get_persistent_store_database(
+    SessionMaker = App.get_persistent_store_database(
         Persistent_Store_Name, as_sessionmaker=True
     )
     session = SessionMaker()

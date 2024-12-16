@@ -3,7 +3,7 @@ from tethys_sdk.app_settings import PersistentStoreDatabaseSetting, CustomSettin
 from tethys_sdk.permissions import Permission, PermissionGroup
 
 
-class WaterDataExplorer(TethysAppBase):
+class App(TethysAppBase):
     """
     Tethys app class for Water Data Explorer.
     """

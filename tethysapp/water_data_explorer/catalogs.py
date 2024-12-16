@@ -26,7 +26,7 @@ from .endpoints import available_regions_2, available_variables_2
 from suds.client import Client  # For parsing WaterML/XML
 from urllib.parse import unquote
 from django.http import JsonResponse
-from .app import WaterDataExplorer as app
+from .app import App
 
 # from shapely.geometry import Point, Polygon
 Persistent_Store_Name = "catalog_db"
@@ -39,7 +39,7 @@ logging.getLogger("pywaterml.auxiliaryMod").setLevel(logging.CRITICAL)
 def available_regions(request):
 
     ret_object = {}
-    SessionMaker = app.get_persistent_store_database(
+    SessionMaker = App.get_persistent_store_database(
         Persistent_Store_Name, as_sessionmaker=True
     )
     session = SessionMaker()
@@ -67,7 +67,7 @@ def available_regions(request):
     # countries_series = countries_gdf.loc[:,'geometry']
     # ret_object = {}
     # list_regions = []
-    # SessionMaker = app.get_persistent_store_database(
+    # SessionMaker = App.get_persistent_store_database(
     #     Persistent_Store_Name, as_sessionmaker=True)
     # session = SessionMaker()
     #
@@ -136,7 +136,7 @@ def available_regions(request):
 
 @controller(name="available-variables", url="available-variables/")
 def available_variables(request):
-    SessionMaker = app.get_persistent_store_database(
+    SessionMaker = App.get_persistent_store_database(
         Persistent_Store_Name, as_sessionmaker=True
     )
     session = SessionMaker()
@@ -169,7 +169,7 @@ def available_variables(request):
     return JsonResponse(variables_list)
 
     # Query DB for hydroservers
-    # SessionMaker = app.get_persistent_store_database(
+    # SessionMaker = App.get_persistent_store_database(
     #     Persistent_Store_Name, as_sessionmaker=True)
     # session = SessionMaker()
     #
@@ -231,7 +231,7 @@ def available_services(request):
 @controller(name="create-group", url="create-group/", app_workspace=True)
 def create_group(request, app_workspace):
     group_obj = {}
-    SessionMaker = app.get_persistent_store_database(
+    SessionMaker = App.get_persistent_store_database(
         Persistent_Store_Name, as_sessionmaker=True
     )
     session = SessionMaker()  # Initiate a session
@@ -316,7 +316,7 @@ def addMultipleViews(request, hs_list, group, app_workspace):
             ret_object.append(return_obj)
 
             if sites_parsed_json != '"invalid url"':
-                SessionMaker = app.get_persistent_store_database(
+                SessionMaker = App.get_persistent_store_database(
                     Persistent_Store_Name, as_sessionmaker=True
                 )
                 session = SessionMaker()
@@ -354,7 +354,7 @@ def addMultipleViews(request, hs_list, group, app_workspace):
 def get_groups_list(request):
     list_catalog = {}
 
-    SessionMaker = app.get_persistent_store_database(
+    SessionMaker = App.get_persistent_store_database(
         Persistent_Store_Name, as_sessionmaker=True
     )
 
@@ -396,7 +396,7 @@ def catalog_group(request):
 
     list_catalog = {}
 
-    SessionMaker = app.get_persistent_store_database(
+    SessionMaker = App.get_persistent_store_database(
         Persistent_Store_Name, as_sessionmaker=True
     )
 
@@ -455,7 +455,7 @@ def delete_group(request):
     if can_delete_permission:
         list_catalog = {}
         list_groups = {}
-        SessionMaker = app.get_persistent_store_database(
+        SessionMaker = App.get_persistent_store_database(
             Persistent_Store_Name, as_sessionmaker=True
         )
         session = SessionMaker()
@@ -623,7 +623,7 @@ def filter_region(countries_geojson_file_path, list_countries, actual_group=None
         countries_gdf2 = countries_gdf[countries_gdf["admin"].isin(list_countries)]
         # countries_gdf2 = countries_gdf[countries_gdf['name_long'].isin(list_countries)]
         countries_series = countries_gdf2.loc[:, "geometry"]
-        SessionMaker = app.get_persistent_store_database(
+        SessionMaker = App.get_persistent_store_database(
             Persistent_Store_Name, as_sessionmaker=True
         )
         session = SessionMaker()
@@ -810,7 +810,7 @@ def filter_region(countries_geojson_file_path, list_countries, actual_group=None
 def filter_variable(variables_list, actual_group=None):
     hs_list = []
     if len(variables_list) > 0:
-        SessionMaker = app.get_persistent_store_database(
+        SessionMaker = App.get_persistent_store_database(
             Persistent_Store_Name, as_sessionmaker=True
         )
         session = SessionMaker()  # Initiate a session
@@ -946,7 +946,7 @@ def get_variables_for_country(request):
     # else:
     #     hs_filtered_region = filter_region(countries_geojson_file_path,countries)
 
-    SessionMaker = app.get_persistent_store_database(
+    SessionMaker = App.get_persistent_store_database(
         Persistent_Store_Name, as_sessionmaker=True
     )
     session = SessionMaker()
@@ -1000,7 +1000,7 @@ def keyWordsForGroup(request):
     list_catalog = {}
     specific_group = request.POST.get("group")
 
-    SessionMaker = app.get_persistent_store_database(
+    SessionMaker = App.get_persistent_store_database(
         Persistent_Store_Name, as_sessionmaker=True
     )
 

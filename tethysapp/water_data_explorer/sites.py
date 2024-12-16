@@ -96,7 +96,7 @@ def get_values_hs(request):
     network = request.POST.get('network')
     site_desc = network + ':' + site_code
 
-    # SessionMaker = app.get_persistent_store_database(Persistent_Store_Name, as_sessionmaker=True)
+    # SessionMaker = App.get_persistent_store_database(Persistent_Store_Name, as_sessionmaker=True)
 
     if request.POST.get("server_type") == "hydroserver1":
         # session = SessionMaker()  # Initiate a session

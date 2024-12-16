@@ -23,3 +23,4 @@ docker_files/postgres-data
 docker_files/data
 docker_files/logs
 dist
+node_modules

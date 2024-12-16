@@ -23,7 +23,7 @@ from suds.client import Client
 from suds.sudsobject import asdict
 from datetime import datetime, timedelta
 
-from .app import WaterDataExplorer as app
+from .app import App
 
 import requests
 
@@ -390,7 +390,7 @@ def genShapeFile(input, title, hs_url):
                 myzip.write(shapefile_fp, arcname=new_file_name)
 
         # Connecting to geoserver
-        spatial_dataset_engine = app.get_spatial_dataset_service(
+        spatial_dataset_engine = App.get_spatial_dataset_service(
             'primary_geoserver', as_engine=True)
         layer_metadata = {}
 
