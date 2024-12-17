@@ -17,11 +17,13 @@ function App() {
           <Loader>
             <Layout 
               navLinks={[
-                {title: 'My Catalogs', to: PATH_HOME, eventKey: 'link-home'},
+                {title: 'Home', to: PATH_HOME, eventKey: 'link-home'},
+                {title: 'About', to: PATH_HOME, eventKey: 'link-about'},
 
               ]}
               routes={[
                 <Route path={PATH_HOME} element={<WDEView />} key='route-home' />,
+                <Route path={PATH_HOME} element={<WDEView />} key='route-about' />,
               ]}
             />
           </Loader>

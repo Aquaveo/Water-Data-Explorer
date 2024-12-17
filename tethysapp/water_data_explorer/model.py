@@ -32,9 +32,6 @@ class HydroServer_Individual(Base):
     siteinfo = Column(JSON)
     variables = Column(JSON)
     countries = Column(JSON)
-    #group_id = Column(Integer, ForeignKey('Group_Hydroserver_Individuals.id'))
-    #group = relationship("Groups", back_populates="hydroserver")  # Tile as given by the admin
-    #cascade="all, delete-orphan"
     time_updated = Column(DateTime(timezone=True), onupdate=func.now())
 
     def __init__(self, title, url,description, siteinfo,variables,countries):
