@@ -4,7 +4,7 @@ import ErrorBoundary from 'components/error/ErrorBoundary';
 import Layout from 'components/layout/Layout';
 import Loader from 'components/loader/Loader';
 
-import WDEView from 'views/main.js';
+import WDEView from 'views/catalog.js';
 
 import 'App.scss';
 
@@ -17,7 +17,7 @@ function App() {
           <Loader>
             <Layout 
               navLinks={[
-                {title: 'Model Ouput Visualization', to: PATH_HOME, eventKey: 'link-home'},
+                {title: 'My Catalogs', to: PATH_HOME, eventKey: 'link-home'},
 
               ]}
               routes={[
