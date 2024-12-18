@@ -21,7 +21,9 @@ export const ControlButton = styled.button`
   justify-content: center;
   position: absolute; 
   bottom: 50px; 
-  left: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
   &:hover {
     background: #444;
   }

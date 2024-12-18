@@ -8,7 +8,7 @@ import 'ol/ol.css';
 
 import useTheme from 'hooks/useTheme';
 import useLayoutStore from 'stores/layoutStore';
-import { FaListOl  } from 'react-icons/fa'; // or any icon you prefer
+import { GrCatalog   } from 'react-icons/gr'; // or any icon you prefer
 import { ControlButton, StyledMapContainer } from './styledComponents';
 import AddMenuButton from './menuButton';
 
@@ -28,7 +28,7 @@ const MapComponent = () => {
       </Map>
       <AddMenuButton />
       <ControlButton onClick={toggleSidePanelVisibility}>
-        <FaListOl size={20} />
+        <GrCatalog size={20} />
      </ControlButton>
 
     </StyledMapContainer>

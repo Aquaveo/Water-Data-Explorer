@@ -6,23 +6,26 @@ import styled from 'styled-components';
 const AddMenuButtonContainer = styled.div`
   position: absolute; 
   bottom: 100px; 
-  left: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+
 `;
 
-const CustomToggle = styled(Dropdown.Toggle)`
-    :after {
-        display: none;
-    }
+const NoCaretToggle = styled(Dropdown.Toggle)`
+  &::after {
+    display: none !important;
+  }
 `;
 
 const AddMenuButton = () => {
   return (
     <AddMenuButtonContainer>
       <Dropdown drop="end" autoClose="outside">
-        <CustomToggle variant="dark" id="dropdown-basic">
-          <FaPlus size={20} />
-          New
-        </CustomToggle>
+        <NoCaretToggle variant="dark" id="dropdown-basic">
+          <FaPlus />
+        </NoCaretToggle>
 
         <Dropdown.Menu>
           {/* Catalogs Nested Dropdown */}
