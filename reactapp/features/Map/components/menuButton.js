@@ -1,6 +1,10 @@
 import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { FaPlus } from "react-icons/fa";
+
+import { TbBrandDatabricks, TbMapPinPlus,TbSitemap  } from "react-icons/tb";
+
+
 import styled from 'styled-components';
 
 const AddMenuButtonContainer = styled.div`
@@ -29,8 +33,10 @@ const AddMenuButton = () => {
 
         <Dropdown.Menu>
           {/* Catalogs Nested Dropdown */}
-          <Dropdown drop="end" autoClose="outside">
+          <Dropdown drop="start" autoClose="outside">
             <Dropdown.Toggle as={Dropdown.Item} className="w-100">
+            <TbSitemap size={20}/>
+
               New Catalog
             </Dropdown.Toggle>
             <Dropdown.Menu>
@@ -42,8 +48,10 @@ const AddMenuButton = () => {
           <Dropdown.Divider />
 
           {/* Servers Nested Dropdown */}
-          <Dropdown drop="end" autoClose="outside">
+          <Dropdown drop="start" autoClose="outside">
             <Dropdown.Toggle as={Dropdown.Item} className="w-100">
+            <TbBrandDatabricks size={20}/>
+
               New Server
             </Dropdown.Toggle>
             <Dropdown.Menu>
@@ -55,8 +63,9 @@ const AddMenuButton = () => {
           <Dropdown.Divider />
 
           {/* Sites Nested Dropdown */}
-          <Dropdown drop="end" autoClose="outside">
+          <Dropdown drop="start" autoClose="outside">
             <Dropdown.Toggle as={Dropdown.Item} className="w-100">
+             <TbMapPinPlus size={20} />
               New Sites
             </Dropdown.Toggle>
             <Dropdown.Menu>
