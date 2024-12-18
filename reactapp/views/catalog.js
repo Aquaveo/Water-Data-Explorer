@@ -4,8 +4,8 @@ import { Container } from 'views/styledComponents.js';
 import LoadingAnimation from 'components/loader/LoadingAnimation';
 
 
-const MapView = lazy(() => import('features/Map/components/map.js'));
-const CatalogMenu = lazy(() => import('features/Catalogs/components/CatalogMenu.js'));
+const MapView = lazy(() => import('features/Map/components/Map.js'));
+const SidePanel = lazy(() => import('features/List/components/SidePanel.js'));
 
 
 const WDEView = () => {
@@ -13,7 +13,7 @@ const WDEView = () => {
   return (
     <Container>
         <Suspense fallback={<LoadingAnimation />}>
-          <CatalogMenu />
+          <SidePanel />
           <MapView />
         </Suspense>
     </Container>

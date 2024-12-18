@@ -1,24 +1,24 @@
 import Accordion from 'react-bootstrap/Accordion';
-import {TableComponent} from './Table';
-function CatalogList() {
+import { CatalogTable } from 'features/Catalogs/components/CatalogTable';
+function ComponentsList() {
   return (
     <Accordion>
       <Accordion.Item eventKey="0">
-        <Accordion.Header>Imported Catalogs</Accordion.Header>
+        <Accordion.Header>Catalogs</Accordion.Header>
         <Accordion.Body>
-          <TableComponent />
+          <CatalogTable />
         </Accordion.Body>
       </Accordion.Item>
       <Accordion.Item eventKey="1">
-        <Accordion.Header>Custom Catalogs</Accordion.Header>
+        <Accordion.Header>Views</Accordion.Header>
         <Accordion.Body>
-        <TableComponent />
+        <CatalogTable />
         </Accordion.Body>
       </Accordion.Item>
       <Accordion.Item eventKey="2">
         <Accordion.Header>Sites</Accordion.Header>
         <Accordion.Body>
-        <TableComponent />
+        <CatalogTable />
         </Accordion.Body>
       </Accordion.Item>
 
@@ -26,4 +26,4 @@ function CatalogList() {
   );
 }
 
-export default CatalogList;
+export default ComponentsList;

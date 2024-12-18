@@ -11,7 +11,7 @@ import useLayoutStore from 'stores/layoutStore';
 import { FaDatabase } from "react-icons/fa";
 
 import { ControlButton, StyledMapContainer } from './styledComponents';
-import AddMenuButton from './menuButton';
+import AddMenuButton from './MenuButton';
 
 const MapComponent = () => {
   const theme = useTheme();
@@ -29,7 +29,7 @@ const MapComponent = () => {
 
   return (
     <StyledMapContainer theme={theme}>
-      <Map style={{width: '100%', height: '100%'}}>
+      <Map>
         <View options={{center: [0, 0], zoom: 1}} />
         <TileLayer>
           <OSM />
