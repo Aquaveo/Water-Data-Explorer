@@ -2,26 +2,23 @@ import React from 'react';
 import { Offcanvas } from 'react-bootstrap';
 import useLayoutStore from 'stores/layoutStore';
 import { StyledOffcanvas } from './styledComponents';
-import CatalogList from './catalogList'; // Import the new component
+import CatalogList from './catalogList';
+import ImportCatalogMenu from './ImportCatalogMenu';
 import { BsArrowLeft } from 'react-icons/bs';
 
 const CatalogMenu = () => {
-  const { isSidePanelVisible, toggleSidePanelVisibility } = useLayoutStore();
+  const { 
+    isSidePanelVisible, 
+    toggleSidePanelVisibility, 
+    currentOffCanvasView 
+  } = useLayoutStore();
 
-  const handleAdd = () => {
-    console.log('Add button clicked');
-    // Implement your "add" functionality here
-  };
-
-  const handleDelete = () => {
-    console.log('Delete button clicked');
-    // Implement your "delete" functionality here
-  };
-
-  const handleFilter = () => {
-    console.log('Filter button clicked');
-    // Implement your "filter" functionality here
-  };
+  let content;
+  if (currentOffCanvasView === 'catalogList') {
+    content = <CatalogList />;
+  } else if (currentOffCanvasView === 'importCatalogMenu') {
+    content = <ImportCatalogMenu />;
+  }
 
   return (
     <StyledOffcanvas
@@ -38,12 +35,11 @@ const CatalogMenu = () => {
           onClick={toggleSidePanelVisibility} 
         />
         <Offcanvas.Title>
-          My Catalogs
+          {currentOffCanvasView === 'catalogList' ? 'My Catalogs' : 'Import Catalog'}
         </Offcanvas.Title>
       </Offcanvas.Header>
-        <Offcanvas.Body>
-
-        <CatalogList />
+      <Offcanvas.Body>
+        {content}
       </Offcanvas.Body>
     </StyledOffcanvas>
   );

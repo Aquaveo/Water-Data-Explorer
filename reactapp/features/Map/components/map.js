@@ -8,14 +8,18 @@ import 'ol/ol.css';
 
 import useTheme from 'hooks/useTheme';
 import useLayoutStore from 'stores/layoutStore';
-import { GrCatalog   } from 'react-icons/gr'; // or any icon you prefer
+import { GrCatalog } from 'react-icons/gr'; 
 import { ControlButton, StyledMapContainer } from './styledComponents';
 import AddMenuButton from './menuButton';
 
-
 const MapComponent = () => {
   const theme = useTheme();
-  const { toggleSidePanelVisibility } = useLayoutStore();
+  const { toggleSidePanelVisibility, showCatalogList } = useLayoutStore();
+
+  const handleShowCatalogList = () => {
+    showCatalogList();
+    toggleSidePanelVisibility();
+  };
 
   return (
     <StyledMapContainer theme={theme}>
@@ -27,10 +31,9 @@ const MapComponent = () => {
         <ScaleLine />
       </Map>
       <AddMenuButton />
-      <ControlButton onClick={toggleSidePanelVisibility}>
+      <ControlButton onClick={handleShowCatalogList}>
         <GrCatalog size={20} />
      </ControlButton>
-
     </StyledMapContainer>
   );
 };

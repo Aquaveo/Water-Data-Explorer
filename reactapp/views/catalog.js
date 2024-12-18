@@ -5,7 +5,7 @@ import LoadingAnimation from 'components/loader/LoadingAnimation';
 
 
 const MapView = lazy(() => import('features/Map/components/map.js'));
-const CatalogMenu = lazy(() => import('features/Catalogs/components/menu.js'));
+const CatalogMenu = lazy(() => import('features/Catalogs/components/CatalogMenu.js'));
 
 
 const WDEView = () => {
