@@ -19,7 +19,7 @@ class App(TethysAppBase):
     enable_feedback = False
     feedback_emails = []
 
-    controller_modules = ['startAll', 'sites', 'endpoints', 'catalogs', ]
+    controller_modules = ['startAll', 'sites', 'endpoints', 'catalogs','catalogsR', ]
 
     def permissions(self):
         """
