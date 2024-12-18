@@ -95,13 +95,6 @@ const columns = [
 	},
 ];
 
-// This component will be shown when a row is expanded
-const ExpandedComponent = ({ data }) => (
-  <div style={{ padding: '10px', background: '#f9f9f9' }}>
-    <strong>Description:</strong> {data.description}
-  </div>
-);
-
 const columns2 = [
 	{
 		cell: () => <TbBrandDatabricks size={20} />,

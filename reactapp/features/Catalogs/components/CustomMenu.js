@@ -1,7 +1,13 @@
 import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { FaEllipsisV, FaTrash,FaInfo,FaWater } from 'react-icons/fa';
-import { WiRaindrops } from "react-icons/wi";
+import styled from 'styled-components';
+
+const NoCaretToggle = styled(Dropdown.Toggle)`
+  &::after {
+    display: none !important;
+  }
+`;
 
 const CustomMenu = ({ row, onDeleteRow, size }) => {
   const deleteRow = () => {
@@ -10,11 +16,13 @@ const CustomMenu = ({ row, onDeleteRow, size }) => {
     }
   };
 
+
+
   return (
     <Dropdown align="end">
-      <Dropdown.Toggle variant="link" size={size} className="p-0">
+      <NoCaretToggle variant="link" size={size} className="p-0">
         <FaEllipsisV />
-      </Dropdown.Toggle>
+      </NoCaretToggle>
 
       <Dropdown.Menu>
         <Dropdown.Item>
