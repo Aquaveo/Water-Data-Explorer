@@ -14,11 +14,16 @@ import AddMenuButton from './menuButton';
 
 const MapComponent = () => {
   const theme = useTheme();
-  const { toggleSidePanelVisibility, showCatalogList } = useLayoutStore();
+  const { toggleSidePanelVisibility, showCatalogList, isSidePanelVisible } = useLayoutStore();
 
   const handleShowCatalogList = () => {
+    // Switch to CatalogList content
     showCatalogList();
-    toggleSidePanelVisibility();
+
+    // Only toggle visibility if the panel is currently hidden
+    if (!isSidePanelVisible) {
+      toggleSidePanelVisibility();
+    }
   };
 
   return (
@@ -33,7 +38,7 @@ const MapComponent = () => {
       <AddMenuButton />
       <ControlButton onClick={handleShowCatalogList}>
         <GrCatalog size={20} />
-     </ControlButton>
+      </ControlButton>
     </StyledMapContainer>
   );
 };
