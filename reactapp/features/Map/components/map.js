@@ -8,7 +8,8 @@ import 'ol/ol.css';
 
 import useTheme from 'hooks/useTheme';
 import useLayoutStore from 'stores/layoutStore';
-import { GrCatalog } from 'react-icons/gr'; 
+import { FaDatabase } from "react-icons/fa";
+
 import { ControlButton, StyledMapContainer } from './styledComponents';
 import AddMenuButton from './menuButton';
 
@@ -37,7 +38,7 @@ const MapComponent = () => {
       </Map>
       <AddMenuButton />
       <ControlButton onClick={handleShowCatalogList}>
-        <GrCatalog size={20} />
+        <FaDatabase size={20} />
       </ControlButton>
     </StyledMapContainer>
   );
