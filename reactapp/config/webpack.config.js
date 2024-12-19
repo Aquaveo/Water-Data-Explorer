@@ -85,6 +85,10 @@ module.exports = (env, argv) => {
 		},
 		devServer: {
 			proxy: {
+				"/[A-Za-z0-9-/]+/ws/": {
+					target: "ws://127.0.0.1:8000",
+					ws: true,
+				  },		  
 				'!/static/water_data_explorer/frontend/**': {
 					target: 'http://127.0.0.1:8000', // points to django dev server
 					changeOrigin: true,

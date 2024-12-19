@@ -1,4 +1,4 @@
-import base64ArrayBuffer from "lib/base64ArrayBuffer";
+// import base64ArrayBuffer from "lib/base64ArrayBuffer";
 import newUUID from "lib/uuid.js";
 
 import { getTethysPortalHost } from "features/react-tethys/services/utilities";
@@ -12,9 +12,9 @@ export default class Backend {
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'; // Determine protocol based on current page's protocol
 
     if (port) {
-      this.wsUrl = `${protocol}://${hostname}:${port}${window.location.pathname}ws/`;
+      this.wsUrl = `${protocol}://${hostname}:${port}${window.location.pathname}catalogs/ws/`;
     } else {
-      this.wsUrl = `${protocol}://${hostname}${window.location.pathname}ws/`;
+      this.wsUrl = `${protocol}://${hostname}${window.location.pathname}catalogs/ws/`;
     }
 
     this.rootUrl = rootUrl;
@@ -185,53 +185,53 @@ export default class Backend {
     return actionId;
   }
 
-  upload_files(files, forActionId) {
-    const actionId = newUUID();
-    const CHUNK_SIZE = 1024 * 1024; // 1MB
-    const numFiles = files.length;
-    const fileNames = Array.from(files).map((file) => file.name);
+  // upload_files(files, forActionId) {
+  //   const actionId = newUUID();
+  //   const CHUNK_SIZE = 1024 * 1024; // 1MB
+  //   const numFiles = files.length;
+  //   const fileNames = Array.from(files).map((file) => file.name);
 
-    for (let currFile = 0; currFile < files.length; currFile++) {
-      const file = files[currFile];
-      const reader = new FileReader();
-      const fileName = file.name;
-      const fileSize = file.size;
-      const fileType = file.type;
-      const numChunks = Math.ceil(file.size / CHUNK_SIZE);
-      let currChunk = 1;
-      let offset = 0;
-      reader.onload = (event) => {
-        let base64 = base64ArrayBuffer(event.target.result);
-        let actionMsg = this.serialize({
-          action: {
-            id: actionId,
-            type: this.actions.UPLOAD_FILE,
-          },
-          payload: {
-            forActionId: forActionId,
-            fileNames: fileNames,
-            currFileName: fileName,
-            currFileSize: fileSize,
-            currFileType: fileType,
-            numChunks: numChunks,
-            currChunk: currChunk,
-            numFiles: numFiles,
-            currFile: currFile + 1,
-            chunk: base64,
-          },
-        });
-        this.webSocket.send(actionMsg);
-        offset += event.target.result.byteLength;
-        currChunk += 1;
-        if (offset < file.size) {
-          reader.readAsArrayBuffer(file.slice(offset, offset + CHUNK_SIZE));
-        }
-      }
-      // Trigger the first read
-      reader.readAsArrayBuffer(file.slice(offset, offset + CHUNK_SIZE));
-    }
-    return actionId;
-  }
+  //   for (let currFile = 0; currFile < files.length; currFile++) {
+  //     const file = files[currFile];
+  //     const reader = new FileReader();
+  //     const fileName = file.name;
+  //     const fileSize = file.size;
+  //     const fileType = file.type;
+  //     const numChunks = Math.ceil(file.size / CHUNK_SIZE);
+  //     let currChunk = 1;
+  //     let offset = 0;
+  //     reader.onload = (event) => {
+  //       let base64 = base64ArrayBuffer(event.target.result);
+  //       let actionMsg = this.serialize({
+  //         action: {
+  //           id: actionId,
+  //           type: this.actions.UPLOAD_FILE,
+  //         },
+  //         payload: {
+  //           forActionId: forActionId,
+  //           fileNames: fileNames,
+  //           currFileName: fileName,
+  //           currFileSize: fileSize,
+  //           currFileType: fileType,
+  //           numChunks: numChunks,
+  //           currChunk: currChunk,
+  //           numFiles: numFiles,
+  //           currFile: currFile + 1,
+  //           chunk: base64,
+  //         },
+  //       });
+  //       this.webSocket.send(actionMsg);
+  //       offset += event.target.result.byteLength;
+  //       currChunk += 1;
+  //       if (offset < file.size) {
+  //         reader.readAsArrayBuffer(file.slice(offset, offset + CHUNK_SIZE));
+  //       }
+  //     }
+  //     // Trigger the first read
+  //     reader.readAsArrayBuffer(file.slice(offset, offset + CHUNK_SIZE));
+  //   }
+  //   return actionId;
+  // }
 
 //   handle_upload_complete(data) {
 //     const actionId = data.forActionId;

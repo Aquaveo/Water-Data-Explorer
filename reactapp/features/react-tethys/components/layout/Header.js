@@ -9,7 +9,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 
 import HeaderButton from 'features/react-tethys/components/buttons/HeaderButton';
 import NavButton from 'features/react-tethys/components/buttons/NavButton';
-import { AppContext } from 'context/context';
+import { AppContext } from 'features/react-tethys/context/context';
 
 const CustomNavBar = styled(Navbar)`
   min-height: var(--ts-header-height);

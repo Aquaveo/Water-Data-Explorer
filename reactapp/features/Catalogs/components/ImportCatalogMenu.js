@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext,useEffect  } from 'react';
 import { Form, Button } from 'react-bootstrap';
+import { AppContext } from "features/react-tethys/context/context";
 
-
-var notification_ws = new WebSocket('ws://' + window.location.host + '/apps/water-data-explorer/catalogs/ws/');
 
 const ImportCatalogMenu = () => {
+  const { backend } = useContext(AppContext);
   const [name, setName] = useState('');
   const [endpoint, setEndpoint] = useState('');
   const [description, setDescription] = useState('');
@@ -14,6 +14,14 @@ const ImportCatalogMenu = () => {
     console.log('Importing catalog with:', { name, endpoint, description, services });
     // Implement the import logic here
   };
+
+
+  useEffect(() => {
+    console.log(backend)
+    // if (show) {
+    //   backend.do(backend.actions.WORKFLOW_DATA_ALL, {initial: true})
+    // }
+  }, []);
 
   return (
     <Form>

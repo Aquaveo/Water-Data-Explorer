@@ -7,7 +7,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import Header from 'features/react-tethys/components/layout/Header';
 import NavMenu from 'features/react-tethys/components/layout/NavMenu';
 import NotFound from 'features/react-tethys/components/error/NotFound';
-import { AppContext } from 'context/context';
+import { AppContext } from 'features/react-tethys/context/context';
 
 function Layout({navLinks, routes, children}) {
   const {tethysApp} = useContext(AppContext);

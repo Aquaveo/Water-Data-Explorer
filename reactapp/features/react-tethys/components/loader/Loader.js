@@ -1,61 +1,20 @@
-import PropTypes from 'prop-types';
-import { useState, useEffect } from 'react';
+import PropTypes from "prop-types";
 
-import tethysAPI from 'features/react-tethys/services/api/tethys';
-import LoadingAnimation from 'features/react-tethys/components/loader/LoadingAnimation';
-import { AppContext } from 'context/context';
+import LoadingAnimation from "./LoadingAnimation";
+import { AppContext } from "../../context/context";
+import { useAppLoad } from "hooks/useAppLoad";
 
-const APP_ID = process.env.TETHYS_APP_ID;
-const LOADER_DELAY = process.env.TETHYS_LOADER_DELAY;
-
-function Loader({children}) {
-  const [error, setError] = useState(null);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [appContext, setAppContext] = useState(null);
- 
-  const handleError = (error) => {
-    // Delay setting the error to avoid flashing the loading animation
-    setTimeout(() => {
-      setError(error);
-    }, LOADER_DELAY);
-  };
-
-  useEffect(() => {  
-    // Get the session first
-    tethysAPI.getSession()
-      .then(() => {
-        // Then load all other app data
-        Promise.all([
-            tethysAPI.getAppData(APP_ID), 
-            tethysAPI.getUserData(), 
-            tethysAPI.getCSRF(),
-          ])
-          .then(([tethysApp, user, csrf]) => {
-            // Update app context
-            setAppContext({tethysApp, user, csrf});
-
-            // Allow for minimum delay to display loader
-            setTimeout(() => {
-              setIsLoaded(true)
-            }, LOADER_DELAY);
-          })
-          .catch(handleError);
-      }).catch(handleError);
-  }, []);
-
+function Loader({ children }) {
+  const { error, appContext, isLoaded } = useAppLoad();
   if (error) {
     // Throw error so it will be caught by the ErrorBoundary
     throw error;
   } else if (!isLoaded) {
-    return (
-      <LoadingAnimation />
-    );
+    return <LoadingAnimation />;
   } else {
     return (
       <>
-        <AppContext.Provider value={appContext}>
-          {children}
-        </AppContext.Provider>
+        <AppContext.Provider value={appContext}>{children}</AppContext.Provider>
       </>
     );
   }
