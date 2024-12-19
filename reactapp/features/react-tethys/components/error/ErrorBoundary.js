@@ -1,10 +1,9 @@
 import PropTypes from 'prop-types';
 import {Component, lazy} from "react";
 
-// import DebugError from 'components/error/DebugError';
-import GenericError from "components/error/GenericError";
+import GenericError from "features/react-tethys/components/error/GenericError";
 
-const DebugError = lazy(() => import('components/error/DebugError'));
+const DebugError = lazy(() => import('features/react-tethys/components/error/DebugError'));
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);

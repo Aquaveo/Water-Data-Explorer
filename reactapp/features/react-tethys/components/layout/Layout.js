@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import { useState, useContext } from 'react';
 import { LinkContainer } from 'react-router-bootstrap';
 
-import Header from 'components/layout/Header';
-import NavMenu from 'components/layout/NavMenu';
-import NotFound from 'components/error/NotFound';
+import Header from 'features/react-tethys/components/layout/Header';
+import NavMenu from 'features/react-tethys/components/layout/NavMenu';
+import NotFound from 'features/react-tethys/components/error/NotFound';
 import { AppContext } from 'context/context';
 
 function Layout({navLinks, routes, children}) {

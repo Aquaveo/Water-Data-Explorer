@@ -7,8 +7,8 @@ import { useContext } from 'react';
 import { BsX, BsGear } from 'react-icons/bs';
 import { LinkContainer } from 'react-router-bootstrap';
 
-import HeaderButton from 'components/buttons/HeaderButton';
-import NavButton from 'components/buttons/NavButton';
+import HeaderButton from 'features/react-tethys/components/buttons/HeaderButton';
+import NavButton from 'features/react-tethys/components/buttons/NavButton';
 import { AppContext } from 'context/context';
 
 const CustomNavBar = styled(Navbar)`

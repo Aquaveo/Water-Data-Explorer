@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 
-import { getTethysPortalHost } from 'services/utilities';
+import { getTethysPortalHost } from 'features/react-tethys/services/utilities';
 
 const TETHYS_PORTAL_HOST = getTethysPortalHost();
 const APP_ROOT_URL = process.env.TETHYS_APP_ROOT_URL;

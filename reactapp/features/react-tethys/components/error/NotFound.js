@@ -1,4 +1,4 @@
-import Error from 'components/error/Error';
+import Error from 'features/react-tethys/components/error/Error';
 
 import errorImage from 'assets/error404.png';
 

@@ -1,8 +1,8 @@
 import { Route } from 'react-router-dom';
 
-import ErrorBoundary from 'components/error/ErrorBoundary';
-import Layout from 'components/layout/Layout';
-import Loader from 'components/loader/Loader';
+import ErrorBoundary from 'features/react-tethys/components/error/ErrorBoundary';
+import Layout from 'features/react-tethys/components/layout/Layout';
+import Loader from 'features/react-tethys/components/loader/Loader';
 
 import WDEView from 'views/catalog.js';
 

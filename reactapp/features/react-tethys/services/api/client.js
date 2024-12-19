@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-import { getTethysPortalHost } from 'services/utilities';
-import tethysAPI from 'services/api/tethys';
+import { getTethysPortalHost } from '../utilities';
+import tethysAPI from './tethys';
 
 const TETHYS_PORTAL_HOST = getTethysPortalHost();
 

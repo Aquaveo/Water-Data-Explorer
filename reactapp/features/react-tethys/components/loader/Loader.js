@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 
-import tethysAPI from 'services/api/tethys';
-import LoadingAnimation from 'components/loader/LoadingAnimation';
+import tethysAPI from 'features/react-tethys/services/api/tethys';
+import LoadingAnimation from 'features/react-tethys/components/loader/LoadingAnimation';
 import { AppContext } from 'context/context';
 
 const APP_ID = process.env.TETHYS_APP_ID;
