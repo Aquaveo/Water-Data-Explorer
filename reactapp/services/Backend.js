@@ -167,21 +167,7 @@ export default class Backend {
       },
       payload: data
     };
-
-    if ('files' in actionMessage.payload) {
-      // Upload files
-      this.upload_files(actionMessage.payload.files, actionMessage.action.id);
-
-      // Remove files from the action message
-      delete actionMessage.payload.files;
-
-      // Defer sending the action message until after files are uploaded
-      this.pendingActions[actionMessage.action.id] = actionMessage;
-    } else {
-      // Send the message
-      this.webSocket.send(this.serialize(actionMessage));
-    }
-
+    this.webSocket.send(this.serialize(actionMessage));
     return actionId;
   }
 

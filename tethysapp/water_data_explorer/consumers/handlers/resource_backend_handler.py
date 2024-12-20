@@ -13,7 +13,7 @@ from tethysapp.water_data_explorer.app import App
 log = logging.getLogger(__name__)
 
 
-class CatalogBackendHandler:
+class ResourceBackendHandler:
     SEND_DATA_ACTION: BackendActions = None
     PROP_DNE = '###prop-doesnt-exist###'  # For getattr checks where None value is valid
 
@@ -203,8 +203,8 @@ class CatalogBackendHandler:
 
     #     await self.send_action(self.SEND_DATA_ACTION, data_json)
 
-    # async def send_action(self, action: BackendActions, payload: dict):
-    #     await self.backend_consumer.send_action(action, payload)
+    async def send_action(self, action: BackendActions, payload: dict):
+        await self.backend_consumer.send_action(action, payload)
 
     # async def send_acknowledge(self, msg: str, action: BackendActions, payload: dict, details: dict = None):
     #     """Convenience wrapper for consumer send_acknowledge()."""

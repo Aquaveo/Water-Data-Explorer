@@ -12,7 +12,7 @@ from tethys_sdk.routing import consumer
 
 from .backend_actions import BackendActions
 from .handlers import (
-    BackendHandler
+    CatalogBackendHandler
     # create the rest of the handlers
 )
 from tethysapp.water_data_explorer.app import App
@@ -38,7 +38,7 @@ class BackendConsumer(AsyncConsumer):
         self.engine = create_async_engine(db_url, connect_args={'ssl': False})
         self.sessionmaker = sessionmaker(self.engine, expire_on_commit=False, class_=AsyncSession)
         self.handlers = (
-            # create handlers for the catalog
+            CatalogBackendHandler(self),
             # create handlers for the views
             # create handlers for the sites
         )
