@@ -36,7 +36,6 @@ export const TagField = ({ tags, addTag, removeTag, maxTags }) => {
                         ? "Add a tag"
                         : `You can only enter max. of ${maxTags} tags`
                 }
-                className="w-full border border-gray-300 rounded-md px-4 py-2"
                 onKeyDown={handleKeyPress}
                 onChange={handleInputChange}
                 value={userInput}
