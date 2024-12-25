@@ -46,7 +46,7 @@ const AddMenuButton = () => {
               </IconWithText>
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item as={Button} onClick={showImportCatalogMenu}>Import Catalog</Dropdown.Item>
+              <Dropdown.Item as={Button} onClick={showImportCatalogMenu}>Import HIS Central Catalog</Dropdown.Item>
               <Dropdown.Item as={Button}>Add Custom Catalog</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>

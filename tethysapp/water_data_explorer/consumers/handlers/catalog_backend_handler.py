@@ -85,6 +85,7 @@ class CatalogBackendHandler(RBH):
                 services_json = {
                     "error": f"Failed to fetch data. Status code: {response.status_code}"
                 }
+        
         await self.send_action(self.SEND_DATA_ACTION, services_json)
 
 

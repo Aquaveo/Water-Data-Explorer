@@ -157,7 +157,9 @@ export default class Backend {
   on(type, func) {
     this.messageHandlers[type] = func;
   }
-
+  off(type) {
+    delete this.messageHandlers[type];
+  }
   do(action, data) {
     const actionId = newUUID();
     let actionMessage = {
