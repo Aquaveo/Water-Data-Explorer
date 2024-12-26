@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Badge , Alert } from 'react-bootstrap';
+import { Form, Badge , Stack  } from 'react-bootstrap';
 import { CloseButton } from "./StyleButton";
 export const TagField = ({ tags, addTag, removeTag, maxTags }) => {
     // track the user input
@@ -44,7 +44,7 @@ export const TagField = ({ tags, addTag, removeTag, maxTags }) => {
 
             {/* ===== Render the tags here ===== */}
 
-            <div className="flex flex-row flex-wrap gap-3 mt-4">
+            <Stack direction="horizontal" gap={2} className="mt-4">
                 {tags.map((tag, index) => (
                     <Badge  pill bg="primary"
                         key={`${index}-${tag}`}
@@ -57,7 +57,7 @@ export const TagField = ({ tags, addTag, removeTag, maxTags }) => {
                         />
                     </Badge >
                 ))}
-            </div>
+            </Stack>
         </div>
     );
 };
