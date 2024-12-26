@@ -18,8 +18,11 @@ const useTagInput = (maxTags = 5) => {
         setTags(tags.filter((t) => t !== tag));
 
     // Return tags and functions from the hook
+    const cleanTags = () =>{
+        setTags([]);
+    }
 
-    return { tags, handleAddTag, handleRemoveTag };
+    return { tags, handleAddTag, handleRemoveTag, cleanTags };
 };
 
 export default useTagInput;

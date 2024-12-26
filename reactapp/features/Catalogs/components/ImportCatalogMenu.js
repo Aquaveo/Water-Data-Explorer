@@ -8,6 +8,9 @@ import styled from 'styled-components';
 import useTagInput from 'components/tags/useTag';
 import { TagField } from 'components/tags/tagField';
 
+
+import {columns} from './columns';
+
 const ClearButton = styled.button`
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
@@ -37,13 +40,14 @@ const FilterWrapper = styled.div`
   max-width: 100%;
 `;
 const MAX_TAGS = 5;
+
 const ImportCatalogMenu = () => {
   const { backend } = useContext(AppContext);
   const [name, setName] = useState('');
   const [endpoint, setEndpoint] = useState('');
   const [services, setServices] = useState([]);
   const [endpointError, setEndpointError] = useState('');
-  const { tags, handleAddTag, handleRemoveTag } = useTagInput(MAX_TAGS); // pass the maximum tags
+  const { tags, handleAddTag, handleRemoveTag, cleanTags } = useTagInput(MAX_TAGS); // pass the maximum tags
 
   // Ref to store the timeout ID for debouncing
   const debounceTimeoutRef = useRef(null);
@@ -105,7 +109,7 @@ const ImportCatalogMenu = () => {
     if (endpoint || name || tags) {
       setName('');
       setEndpoint('');
-      // setTags('');
+      cleanTags();
       setServices([]);
       setEndpointError('');
     }
@@ -115,9 +119,7 @@ const ImportCatalogMenu = () => {
     const handleServices = (data) => {
       setServices(data);
     };
-
     backend.on(backend.actions.GET_LIST_SERVICES, handleServices);
-
     // Cleanup on unmount
     return () => {
       backend.off(backend.actions.GET_LIST_SERVICES, handleServices);
@@ -163,26 +165,18 @@ const ImportCatalogMenu = () => {
 
         <Form.Group className="mb-3" controlId="catalogDescription">
           <Form.Label>Tags</Form.Label>
-
             <TagField
               tags={tags}
               addTag={handleAddTag}
               removeTag={handleRemoveTag}
               maxTags={MAX_TAGS}
             />
-          {/* <Form.Control 
-            as="textarea" 
-            rows={2}
-            placeholder="Enter tags" 
-            value={tags} 
-            onChange={(e) => setTags(e.target.value)} 
-          /> */}
         </Form.Group>
       </Form>
 
       {/* Show ViewTable if services is available and has data */}
       {services && services.length > 0 && (
-        <ViewTable data={services} />
+        <ViewTable data={services} columns={columns} />
       )}
 
       {/* Show error alert if there's an endpoint error */}
