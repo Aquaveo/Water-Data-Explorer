@@ -18,9 +18,9 @@ class App(TethysAppBase):
     tags = '"Hydrology", "WMO", "BYU"'
     enable_feedback = False
     feedback_emails = []
-    controller_modules = ['startAll', 'sites', 'endpoints', 'catalogs','catalogsR', ]
+    # controller_modules = ['startAll', 'sites', 'endpoints', 'catalogs','catalogsR', ]
 
-    DATABASE_NAME = "catalog_db"
+    DATABASE_NAME = "wde_db"
     def permissions(self):
         """
         Example permissions method.
@@ -125,8 +125,8 @@ class App(TethysAppBase):
         ps_settings = (
             PersistentStoreDatabaseSetting(
                 name= self.DATABASE_NAME,
-                description='catalogs database',
-                initializer='water_data_explorer.init_stores.init_catalog_db',
+                description='wde database',
+                initializer='water_data_explorer.model.init_db.create_tables',
                 required=True
             ),
         )
