@@ -7,6 +7,7 @@ from sqlalchemy.sql import func
 
 Base = declarative_base()
 
+
 class Groups(Base):
     __tablename__ = 'Group_Hydroserver_Individuals'
 
