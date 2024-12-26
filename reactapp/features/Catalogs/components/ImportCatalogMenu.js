@@ -41,7 +41,6 @@ const ImportCatalogMenu = () => {
   const { backend } = useContext(AppContext);
   const [name, setName] = useState('');
   const [endpoint, setEndpoint] = useState('');
-  // const [tags, setTags] = useState('');
   const [services, setServices] = useState([]);
   const [endpointError, setEndpointError] = useState('');
   const { tags, handleAddTag, handleRemoveTag } = useTagInput(MAX_TAGS); // pass the maximum tags
