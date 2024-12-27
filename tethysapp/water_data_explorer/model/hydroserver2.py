@@ -48,11 +48,6 @@ class Hydroserver2(HydroServer2Base):
         cascade="all, delete, delete-orphan"
     )
 
-    # siteinfo and variables fields are referenced in __init__, 
-    # but not declared as columns or relationships. Add them if needed.
-    # siteinfo = Column(JSON)
-    # variables = Column(JSON)
-
     def __init__(self, title, url, description, siteinfo, variables, countries):
         self.title = title
         self.url = url
