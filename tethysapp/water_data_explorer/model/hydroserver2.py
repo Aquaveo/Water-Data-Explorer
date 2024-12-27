@@ -1,11 +1,12 @@
 from sqlalchemy.dialects.postgresql import UUID, JSON, DOUBLE_PRECISION
 from sqlalchemy import Column, Integer, String, UUID, ForeignKey, Text, Boolean, DateTime
 from sqlalchemy.orm import relationship
-from .base import Base
+from sqlalchemy.ext.declarative import declarative_base
 import uuid
 
 
 
+Base = declarative_base()
 
 class HydroServer2Catalog(Base):
     __tablename__ = 'hydroserver2_catalog'
@@ -144,3 +145,7 @@ class Datastream(Base):
         self.result_end_time = result_end_time
         self.result_begin_time = result_begin_time
 
+
+
+def create_hydroserver2_tables(engine):
+    Base.metadata.create_all(engine)

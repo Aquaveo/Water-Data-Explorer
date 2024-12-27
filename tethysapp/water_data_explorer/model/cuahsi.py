@@ -1,10 +1,11 @@
 from sqlalchemy.dialects.postgresql import UUID, DOUBLE_PRECISION
 from sqlalchemy import Column, Integer, String, ForeignKey, Text,Boolean
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
 import uuid
-from .base import Base
 
 
+Base = declarative_base()
 
 class HISCatalog(Base):
     __tablename__ = 'his_catalog'
@@ -79,4 +80,7 @@ class CUAHSIVariable(Base):
     speciation = Column(String(1000))
     site_id = Column(Integer, ForeignKey('cuahsi_site.id'))
     site = relationship("Site", back_populates="variables")  # Tile as given by the admin
-    
+
+def create_cuahsi_tables(engine):
+    Base.metadata.create_all(engine)
+

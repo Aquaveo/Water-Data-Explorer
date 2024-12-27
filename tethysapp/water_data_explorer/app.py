@@ -1,6 +1,7 @@
 from tethys_sdk.base import TethysAppBase
 from tethys_sdk.app_settings import PersistentStoreDatabaseSetting, CustomSetting
 from tethys_sdk.permissions import Permission, PermissionGroup
+from .init import initializer_function
 
 
 class App(TethysAppBase):
@@ -126,7 +127,7 @@ class App(TethysAppBase):
             PersistentStoreDatabaseSetting(
                 name= self.DATABASE_NAME,
                 description='wde database',
-                initializer='water_data_explorer.model.init_db.create_tables',
+                initializer='water_data_explorer.init.init_db',
                 required=True
             ),
         )
