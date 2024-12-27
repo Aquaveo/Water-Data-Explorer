@@ -1,48 +1,71 @@
 from sqlalchemy.dialects.postgresql import UUID, JSON, DOUBLE_PRECISION
-from sqlalchemy import Column, Integer, String, UUID, ForeignKey, Text, Boolean, DateTime
+from sqlalchemy import Column, String, Text, Boolean, DateTime, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
 
+HydroServer2Base = declarative_base()
 
 
-Base = declarative_base()
-
-class HydroServer2Catalog(Base):
+class HydroServer2Catalog(HydroServer2Base):
     __tablename__ = 'hydroserver2_catalog'
+    # Use UUID for the PK
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name = Column(String(1000))  
+    name = Column(String(1000))
     tags = Column(String(1000))
-    services = relationship("hydroserver2", back_populates ="catalog", cascade = "all,delete, delete-orphan" )
-    
-    def __init__(self,name, tags):
+
+    # relationship references Python class "Hydroserver2"
+    services = relationship(
+        "Hydroserver2",
+        back_populates="catalog",
+        cascade="all, delete, delete-orphan"
+    )
+
+    def __init__(self, name, tags):
         self.name = name
-        self.tags= tags
+        self.tags = tags
 
 
-class Hydroserver2(Base):
-    __tablename__ = "hydroserver2"
+class Hydroserver2(HydroServer2Base):
+    __tablename__ = 'hydroserver2'
 
-    id = Column(Integer, primary_key=True)  # Record number.
-    title = Column(String(1000))  # Title as given by the admin
-    url = Column(String(2083))  # URL of the SOAP endpointx
-    description = Column(Text)  # URL of the SOAP endpointx
+    # Use UUID for the PK to match the catalog PK type
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    title = Column(String(1000))
+    url = Column(String(2083))
+    description = Column(Text)
     countries = Column(JSON)
-    catalog_id = Column(Integer, ForeignKey('HydroServer2Catalog.id'))
-    catalog = relationship("hydroserver2_catalog", back_populates="services")  # Tile as given by the admin
-    things = relationship("Thing", back_populates="site", cascade = "all,delete, delete-orphan" )
+
+    # The foreign key must match the table name 'hydroserver2_catalog' and the PK 'id'
+    catalog_id = Column(UUID(as_uuid=True), ForeignKey('hydroserver2_catalog.id'))
+    catalog = relationship("HydroServer2Catalog", back_populates="services")
+
+    # If "Thing" references this as `site`, you need to fix the relationship name accordingly
+    # But let's assume you want Hydroserver2 -> Things
+    things = relationship(
+        "Thing",
+        back_populates="server2",
+        cascade="all, delete, delete-orphan"
+    )
+
+    # siteinfo and variables fields are referenced in __init__, 
+    # but not declared as columns or relationships. Add them if needed.
+    # siteinfo = Column(JSON)
+    # variables = Column(JSON)
 
     def __init__(self, title, url, description, siteinfo, variables, countries):
         self.title = title
         self.url = url
         self.description = description
         self.siteinfo = siteinfo
-        self.variables  = variables
+        self.variables = variables
         self.countries = countries
 
 
-class Thing(Base):
+class Thing(HydroServer2Base):
     __tablename__ = 'thing'
+
+    # Use UUID for PK
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(200))
     description = Column(Text)
@@ -58,9 +81,24 @@ class Thing(Base):
     state = Column(String(200), nullable=True)
     county = Column(String(200), nullable=True)
     country = Column(String(2), nullable=True)
-    datastreams = relationship("Datastream", back_populates="thing")
 
-    def __init__(self, name, description, sampling_feature_type, sampling_feature_code, site_type, is_private, data_disclaimer, latitude, longitude, elevation_m, elevation_datum, state, county, country):
+    # Relationship to Datastream
+    datastreams = relationship(
+        "Datastream",
+        back_populates="thing",
+        cascade="all, delete, delete-orphan"
+    )
+
+    # If this "Thing" belongs to a Hydroserver2 instance, 
+    # then we need a foreign key referencing hydroserever2.id
+    server2_id = Column(UUID(as_uuid=True), ForeignKey('hydroserver2.id'))
+    server2 = relationship("Hydroserver2", back_populates="things")
+
+    def __init__(
+        self, name, description, sampling_feature_type, sampling_feature_code,
+        site_type, is_private, data_disclaimer, latitude, longitude,
+        elevation_m, elevation_datum, state, county, country
+    ):
         self.name = name
         self.description = description
         self.sampling_feature_type = sampling_feature_type
@@ -76,13 +114,18 @@ class Thing(Base):
         self.county = county
         self.country = country
 
-class Datastream(Base):
+
+class Datastream(HydroServer2Base):
     __tablename__ = 'datastream'
+
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(255))
     description = Column(Text)
+
+    # Must match 'thing.id' as UUID
     thing_id = Column(UUID(as_uuid=True), ForeignKey('thing.id'), name='thingId')
     thing = relationship("Thing", back_populates="datastreams")
+
     sensor_id = Column(String(255), name='sensorId')
     sensor_name = Column(String(255), name='sensorName')
     observation_property_id = Column(String(255), name='observationPropertyId')
@@ -111,9 +154,17 @@ class Datastream(Base):
     observed_area = Column(String(255), nullable=True, name='observedArea')
     result_end_time = Column(DateTime, nullable=True, name='resultEndTime')
     result_begin_time = Column(DateTime, nullable=True, name='resultBeginTime')
-    thing = relationship("Thing", back_populates="datastreams")
 
-    def __init__(self, name, description, thing_id, sensor_id, sensor_name, observation_property_id, observation_property_name, unit_id, unit_name, processing_level_id, processing_level_code, observation_type, result_type, sampled_medium, value_count, no_data_value, intended_time_spacing, intended_time_spacing_units, aggregation_statistic, time_aggregation_interval, time_aggregation_interval_units, phenomenon_begin_time, phenomenon_end_time, is_visible, is_data_visible, data_source_column, archived, observed_area, result_end_time, result_begin_time):
+    def __init__(
+        self, name, description, thing_id, sensor_id, sensor_name,
+        observation_property_id, observation_property_name, unit_id, unit_name,
+        processing_level_id, processing_level_code, observation_type, result_type,
+        sampled_medium, value_count, no_data_value, intended_time_spacing,
+        intended_time_spacing_units, aggregation_statistic, time_aggregation_interval,
+        time_aggregation_interval_units, phenomenon_begin_time, phenomenon_end_time,
+        is_visible, is_data_visible, data_source_column, archived, observed_area,
+        result_end_time, result_begin_time
+    ):
         self.name = name
         self.description = description
         self.thing_id = thing_id
@@ -144,8 +195,3 @@ class Datastream(Base):
         self.observed_area = observed_area
         self.result_end_time = result_end_time
         self.result_begin_time = result_begin_time
-
-
-
-def create_hydroserver2_tables(engine):
-    Base.metadata.create_all(engine)
