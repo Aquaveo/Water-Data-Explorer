@@ -98,10 +98,9 @@ const ImportCatalogMenu = () => {
   };
 
   const handleImport = () => {
-    console.log('Importing catalog with:', { name, endpoint, tags, services });
+    console.log('Importing catalog:', { name, endpoint, tags, services });
     if (!endpointError && endpoint) {
-      backend.do(backend.actions.GET_LIST_SERVICES, { "endpoint": endpoint });
-      // Implement any further logic here.
+      backend.do(backend.actions.IMPORT_CATALOG, { name, endpoint, tags, services });
     }
   };
 
@@ -116,13 +115,14 @@ const ImportCatalogMenu = () => {
   };
 
   useEffect(() => {
-    const handleServices = (data) => {
-      setServices(data);
-    };
-    backend.on(backend.actions.GET_LIST_SERVICES, handleServices);
+
+    backend.on(backend.actions.GET_LIST_SERVICES, {});
+    backend.on(backend.actions.IMPORT_CATALOG, {});
     // Cleanup on unmount
     return () => {
-      backend.off(backend.actions.GET_LIST_SERVICES, handleServices);
+      backend.off(backend.actions.GET_LIST_SERVICES,);
+      backend.on(backend.actions.IMPORT_CATALOG, );
+
     };
   }, [backend]);
 

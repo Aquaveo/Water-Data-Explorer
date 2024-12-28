@@ -3,6 +3,7 @@ import httpx
 import xml.etree.ElementTree as ET
 from ..backend_actions import BackendActions
 from .resource_backend_handler import ResourceBackendHandler as RBH
+from tethysapp.water_data_explorer.model.cuahsi import HISCatalog
 
 log = logging.getLogger(__name__)
 
@@ -10,6 +11,7 @@ log = logging.getLogger(__name__)
 class CatalogBackendHandler(RBH):
     # pass
     SEND_DATA_ACTION: BackendActions = BackendActions.GET_LIST_SERVICES
+    SEND_IMPORT_CATALOG_ACTION: BackendActions = BackendActions.IMPORT_CATALOG
     UPDATABLE_PROPS = ['name', 'description', 'attributes', 'public', 'status']
     READONLY_ATTRS = ['files', 'file_database_id']
 
@@ -20,12 +22,6 @@ class CatalogBackendHandler(RBH):
             BackendActions.IMPORT_CATALOG: self.get_catalog_services,
             BackendActions.GET_LIST_SERVICES: self.get_catalog_services,
         }
-
-    # async def get_catalog_services(self, event, action, data, session):
-    #     """Get the catalog services."""
-    #     services_json = {} #implement your logic here
-    #     await self.send_action(self.SEND_DATA_ACTION, services_json)
-
 
     async def get_catalog_services(self, event, action, data):
         # SOAP endpoint and action
@@ -88,6 +84,58 @@ class CatalogBackendHandler(RBH):
         
         await self.send_action(self.SEND_DATA_ACTION, services_json)
 
+    @RBH.action_handler
+    async def import_catalog(self, event, action, data, session):
+        """
+        Imports a new catalog into the database and sends a Channels group message
+        containing the catalog's ID, name, and services.
+        """
+        try:
+            # 1) Gather and/or transform incoming data
+            catalog_data = {
+                "name": data.get("name", "default_name"),
+                "endpoint": data.get("endpoint"),
+                "tags": data.get("tags", []),
+                "services": data.get("services", []),
+            }
+
+            # 2) Create the SQLAlchemy model instance
+            his_catalog = HISCatalog(**catalog_data)
+
+            # 3) Persist the instance to the database
+            session.add(his_catalog)
+            await session.commit()
+            # Refresh the instance to get the new `id` from the DB
+            await session.refresh(his_catalog)
+            
+
+            # 4) Send data to a Channels group, e.g., "catalog_updates"
+            
+            catalog_json = {   
+                "id": his_catalog.id,
+                "name": his_catalog.name,
+                "services": his_catalog.services,
+            }
+            
+            self.send_action(self.SEND_IMPORT_CATALOG_ACTION, catalog_json)
+
+            # 5) Return the relevant information
+            return {
+                "id": his_catalog.id,
+                "name": his_catalog.name,
+                "services": his_catalog.services
+            }
+
+        except Exception as exc:
+            logging.error(f"[import_catalog] Failed to import catalog: {exc}")
+            # Roll back the transaction if anything failed
+            await session.rollback()
+            # Re-raise so the caller knows something went wrong
+            raise
+
+    @RBH.action_handler
+    async def update_catalog(self, event, action, data):
+        pass
 
     # @RBH.action_handler
     # async def receive_data(self, event, action, data, session):

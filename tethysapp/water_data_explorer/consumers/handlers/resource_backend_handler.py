@@ -8,6 +8,10 @@ from pydantic import ValidationError
 
 from ..backend_actions import BackendActions
 
+import functools
+import logging
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from tethysapp.water_data_explorer.app import App
 
 log = logging.getLogger(__name__)
@@ -52,6 +56,7 @@ class ResourceBackendHandler:
                     log.exception(msg)
 
         return _action_handler
+
 
     # def _get_request(self):
     #     FakeRequest = namedtuple('FakeRequest', ['user'])
