@@ -41,6 +41,20 @@ const useCatalogStore = create((set, get) => ({
       return { catalogs: updatedCatalogs };
     }),
 
+  addViews: (catalogID, newViews) =>
+    set((state) => {
+      const updatedCatalogs = state.catalogs.map((cat) => {
+        if (cat.id === catalogID) {
+          return {
+            ...cat,
+            views: [...cat.views, ...newViews],
+          };
+        }
+        return cat;
+      });
+      return { catalogs: updatedCatalogs };
+    }),
+
   deleteView: (catalogName, viewName) =>
     set((state) => {
       const updatedCatalogs = state.catalogs.map((cat) => {

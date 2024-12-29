@@ -47,11 +47,19 @@ const ImportCatalogMenu = () => {
   const [services, setServices] = useState([]);
   const [endpointError, setEndpointError] = useState('');
   const { tags, handleAddTag, handleRemoveTag, cleanTags } = useTagInput(MAX_TAGS); // pass the maximum tags
-  const { addCatalog, addView } = useCatalogStore();
+  const { addCatalog } = useCatalogStore();
+
+  const importCatalog = (catalog) =>{
+    addCatalog(catalog);
+    // Import views
+    for (let i = 0; i < catalog.services.length; i++) {
+      backend.do(backend.actions.IMPORT_VIEW, {name: catalog.services[i].id, endpoint: catalog.services[i].endpoint});
+    }
+  }
 
   useEffect(() => {
     backend.on(backend.actions.GET_LIST_SERVICES, setServices);
-    backend.on(backend.actions.IMPORT_CATALOG, addCatalog);
+    backend.on(backend.actions.IMPORT_CATALOG, importCatalog);
     // Cleanup on unmount
     return () => {
       backend.off(backend.actions.GET_LIST_SERVICES);

@@ -19,6 +19,19 @@ function CatalogsList() {
   //   };
   // }, []);
 
+  const { addView } = useCatalogStore();
+
+  const fake = () =>{
+    console.log('fake');
+  }
+  useEffect(() => {
+    backend.on(backend.actions.IMPORT_VIEW, fake );
+    
+    // Cleanup on unmount
+    return () => {
+      backend.off(backend.actions.IMPORT_VIEW);
+    };
+  }, []);
 
   return (
     <Accordion>
