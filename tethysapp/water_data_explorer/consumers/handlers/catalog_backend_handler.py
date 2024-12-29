@@ -3,7 +3,8 @@ import httpx
 import xml.etree.ElementTree as ET
 from ..backend_actions import BackendActions
 from .resource_backend_handler import ResourceBackendHandler as RBH
-from tethysapp.water_data_explorer.model.cuahsi import HISCatalog
+from tethysapp.water_data_explorer.model.crud import create_his_catalog
+from tethysapp.water_data_explorer.model.schemas import HISCatalogCreate, HISCatalogRead
 
 log = logging.getLogger(__name__)
 
@@ -12,15 +13,16 @@ class CatalogBackendHandler(RBH):
     # pass
     SEND_DATA_ACTION: BackendActions = BackendActions.GET_LIST_SERVICES
     SEND_IMPORT_CATALOG_ACTION: BackendActions = BackendActions.IMPORT_CATALOG
+    SEND_GET_CATALOGS_ACTION: BackendActions = BackendActions.GET_LIST_CATALOGS
     UPDATABLE_PROPS = ['name', 'description', 'attributes', 'public', 'status']
     READONLY_ATTRS = ['files', 'file_database_id']
 
     @property
     def receiving_actions(self) -> dict[BackendActions, callable]:
         return {
-            # BackendActions.CATALOG_DATA: self.get_catalog_services,
-            BackendActions.IMPORT_CATALOG: self.get_catalog_services,
+            BackendActions.IMPORT_CATALOG: self.import_catalog,
             BackendActions.GET_LIST_SERVICES: self.get_catalog_services,
+            BackendActions.GET_LIST_CATALOGS: self.get_catalogs,
         }
 
     async def get_catalog_services(self, event, action, data):
@@ -90,52 +92,39 @@ class CatalogBackendHandler(RBH):
         Imports a new catalog into the database and sends a Channels group message
         containing the catalog's ID, name, and services.
         """
-        try:
-            # 1) Gather and/or transform incoming data
-            catalog_data = {
-                "name": data.get("name", "default_name"),
-                "endpoint": data.get("endpoint"),
-                "tags": data.get("tags", []),
-                "services": data.get("services", []),
-            }
+        
+        # 1) Validate the incoming data with Pydantic
+        schema = HISCatalogCreate(**data)
 
-            # 2) Create the SQLAlchemy model instance
-            his_catalog = HISCatalog(**catalog_data)
+        # 2) Create the record in the DB
+        new_catalog = await create_his_catalog(session, schema)
 
-            # 3) Persist the instance to the database
-            session.add(his_catalog)
-            await session.commit()
-            # Refresh the instance to get the new `id` from the DB
-            await session.refresh(his_catalog)
-            
-
-            # 4) Send data to a Channels group, e.g., "catalog_updates"
-            
-            catalog_json = {   
-                "id": his_catalog.id,
-                "name": his_catalog.name,
-                "services": his_catalog.services,
-            }
-            
-            self.send_action(self.SEND_IMPORT_CATALOG_ACTION, catalog_json)
-
-            # 5) Return the relevant information
-            return {
-                "id": his_catalog.id,
-                "name": his_catalog.name,
-                "services": his_catalog.services
-            }
-
-        except Exception as exc:
-            logging.error(f"[import_catalog] Failed to import catalog: {exc}")
-            # Roll back the transaction if anything failed
-            await session.rollback()
-            # Re-raise so the caller knows something went wrong
-            raise
+        
+        # 4) Send data to a Channels group, e.g., "catalog_updates"
+        catalog_json = {   
+            "id": new_catalog.id,
+            "name": new_catalog.name,
+            "services": data.get("services"),
+        }
+        
+        await self.send_action(self.SEND_IMPORT_CATALOG_ACTION, catalog_json)
 
     @RBH.action_handler
-    async def update_catalog(self, event, action, data):
-        pass
+    async def get_catalogs(self, event, action, data, session):
+        # type_catalog = data.get('type')
+        # if type_catalog == 'his':
+        catalogs = await self.get_his_catalogs(session)
+        
+        pydantic_catalogs = [HISCatalogRead.model_validate(catalog) for catalog in catalogs]
+        
+        
+        catalogs_json = [catalog.model_dump() for catalog in pydantic_catalogs]
+        
+        await self.send_action(self.SEND_GET_CATALOGS_ACTION, catalogs_json)
+
+    # @RBH.action_handler
+    # async def update_catalog(self, event, action, data):
+    #     pass
 
     # @RBH.action_handler
     # async def receive_data(self, event, action, data, session):

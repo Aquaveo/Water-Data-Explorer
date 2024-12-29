@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Offcanvas } from 'react-bootstrap';
 import useLayoutStore from 'stores/layoutStore';
-import ComponentsList from './ComponentsList';
+import CatalogsList from './CatalogList';
 import ImportCatalogMenu from 'features/Catalogs/components/ImportCatalogMenu';
 import { BsArrowLeft } from 'react-icons/bs';
 
@@ -16,17 +16,19 @@ export const StyledOffcanvas = styled(Offcanvas)`
 `;
 
 
-
 const SidePanel = () => {
+
   const { 
     isSidePanelVisible, 
     toggleSidePanelVisibility, 
     currentOffCanvasView 
   } = useLayoutStore();
 
+
+
   let content;
   if (currentOffCanvasView === 'catalogList') {
-    content = <ComponentsList />;
+    content = <CatalogsList />;
   } else if (currentOffCanvasView === 'importCatalogMenu') {
     content = <ImportCatalogMenu />;
   }

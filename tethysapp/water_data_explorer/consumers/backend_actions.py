@@ -7,6 +7,7 @@ from strenum import StrEnum  # TODO: Replace with built-in StrEnum when upgrade 
 class BackendActions(StrEnum):
     IMPORT_CATALOG = auto()
     GET_LIST_SERVICES = auto()
+    GET_LIST_CATALOGS = auto()
     # DATASET_DATA = auto()
     # DATASET_DUPLICATE = auto()
     # DATASET_CREATE = auto()

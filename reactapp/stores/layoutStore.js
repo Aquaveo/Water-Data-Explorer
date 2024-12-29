@@ -4,9 +4,10 @@ const useLayoutStore = create((set) => ({
   isSidePanelVisible: false,
   currentOffCanvasView: 'catalogList', // default view
 
-  toggleSidePanelVisibility: () => set((state) => ({ 
-    isSidePanelVisible: !state.isSidePanelVisible 
-  })),
+  toggleSidePanelVisibility: () => {
+    set((state) => ({
+      isSidePanelVisible: !state.isSidePanelVisible 
+  }))},
 
   showCatalogList: () => set({ currentOffCanvasView: 'catalogList' }),
 

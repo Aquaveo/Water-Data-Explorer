@@ -12,6 +12,13 @@ const useCatalogStore = create((set, get) => ({
     set((state) => ({
       catalogs: [...state.catalogs, catalog],
     })),
+  addCatalogs: (newCatalogs) =>{
+    console.log('newCatalogs', newCatalogs);
+    set((state) => ({
+      catalogs: [...state.catalogs, ...newCatalogs]
+    }))
+  },
+
 
   deleteCatalog: (catalogName) =>
     set((state) => ({

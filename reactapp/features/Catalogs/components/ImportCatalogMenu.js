@@ -7,9 +7,8 @@ import { MdClear } from "react-icons/md";
 import styled from 'styled-components';
 import useTagInput from 'components/tags/useTag';
 import { TagField } from 'components/tags/tagField';
+import useCatalogStore from '../hooks/useCatalogStore';
 
-
-import {columns} from './columns';
 
 const ClearButton = styled.button`
   border-top-left-radius: 0;
@@ -48,53 +47,22 @@ const ImportCatalogMenu = () => {
   const [services, setServices] = useState([]);
   const [endpointError, setEndpointError] = useState('');
   const { tags, handleAddTag, handleRemoveTag, cleanTags } = useTagInput(MAX_TAGS); // pass the maximum tags
+  const { addCatalog } = useCatalogStore();
 
-  // Ref to store the timeout ID for debouncing
-  const debounceTimeoutRef = useRef(null);
-
-  // Validation Function
-  const isValidEndpoint = (value) => {
-    const trimmedValue = value.trim();
-    const endsWithHisCentral = trimmedValue.endsWith('hiscentral.asmx');
-    const startsWithProtocol = /^https?:\/\//i.test(trimmedValue);
-    return endsWithHisCentral && startsWithProtocol;
-  };
-
-  // Effect to handle debounced validation
   useEffect(() => {
-    // Clear the previous timeout if endpoint changes before timeout completes
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-
-    // Set a new timeout to validate after 500ms of no changes
-    debounceTimeoutRef.current = setTimeout(() => {
-      if (endpoint) {
-        if (!isValidEndpoint(endpoint)) {
-          setEndpointError('Endpoint must start with http:// or https:// or end with hiscentral.asmx');
-        } else {
-          setEndpointError('');
-          handleImport();
-        }
-      } else {
-        setEndpointError('');
-        handleImport();
-
-      }
-    }, 500); // 500ms delay; adjust as needed
-
-    // Cleanup function to clear the timeout if component unmounts or endpoint changes
+    backend.on(backend.actions.GET_LIST_SERVICES, setServices);
+    backend.on(backend.actions.IMPORT_CATALOG, addCatalog);
+    // Cleanup on unmount
     return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
+      backend.off(backend.actions.GET_LIST_SERVICES);
+      backend.off(backend.actions.IMPORT_CATALOG);
     };
-  }, [endpoint]);
+  }, []);
 
   const handleEndpointChange = (e) => {
     const value = e.target.value;
+    backend.do(backend.actions.GET_LIST_SERVICES, { endpoint: value });
     setEndpoint(value);
-    // Validation is handled by the useEffect above
   };
 
   const handleImport = () => {
@@ -114,21 +82,6 @@ const ImportCatalogMenu = () => {
     }
   };
 
-  useEffect(() => {
-
-    backend.on(backend.actions.GET_LIST_SERVICES, {});
-    backend.on(backend.actions.IMPORT_CATALOG, {});
-    // Cleanup on unmount
-    return () => {
-      backend.off(backend.actions.GET_LIST_SERVICES,);
-      backend.on(backend.actions.IMPORT_CATALOG, );
-
-    };
-  }, [backend]);
-
-  useEffect(() => {
-    console.log('Services:', services);
-  }, [services]);
 
   return (
     <>
@@ -176,7 +129,7 @@ const ImportCatalogMenu = () => {
 
       {/* Show ViewTable if services is available and has data */}
       {services && services.length > 0 && (
-        <ViewTable data={services} columns={columns} />
+        <ViewTable data={services} />
       )}
 
       {/* Show error alert if there's an endpoint error */}

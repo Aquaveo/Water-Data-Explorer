@@ -1,4 +1,4 @@
-from sqlalchemy.dialects.postgresql import UUID, DOUBLE_PRECISION
+from sqlalchemy.dialects.postgresql import UUID, DOUBLE_PRECISION,ARRAY
 from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -9,8 +9,9 @@ CuahsiBase = declarative_base()
 class HISCatalog(CuahsiBase):
     __tablename__ = 'his_catalog'
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    endpoint= Column(String(2083))
     name = Column(String(1000))
-    tags = Column(String(1000))
+    tags = Column(ARRAY(String), default=[])
 
     # Use the class name "CUAHSIService" in the relationship, 
     # and the table name is 'cuahsi_service' for the ForeignKey.
@@ -19,10 +20,6 @@ class HISCatalog(CuahsiBase):
         back_populates="catalog",
         cascade="all, delete, delete-orphan"
     )
-
-    def __init__(self, name, tags):
-        self.name = name
-        self.tags = tags
 
 
 class CUAHSIService(CuahsiBase):
@@ -35,7 +32,7 @@ class CUAHSIService(CuahsiBase):
     valuecount = Column(Integer)
     sitecount = Column(Integer)
     countries = Column(String(2083))
-
+    tags = Column(ARRAY(String), default=[])
     # Match the 'his_catalog' table name and UUID type for the ForeignKey
     catalog_id = Column(UUID(as_uuid=True), ForeignKey('his_catalog.id'))
     # The relationship references the Python class "HISCatalog"
@@ -75,7 +72,7 @@ class CUAHSISite(CuahsiBase):
     longitude = Column(DOUBLE_PRECISION)
     elevation = Column(DOUBLE_PRECISION)
     countries = Column(Text)
-
+    tags = Column(ARRAY(String), default=[])
     # Match the 'cuahsi_service' table name and UUID type for ForeignKey
     service_id = Column(UUID(as_uuid=True), ForeignKey('cuahsi_service.id'))
     service = relationship("CUAHSIService", back_populates="sites")
@@ -115,6 +112,7 @@ class CUAHSIVariable(CuahsiBase):
     time_unit_abbreviation = Column(String(1000))
     time_support = Column(DOUBLE_PRECISION)
     speciation = Column(String(1000))
+    tags = Column(ARRAY(String), default=[])
 
     # Match the 'cuahsi_site' table name and UUID type for ForeignKey
     site_id = Column(UUID(as_uuid=True), ForeignKey('cuahsi_site.id'))

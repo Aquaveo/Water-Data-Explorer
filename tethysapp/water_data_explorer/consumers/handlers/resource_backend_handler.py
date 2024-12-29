@@ -1,16 +1,12 @@
 import logging
 from collections import namedtuple
-
 from aiopath import AsyncPath
 from asgiref.sync import sync_to_async
 from channels.db import database_sync_to_async
 from pydantic import ValidationError
-
 from ..backend_actions import BackendActions
-
-import functools
-import logging
 from sqlalchemy.ext.asyncio import AsyncSession
+from tethysapp.water_data_explorer.model.cuahsi import HISCatalog
 
 from tethysapp.water_data_explorer.app import App
 
@@ -35,28 +31,35 @@ class ResourceBackendHandler:
             async with self.sessionmaker() as session:
                 try:
                     await method(self, event, action, data, session)
-                except Exception as e:
-                    msg = str(e)
-
-                    await self.send_error(
-                        msg, action, data, {}
-                    )
-                    log.debug(msg)
                 except ValidationError as e:
-                    msg = f'Validation error occurred while handling {action.get("type")} action "{action.get("id")}".'
+                    msg = (f'Validation error occurred while handling {action.get("type")} '
+                        f'action "{action.get("id")}": {e}')
                     await self.send_error(msg, action, data, {'errors': e.errors()})
                     log.debug(msg)
                 except ValueError as e:
                     msg = str(e)
-                    await self.send_error(msg, action, data)
+                    await self.send_error(msg, action, data, {})
                     log.debug(msg)
-                except Exception:
-                    msg = f'An unexpected error occurred while handling action: {action}'
-                    await self.send_error(msg, action, data)
+                except Exception as e:
+                    msg = (f'An unexpected error occurred while handling action "{action}": {str(e)}')
+                    await self.send_error(msg, action, data, {})
                     log.exception(msg)
-
         return _action_handler
 
+    async def get_his_catalogs(self, session) -> list[HISCatalog]:
+        """Get all records from the HISCatalog model."""
+        
+        def _query(session):
+            return session.query(HISCatalog).all()
+
+        catalogs = await session.run_sync(_query)
+        if not catalogs:
+            raise ValueError('No HISCatalog records found.')
+        return catalogs
+
+    async def send_action(self, action: BackendActions, payload: dict):
+        print('send_action')
+        await self.backend_consumer.send_action(action, payload)
 
     # def _get_request(self):
     #     FakeRequest = namedtuple('FakeRequest', ['user'])
@@ -208,16 +211,15 @@ class ResourceBackendHandler:
 
     #     await self.send_action(self.SEND_DATA_ACTION, data_json)
 
-    async def send_action(self, action: BackendActions, payload: dict):
-        await self.backend_consumer.send_action(action, payload)
+
 
     # async def send_acknowledge(self, msg: str, action: BackendActions, payload: dict, details: dict = None):
     #     """Convenience wrapper for consumer send_acknowledge()."""
     #     await self.backend_consumer.send_acknowledge(msg, action, payload, details)
 
-    # async def send_error(self, msg: str, action: dict, payload: dict, details: dict = None):
-    #     """Convenience wrapper for consumer send_error()."""
-    #     await self.backend_consumer.send_error(msg, action, payload, details)
+    async def send_error(self, msg: str, action: dict, payload: dict, details: dict = None):
+        """Convenience wrapper for consumer send_error()."""
+        await self.backend_consumer.send_error(msg, action, payload, details)
 
     # async def set_status(self, session, resource, status):
     #     """Set the status of a Resource and commit the session.

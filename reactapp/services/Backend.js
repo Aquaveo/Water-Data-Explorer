@@ -39,6 +39,7 @@ export default class Backend {
     return {
       IMPORT_CATALOG: "IMPORT_CATALOG",
       GET_LIST_SERVICES: "GET_LIST_SERVICES",
+      GET_LIST_CATALOGS: "GET_LIST_CATALOGS",
     //   UPLOAD_FILE: "UPLOAD_FILE",
     //   UPLOAD_FILE_PROGRESS: "UPLOAD_FILE_PROGRESS",
     //   UPLOAD_FILE_COMPLETE: "UPLOAD_FILE_COMPLETE",
@@ -95,7 +96,7 @@ export default class Backend {
     /***************************************************************************/
     this.webSocket.addEventListener("message", (event) => {
       const data = JSON.parse(event.data);
-
+      console.log("Received message: ", data);
       if (!("action" in data) || !("type" in data.action) || !("payload" in data)) {
         console.error(
           `Error: malformed message received: ${JSON.stringify(data)}`
@@ -169,66 +170,10 @@ export default class Backend {
       },
       payload: data
     };
+    // console.log("Sending message: ", actionMessage);
     this.webSocket.send(this.serialize(actionMessage));
     return actionId;
   }
-
-  // upload_files(files, forActionId) {
-  //   const actionId = newUUID();
-  //   const CHUNK_SIZE = 1024 * 1024; // 1MB
-  //   const numFiles = files.length;
-  //   const fileNames = Array.from(files).map((file) => file.name);
-
-  //   for (let currFile = 0; currFile < files.length; currFile++) {
-  //     const file = files[currFile];
-  //     const reader = new FileReader();
-  //     const fileName = file.name;
-  //     const fileSize = file.size;
-  //     const fileType = file.type;
-  //     const numChunks = Math.ceil(file.size / CHUNK_SIZE);
-  //     let currChunk = 1;
-  //     let offset = 0;
-  //     reader.onload = (event) => {
-  //       let base64 = base64ArrayBuffer(event.target.result);
-  //       let actionMsg = this.serialize({
-  //         action: {
-  //           id: actionId,
-  //           type: this.actions.UPLOAD_FILE,
-  //         },
-  //         payload: {
-  //           forActionId: forActionId,
-  //           fileNames: fileNames,
-  //           currFileName: fileName,
-  //           currFileSize: fileSize,
-  //           currFileType: fileType,
-  //           numChunks: numChunks,
-  //           currChunk: currChunk,
-  //           numFiles: numFiles,
-  //           currFile: currFile + 1,
-  //           chunk: base64,
-  //         },
-  //       });
-  //       this.webSocket.send(actionMsg);
-  //       offset += event.target.result.byteLength;
-  //       currChunk += 1;
-  //       if (offset < file.size) {
-  //         reader.readAsArrayBuffer(file.slice(offset, offset + CHUNK_SIZE));
-  //       }
-  //     }
-  //     // Trigger the first read
-  //     reader.readAsArrayBuffer(file.slice(offset, offset + CHUNK_SIZE));
-  //   }
-  //   return actionId;
-  // }
-
-//   handle_upload_complete(data) {
-//     const actionId = data.forActionId;
-//     const actionMessage = this.pendingActions[actionId];
-//     if (actionMessage) {
-//       this.webSocket.send(this.serialize(actionMessage));
-//       delete this.pendingActions[actionId];
-//     }
-//   }
 
   serialize(obj) {
     return JSON.stringify(obj, this._jsonSerializer);

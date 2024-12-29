@@ -1,4 +1,4 @@
-from sqlalchemy.dialects.postgresql import UUID, JSON, DOUBLE_PRECISION
+from sqlalchemy.dialects.postgresql import UUID, JSON, DOUBLE_PRECISION,ARRAY
 from sqlalchemy import Column, String, Text, Boolean, DateTime, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -12,7 +12,7 @@ class HydroServer2Catalog(HydroServer2Base):
     # Use UUID for the PK
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(1000))
-    tags = Column(String(1000))
+    tags = Column(ARRAY(String), default=[])
 
     # relationship references Python class "Hydroserver2"
     services = relationship(
@@ -20,10 +20,6 @@ class HydroServer2Catalog(HydroServer2Base):
         back_populates="catalog",
         cascade="all, delete, delete-orphan"
     )
-
-    def __init__(self, name, tags):
-        self.name = name
-        self.tags = tags
 
 
 class Hydroserver2(HydroServer2Base):
@@ -35,7 +31,7 @@ class Hydroserver2(HydroServer2Base):
     url = Column(String(2083))
     description = Column(Text)
     countries = Column(JSON)
-
+    tags = Column(ARRAY(String), default=[])
     # The foreign key must match the table name 'hydroserver2_catalog' and the PK 'id'
     catalog_id = Column(UUID(as_uuid=True), ForeignKey('hydroserver2_catalog.id'))
     catalog = relationship("HydroServer2Catalog", back_populates="services")
@@ -76,7 +72,7 @@ class Thing(HydroServer2Base):
     state = Column(String(200), nullable=True)
     county = Column(String(200), nullable=True)
     country = Column(String(2), nullable=True)
-
+    tags = Column(ARRAY(String), default=[])
     # Relationship to Datastream
     datastreams = relationship(
         "Datastream",
@@ -116,11 +112,9 @@ class Datastream(HydroServer2Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(255))
     description = Column(Text)
-
     # Must match 'thing.id' as UUID
     thing_id = Column(UUID(as_uuid=True), ForeignKey('thing.id'), name='thingId')
     thing = relationship("Thing", back_populates="datastreams")
-
     sensor_id = Column(String(255), name='sensorId')
     sensor_name = Column(String(255), name='sensorName')
     observation_property_id = Column(String(255), name='observationPropertyId')
@@ -149,7 +143,7 @@ class Datastream(HydroServer2Base):
     observed_area = Column(String(255), nullable=True, name='observedArea')
     result_end_time = Column(DateTime, nullable=True, name='resultEndTime')
     result_begin_time = Column(DateTime, nullable=True, name='resultBeginTime')
-
+    tags = Column(ARRAY(String), default=[])
     def __init__(
         self, name, description, thing_id, sensor_id, sensor_name,
         observation_property_id, observation_property_name, unit_id, unit_name,

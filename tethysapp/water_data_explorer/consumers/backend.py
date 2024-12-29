@@ -93,6 +93,7 @@ class BackendConsumer(AsyncConsumer):
             log.exception(f"An unexpected error occurred: {event_summary}")
 
     async def send_action(self, action: BackendActions, payload):
+        
         message = {
             "type":
                 "websocket.send",
