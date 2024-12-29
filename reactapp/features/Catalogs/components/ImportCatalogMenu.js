@@ -60,10 +60,12 @@ const ImportCatalogMenu = () => {
   useEffect(() => {
     backend.on(backend.actions.GET_LIST_SERVICES, setServices);
     backend.on(backend.actions.IMPORT_CATALOG, importCatalog);
+    backend.on(backend.actions.IMPORT_VIEW, importCatalog);
     // Cleanup on unmount
     return () => {
       backend.off(backend.actions.GET_LIST_SERVICES);
       backend.off(backend.actions.IMPORT_CATALOG);
+      backend.off(backend.actions.IMPORT_VIEW);
     };
   }, []);
 

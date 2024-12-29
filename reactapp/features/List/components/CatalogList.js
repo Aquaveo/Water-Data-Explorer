@@ -11,28 +11,6 @@ function CatalogsList() {
   // const addCatalogs = useCatalogStore(useShallow((state) => state.addCatalogs));
   const catalogs = useCatalogStore(useShallow((state) => state.catalogs));
   
-  // useEffect(() => {
-  //   backend.on(backend.actions.GET_LIST_CATALOGS, addCatalogs);
-  //   backend.do(backend.actions.GET_LIST_CATALOGS,{type: 'his'});
-  //   return () => {
-  //     backend.off(backend.actions.GET_LIST_CATALOGS);
-  //   };
-  // }, []);
-
-  const { addView } = useCatalogStore();
-
-  const fake = () =>{
-    console.log('fake');
-  }
-  useEffect(() => {
-    backend.on(backend.actions.IMPORT_VIEW, fake );
-    
-    // Cleanup on unmount
-    return () => {
-      backend.off(backend.actions.IMPORT_VIEW);
-    };
-  }, []);
-
   return (
     <Accordion>
       <Accordion.Item eventKey="0">
