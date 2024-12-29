@@ -47,7 +47,7 @@ const ImportCatalogMenu = () => {
   const [services, setServices] = useState([]);
   const [endpointError, setEndpointError] = useState('');
   const { tags, handleAddTag, handleRemoveTag, cleanTags } = useTagInput(MAX_TAGS); // pass the maximum tags
-  const { addCatalog } = useCatalogStore();
+  const { addCatalog, addView } = useCatalogStore();
 
   useEffect(() => {
     backend.on(backend.actions.GET_LIST_SERVICES, setServices);

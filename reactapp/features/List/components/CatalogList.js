@@ -7,24 +7,17 @@ import useCatalogStore from 'features/Catalogs/hooks/useCatalogStore';
 
 
 function CatalogsList() {
-  console.log('CatalogsList');
-  const { backend } = useContext(AppContext);
-  const { addCatalogs } = useCatalogStore();
-  const catalogs = useCatalogStore((state) => state.catalogs);
+  // const { backend } = useContext(AppContext);
+  // const addCatalogs = useCatalogStore(useShallow((state) => state.addCatalogs));
+  const catalogs = useCatalogStore(useShallow((state) => state.catalogs));
   
-  // const [catalogs, addCatalogs] = useCatalogStore((state) => [
-  //   state.catalogs,
-  //   state.addCatalogs
-  // ]);
-
-  useEffect(() => {
-    backend.on(backend.actions.GET_LIST_CATALOGS, addCatalogs);
-    backend.do(backend.actions.GET_LIST_CATALOGS,{type: 'his'});
-    return () => {
-      console.log('CatalogsList useEffect cleanup');
-      backend.off(backend.actions.GET_LIST_CATALOGS);
-    };
-  }, []);
+  // useEffect(() => {
+  //   backend.on(backend.actions.GET_LIST_CATALOGS, addCatalogs);
+  //   backend.do(backend.actions.GET_LIST_CATALOGS,{type: 'his'});
+  //   return () => {
+  //     backend.off(backend.actions.GET_LIST_CATALOGS);
+  //   };
+  // }, []);
 
 
   return (
