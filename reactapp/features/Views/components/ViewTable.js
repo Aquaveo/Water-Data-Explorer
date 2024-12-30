@@ -6,7 +6,7 @@ import {ViewTableColumns, ViewTableStyles} from 'features/Views/lib/table';
 const ViewTable = (
 	{ 
 		data,
-		columns = ViewTableColumns ,
+		columns = ViewTableColumns,
 		styles = ViewTableStyles
 	}
 ) => (
