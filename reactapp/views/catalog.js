@@ -14,9 +14,11 @@ const SidePanel = lazy(() => import('features/List/components/SidePanel.js'));
 const WDEView = () => {
   const { backend } = useContext(AppContext);
   const addCatalogs = useCatalogStore(useShallow((state) => state.addCatalogs));
+  const addView = useCatalogStore(useShallow((state) => state.addView));
   
   useEffect(() => {
     backend.on(backend.actions.GET_LIST_CATALOGS, addCatalogs);
+    backend.on(backend.actions.SEND_GET_VIEW, addView);
     backend.do(backend.actions.GET_LIST_CATALOGS,{type: 'his'});
     return () => {
       backend.off(backend.actions.GET_LIST_CATALOGS);

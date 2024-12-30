@@ -51,9 +51,8 @@ const ImportCatalogMenu = () => {
 
   const importCatalog = (catalog) =>{
     addCatalog(catalog);
-    // Import views
     for (let i = 0; i < catalog.services.length; i++) {
-      backend.do(backend.actions.IMPORT_VIEW, {name: catalog.services[i].id, endpoint: catalog.services[i].endpoint});
+      backend.do(backend.actions.IMPORT_VIEW, catalog.services[i]);
     }
   }
 

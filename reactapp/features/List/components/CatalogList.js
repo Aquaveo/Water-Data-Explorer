@@ -2,13 +2,10 @@ import React, { useEffect,useContext } from 'react';
 import { useShallow } from 'zustand/react/shallow'
 import Accordion from 'react-bootstrap/Accordion';
 import { CatalogTable } from 'features/Catalogs/components/CatalogTable';
-import { AppContext } from "features/react-tethys/context/context";
 import useCatalogStore from 'features/Catalogs/hooks/useCatalogStore';
 
 
 function CatalogsList() {
-  // const { backend } = useContext(AppContext);
-  // const addCatalogs = useCatalogStore(useShallow((state) => state.addCatalogs));
   const catalogs = useCatalogStore(useShallow((state) => state.catalogs));
   
   return (

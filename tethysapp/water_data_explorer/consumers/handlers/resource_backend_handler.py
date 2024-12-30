@@ -57,6 +57,37 @@ class ResourceBackendHandler:
             raise ValueError('No HISCatalog records found.')
         return catalogs
 
+    async def get_catalog(self,data,session) -> HISCatalog:
+        """Get a single HISCatalog record by ID."""
+        catalog_id = data.get('id')
+
+        def _query(session, catalog_id):
+            return session.query(HISCatalog).get(catalog_id)
+
+        catalog = await session.run_sync(_query, project_id=catalog_id)
+        if not catalog:
+            raise ValueError(f'Could not find HIS Catalog with ID "{catalog_id}"')
+        return catalog
+    
+    async def get_view(self,data,session) -> CUAHSIService:
+        """Get a single CUAHSIService record by ID."""
+        view_id = data.get('id')
+
+        def _query(session, view_id):
+            return session.query(CUAHSIService).get(view_id)
+
+        view = await session.run_sync(_query, project_id=view_id)
+        if not view:
+            raise ValueError(f'Could not find HIS Catalog with ID "{view_id}"')
+        return view
+
+
+    async def get_views_from_catalog(self, event, action, data, session) -> list[CUAHSIService]:
+        """Get all views from a catalog."""
+        catalog = await self.get_catalog(data, session)
+        views = catalog.views
+        return views
+    
     async def send_action(self, action: BackendActions, payload: dict):
         print('send_action')
         await self.backend_consumer.send_action(action, payload)
