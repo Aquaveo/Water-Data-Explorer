@@ -47,7 +47,7 @@ class ServiceViewBackendHandler(RBH):
 
         view_json = {   
             "id": new_view.id,
-            "name": new_view.name,
+            "name": new_view.title,
             "services": data.get("services"),
         }
         

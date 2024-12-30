@@ -44,13 +44,12 @@ async def create_view(
     view_in: CUAHSIServiceCreate
 ) -> CUAHSIService:
     """Create a new view (CUAHSIService) for a given HISCatalog."""
-    # Fetch the catalog with selectinload, so 'catalog.services' won't trigger a lazy load
+    # 1) Fetch the catalog (already using selectinload, if you like)
     catalog = await get_his_catalog_by_id(db, catalog_id)
-
     if catalog is None:
         raise ValueError(f"HISCatalog with id {catalog_id} not found")
 
-    # Create a new CUAHSIService object
+    # 2) Create a new CUAHSIService object
     cuahsi_service = CUAHSIService(
         title=view_in.title,
         url=view_in.url,
@@ -61,12 +60,18 @@ async def create_view(
         countries=view_in.countries
     )
 
-    # Append the new service to the catalog (services is already loaded)
+    # 3) Append the new service to the catalog
     catalog.services.append(cuahsi_service)
 
-    # Persist changes
+    # 4) Persist changes
     db.add(cuahsi_service)
     await db.commit()
-    await db.refresh(catalog, ["services"])
 
+    # 5) Manually reload the catalog from the database with selectinload
+    await db.execute(
+        select(HISCatalog)
+        .options(selectinload(HISCatalog.services))
+        .where(HISCatalog.id == catalog_id)
+    )
+    
     return cuahsi_service
