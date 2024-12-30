@@ -13,7 +13,6 @@ const useCatalogStore = create((set, get) => ({
       catalogs: [...state.catalogs, catalog],
     })),
   addCatalogs: (newCatalogs) =>{
-    console.log('newCatalogs', newCatalogs);
     set((state) => ({
       catalogs: [...state.catalogs, ...newCatalogs]
     }))

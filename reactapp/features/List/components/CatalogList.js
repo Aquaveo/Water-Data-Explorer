@@ -13,11 +13,7 @@ function CatalogsList() {
       <Accordion.Item eventKey="0">
         <Accordion.Header>Catalogs</Accordion.Header>
         <Accordion.Body>
-          {
-            catalogs.length === 0 ? (
-              <div>No catalogs found</div>
-            ) : <CatalogTable data={catalogs} />
-          }
+          <CatalogTable data={catalogs} />
         </Accordion.Body>
       </Accordion.Item>
       <Accordion.Item eventKey="1">

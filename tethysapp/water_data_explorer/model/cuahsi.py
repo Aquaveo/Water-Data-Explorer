@@ -1,4 +1,4 @@
-from sqlalchemy.dialects.postgresql import UUID, DOUBLE_PRECISION,ARRAY
+from sqlalchemy.dialects.postgresql import UUID, DOUBLE_PRECISION, ARRAY
 from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -9,18 +9,17 @@ CuahsiBase = declarative_base()
 class HISCatalog(CuahsiBase):
     __tablename__ = 'his_catalog'
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    endpoint= Column(String(2083))
+    endpoint = Column(String(2083))
     name = Column(String(1000))
     tags = Column(ARRAY(String), default=[])
 
-    # Use the class name "CUAHSIService" in the relationship, 
-    # and the table name is 'cuahsi_service' for the ForeignKey.
+    # NOTE: The key update here is 'lazy="selectin"', which avoids sync-based lazy loading
     services = relationship(
         "CUAHSIService",
         back_populates="catalog",
-        cascade="all, delete, delete-orphan"
+        cascade="all, delete, delete-orphan",
+        lazy="selectin"
     )
-
 
 class CUAHSIService(CuahsiBase):
     __tablename__ = "cuahsi_service"
@@ -33,30 +32,30 @@ class CUAHSIService(CuahsiBase):
     sitecount = Column(Integer)
     countries = Column(String(2083))
     tags = Column(ARRAY(String), default=[])
-    # Match the 'his_catalog' table name and UUID type for the ForeignKey
+
     catalog_id = Column(UUID(as_uuid=True), ForeignKey('his_catalog.id'))
-    # The relationship references the Python class "HISCatalog"
     catalog = relationship("HISCatalog", back_populates="services")
 
-    # This references the CUAHSISite model by class name
     sites = relationship(
         "CUAHSISite",
         back_populates="service",
-        cascade="all, delete, delete-orphan"
+        cascade="all, delete, delete-orphan",
+        # If you need to avoid lazy-loading problems here as well, set lazy="selectin"
+        lazy="selectin"
     )
 
-    # This references the CUAHSIVariable model by class name
     variables = relationship(
         "CUAHSIVariable",
         back_populates="service",
-        cascade="all, delete, delete-orphan"
+        cascade="all, delete, delete-orphan",
+        lazy="selectin"
     )
 
-    def __init__(self, title, url, description, variables, variablecount, sitecount, countries):
+    def __init__(self, title, url, description, valuecount, variablecount, sitecount, countries):
         self.title = title
         self.url = url
         self.description = description
-        self.variables = variables
+        self.valuecount = valuecount
         self.variablecount = variablecount
         self.sitecount = sitecount
         self.countries = countries
@@ -73,15 +72,15 @@ class CUAHSISite(CuahsiBase):
     elevation = Column(DOUBLE_PRECISION)
     countries = Column(Text)
     tags = Column(ARRAY(String), default=[])
-    # Match the 'cuahsi_service' table name and UUID type for ForeignKey
+
     service_id = Column(UUID(as_uuid=True), ForeignKey('cuahsi_service.id'))
     service = relationship("CUAHSIService", back_populates="sites")
 
-    # Link back to CUAHSIVariable
     variables = relationship(
         "CUAHSIVariable",
         back_populates="site",
-        cascade="all, delete, delete-orphan"
+        cascade="all, delete, delete-orphan",
+        lazy="selectin"
     )
 
     def __init__(self, title, code, description, latitude, longitude, elevation, countries):
@@ -114,11 +113,9 @@ class CUAHSIVariable(CuahsiBase):
     speciation = Column(String(1000))
     tags = Column(ARRAY(String), default=[])
 
-    # Match the 'cuahsi_site' table name and UUID type for ForeignKey
     site_id = Column(UUID(as_uuid=True), ForeignKey('cuahsi_site.id'))
     site = relationship("CUAHSISite", back_populates="variables")
 
-    # Match the 'cuahsi_service' table name and UUID type for ForeignKey
     service_id = Column(UUID(as_uuid=True), ForeignKey('cuahsi_service.id'))
     service = relationship("CUAHSIService", back_populates="variables")
 

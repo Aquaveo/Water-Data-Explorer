@@ -12,8 +12,8 @@ from tethys_sdk.routing import consumer
 
 from .backend_actions import BackendActions
 from .handlers import (
-    CatalogBackendHandler
-    # create the rest of the handlers
+    CatalogBackendHandler,
+    ServiceViewBackendHandler
 )
 from tethysapp.water_data_explorer.app import App
 
@@ -39,7 +39,7 @@ class BackendConsumer(AsyncConsumer):
         self.sessionmaker = sessionmaker(self.engine, expire_on_commit=False, class_=AsyncSession)
         self.handlers = (
             CatalogBackendHandler(self),
-            # create handlers for the views
+            ServiceViewBackendHandler(self),
             # create handlers for the sites
         )
         # Join channel group

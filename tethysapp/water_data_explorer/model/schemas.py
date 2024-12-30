@@ -30,6 +30,7 @@ class CUAHSIServiceBase(BaseModel):
     sitecount: int
     countries: Optional[str] = None
 
+
 class CUAHSIServiceCreate(CUAHSIServiceBase):
     """Schema for creating a CUAHSIService"""
     pass
@@ -39,6 +40,6 @@ class CUAHSIServiceRead(CUAHSIServiceBase):
     id: UUID4
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # And so on for CUAHSISite, CUAHSIVariable if needed...

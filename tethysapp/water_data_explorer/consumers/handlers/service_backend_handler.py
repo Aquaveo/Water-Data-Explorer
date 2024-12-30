@@ -30,7 +30,17 @@ class ServiceViewBackendHandler(RBH):
         """
         catalog_id = data.get("catalog_id")
         # 1) Validate the incoming data with Pydantic
-        schema = CUAHSIServiceCreate(**data)
+        renamed_data = {
+            "title": data.get("Title"),
+            "url": data.get("servURL"),
+            "description": data.get("servDesc",""),
+            "sitecount": data.get("sitecount"),
+            "valuecount": data.get("valuecount"),
+            "variablecount": data.get("variablecount"),
+            "countries": data.get("countries",""),
+        }
+
+        schema = CUAHSIServiceCreate(**renamed_data)
 
         # 2) Create the record in the DB
         new_view = await create_view(session,catalog_id,schema)

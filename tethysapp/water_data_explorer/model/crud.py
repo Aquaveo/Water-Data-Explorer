@@ -1,8 +1,26 @@
-# crud.py
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
+from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
+
 from .cuahsi import HISCatalog, CUAHSIService
-from .schemas import HISCatalogCreate, HISCatalogRead,CUAHSIServiceCreate
+from .schemas import HISCatalogCreate, CUAHSIServiceCreate
+
+async def get_his_catalog_by_id(
+    db: AsyncSession,
+    catalog_id: str
+) -> Optional[HISCatalog]:
+    """
+    Get an HISCatalog by ID, with its services relationship pre-loaded
+    to avoid async lazy-loading issues.
+    """
+    result = await db.execute(
+        select(HISCatalog)
+        .options(selectinload(HISCatalog.services))
+        .where(HISCatalog.id == catalog_id)
+    )
+    return result.scalar_one_or_none()
+
 
 async def create_his_catalog(
     db: AsyncSession,
@@ -25,34 +43,30 @@ async def create_view(
     catalog_id: str,
     view_in: CUAHSIServiceCreate
 ) -> CUAHSIService:
-    """Create a new view for a given HISCatalog."""
+    """Create a new view (CUAHSIService) for a given HISCatalog."""
+    # Fetch the catalog with selectinload, so 'catalog.services' won't trigger a lazy load
     catalog = await get_his_catalog_by_id(db, catalog_id)
-    if catalog:
-        # Assuming there is a method to create a view in the HISCatalog model
-        
-        cuahsi_service = CUAHSIService(
-            title=view_in.title,
-            url=view_in.url,
-            description=view_in.description,
-            variablecount=view_in.variablecount,
-            valuecount=view_in.valuecount,
-            sitecount=view_in.sitecount,
-            countries=view_in.countries,
-            catalog_id=catalog.id
-        )
-        catalog.services.append(cuahsi_service)
-        db.add(cuahsi_service)
-        await db.commit()
-        await db.refresh(catalog)
-        return cuahsi_service
 
-    else:
+    if catalog is None:
         raise ValueError(f"HISCatalog with id {catalog_id} not found")
 
+    # Create a new CUAHSIService object
+    cuahsi_service = CUAHSIService(
+        title=view_in.title,
+        url=view_in.url,
+        description=view_in.description,
+        variablecount=view_in.variablecount,
+        valuecount=view_in.valuecount,
+        sitecount=view_in.sitecount,
+        countries=view_in.countries
+    )
 
-async def get_his_catalog_by_id(
-    db: AsyncSession,
-    catalog_id: str
-) -> Optional[HISCatalog]:
-    """Get an HISCatalog by ID"""
-    return await db.get(HISCatalog, catalog_id)
+    # Append the new service to the catalog (services is already loaded)
+    catalog.services.append(cuahsi_service)
+
+    # Persist changes
+    db.add(cuahsi_service)
+    await db.commit()
+    await db.refresh(catalog, ["services"])
+
+    return cuahsi_service
