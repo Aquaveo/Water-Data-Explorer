@@ -2,24 +2,6 @@
 from pydantic import BaseModel, UUID4, ValidationError
 from typing import Optional, List
 
-# ------------------ HISCatalog ------------------ #
-class HISCatalogBase(BaseModel):
-    name: str
-    endpoint: str
-    tags: List[str] = []
-
-class HISCatalogCreate(HISCatalogBase):
-    """Schema for creating HISCatalog"""
-    pass
-
-class HISCatalogRead(HISCatalogBase):
-    """Schema for reading HISCatalog from the DB"""
-    id: UUID4
-
-    class Config:
-        from_attributes = True
-
-
 # ------------------ CUAHSIService ------------------ #
 class CUAHSIServiceBase(BaseModel):
     title: str
@@ -41,5 +23,27 @@ class CUAHSIServiceRead(CUAHSIServiceBase):
 
     class Config:
         from_attributes = True
+
+
+# ------------------ HISCatalog ------------------ #
+class HISCatalogBase(BaseModel):
+    name: str
+    endpoint: str
+    tags: List[str] = []
+
+class HISCatalogCreate(HISCatalogBase):
+    """Schema for creating HISCatalog"""
+    pass
+
+class HISCatalogRead(HISCatalogBase):
+    """Schema for reading HISCatalog from the DB"""
+    id: UUID4
+    views: List[CUAHSIServiceRead] = []  # Renamed from 'services' to 'views' for clarity
+
+    class Config:
+        from_attributes = True
+
+
+
 
 # And so on for CUAHSISite, CUAHSIVariable if needed...

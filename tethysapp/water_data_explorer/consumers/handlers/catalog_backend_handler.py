@@ -2,9 +2,12 @@ import logging
 import httpx
 import xml.etree.ElementTree as ET
 from ..backend_actions import BackendActions
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import AsyncGenerator
 from .resource_backend_handler import ResourceBackendHandler as RBH
 from tethysapp.water_data_explorer.model.crud import create_his_catalog
-from tethysapp.water_data_explorer.model.schemas import HISCatalogCreate, HISCatalogRead
+from tethysapp.water_data_explorer.model.schemas import HISCatalogCreate
+from pydantic import ValidationError
 
 log = logging.getLogger(__name__)
 
@@ -111,13 +114,57 @@ class CatalogBackendHandler(RBH):
 
     @RBH.action_handler
     async def get_catalogs(self, event, action, data, session):
+        """
+        Fetch all HISCatalog rows, convert them (and their related services)
+        to Pydantic using a generator, and send them out.
+        """
+        try:
+            # 1) Get the async generator
+            catalogs_generator = self.get_catalog_generator(session)
+            
+            # 2) Collect catalogs into a list
+            catalogs_json = []
+            async for catalog_json in catalogs_generator:
+                catalogs_json.append(catalog_json)
+            
+            if not catalogs_json:
+                raise ValueError("No HISCatalog records found.")
+            
+            # 3) Send them via your custom method
+            await self.send_action(self.SEND_GET_CATALOGS_ACTION, catalogs_json)
+        
+        except ValidationError as e:
+            msg = f"Validation error: {e}"
+            await self.send_error(msg, action, data, {'errors': e.errors()})
+            log.debug(msg)
+        except ValueError as e:
+            msg = str(e)
+            await self.send_error(msg, action, data, {})
+            log.debug(msg)
+        except Exception as e:
+            msg = f"Unexpected error: {str(e)}"
+            await self.send_error(msg, action, data, {})
+            log.exception(msg)
+
+
+
+
+
+
+
+
+
+
+
+    # @RBH.action_handler
+    # async def get_catalogs(self, event, action, data, session):
         
         
-        catalogs = await self.get_his_catalogs(session)
+    #     catalogs = await self.get_his_catalogs(session)
         
-        pydantic_catalogs = [HISCatalogRead.model_validate(catalog) for catalog in catalogs]
+    #     pydantic_catalogs = [HISCatalogRead.model_validate(catalog) for catalog in catalogs]
         
         
-        catalogs_json = [catalog.model_dump() for catalog in pydantic_catalogs]
+    #     catalogs_json = [catalog.model_dump() for catalog in pydantic_catalogs]
         
-        await self.send_action(self.SEND_GET_CATALOGS_ACTION, catalogs_json)
+    #     await self.send_action(self.SEND_GET_CATALOGS_ACTION, catalogs_json)

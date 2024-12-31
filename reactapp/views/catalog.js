@@ -22,6 +22,8 @@ const WDEView = () => {
     backend.do(backend.actions.GET_LIST_CATALOGS,{type: 'his'});
     return () => {
       backend.off(backend.actions.GET_LIST_CATALOGS);
+      backend.off(backend.actions.SEND_GET_VIEW);
+
     };
   }, []);
 

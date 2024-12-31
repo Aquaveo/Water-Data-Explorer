@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import useTagInput from 'components/tags/useTag';
 import { TagField } from 'components/tags/tagField';
 import useCatalogStore from '../hooks/useCatalogStore';
-
+import { useShallow } from 'zustand/react/shallow'
 
 const ClearButton = styled.button`
   border-top-left-radius: 0;
@@ -48,10 +48,14 @@ const ImportCatalogMenu = () => {
   const [endpointError, setEndpointError] = useState('');
   const { tags, handleAddTag, handleRemoveTag, cleanTags } = useTagInput(MAX_TAGS); // pass the maximum tags
   const { addCatalog } = useCatalogStore();
+  const catalogs = useCatalogStore(useShallow((state) => state.catalogs));
 
   const importCatalog = (catalog) =>{
+    
     addCatalog(catalog);
+
     for (let i = 0; i < catalog.services.length; i++) {
+      console.log(catalogs);
       backend.do(backend.actions.IMPORT_VIEW, {catalog_id: catalog.id, ...catalog.services[i]});
     }
   }

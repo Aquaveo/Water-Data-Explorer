@@ -48,7 +48,7 @@ class ServiceViewBackendHandler(RBH):
         view_json = {   
             "id": new_view.id,
             "name": new_view.title,
-            "services": data.get("services"),
+            "sites": data.get("sites"),
         }
         
         await self.send_action(self.SEND_IMPORT_VIEW, view_json)

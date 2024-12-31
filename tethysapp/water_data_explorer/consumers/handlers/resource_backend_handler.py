@@ -6,7 +6,13 @@ from channels.db import database_sync_to_async
 from pydantic import ValidationError
 from ..backend_actions import BackendActions
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+from sqlalchemy import select
+from typing import AsyncGenerator,List
+
 from tethysapp.water_data_explorer.model.cuahsi import HISCatalog,CUAHSIService
+from tethysapp.water_data_explorer.model.schemas import HISCatalogRead,CUAHSIServiceRead
+
 
 from tethysapp.water_data_explorer.app import App
 
@@ -46,16 +52,34 @@ class ResourceBackendHandler:
                     log.exception(msg)
         return _action_handler
 
-    async def get_his_catalogs(self, session) -> list[HISCatalog]:
-        """Get all records from the HISCatalog model."""
-        
-        def _query(session):
-            return session.query(HISCatalog).all()
-
-        catalogs = await session.run_sync(_query)
-        if not catalogs:
-            raise ValueError('No HISCatalog records found.')
+    async def get_his_catalogs(self, session: AsyncSession) -> List[HISCatalog]:
+        """
+        Fetch all HISCatalog records with their related services loaded.
+        """
+        result = await session.execute(
+            select(HISCatalog).options(selectinload(HISCatalog.services))
+        )
+        catalogs = result.scalars().all()  # Fetch all results as a list
         return catalogs
+
+
+    async def get_catalog_generator(self, session: AsyncSession) -> AsyncGenerator[dict, None]:
+        """
+        Async generator that yields each HISCatalog as a Pydantic dict,
+        including its related services (views).
+        """
+        catalogs = await self.get_his_catalogs(session)  # Await the list of catalogs
+        
+        for catalog in catalogs:  # Use regular for loop
+            # Convert HISCatalog to Pydantic
+            catalog_read = HISCatalogRead.model_validate(catalog)
+            
+            # Convert related CUAHSIService to Pydantic
+            service_reads = [CUAHSIServiceRead.model_validate(service) for service in catalog.services]
+            catalog_read.views = service_reads
+            
+            # Yield as dict
+            yield catalog_read.model_dump()
 
     async def get_catalog(self,data,session) -> HISCatalog:
         """Get a single HISCatalog record by ID."""
@@ -64,7 +88,7 @@ class ResourceBackendHandler:
         def _query(session, catalog_id):
             return session.query(HISCatalog).get(catalog_id)
 
-        catalog = await session.run_sync(_query, project_id=catalog_id)
+        catalog = await session.run_sync(_query, catalog_id=catalog_id)
         if not catalog:
             raise ValueError(f'Could not find HIS Catalog with ID "{catalog_id}"')
         return catalog
@@ -76,7 +100,7 @@ class ResourceBackendHandler:
         def _query(session, view_id):
             return session.query(CUAHSIService).get(view_id)
 
-        view = await session.run_sync(_query, project_id=view_id)
+        view = await session.run_sync(_query, view_id=view_id)
         if not view:
             raise ValueError(f'Could not find HIS Catalog with ID "{view_id}"')
         return view
@@ -129,3 +153,21 @@ class ResourceBackendHandler:
             s.commit()
 
         await session.run_sync(_set_status, resource=resource, status=status)
+
+
+
+
+
+    # async def get_his_catalogs(self, session) -> list[HISCatalog]:
+    #     """Get all records from the HISCatalog model."""
+        
+    #     def _query(session):
+    #         return (
+    #             session.query(HISCatalog)
+    #             .options(selectinload(HISCatalog.services))
+    #             .all()
+    #         )
+    #     catalogs = await session.run_sync(_query)
+    #     if not catalogs:
+    #         raise ValueError('No HISCatalog records found.')
+    #     return catalogs
