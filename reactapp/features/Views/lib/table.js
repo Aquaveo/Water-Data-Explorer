@@ -29,7 +29,7 @@ export const ViewTableColumns = [
 	},
 	{
 		name: 'Name',
-		selector: row => row.Title,
+		selector: row => row.title,
 		sortable: true,
 		grow: 2,
 		style: { color: '#202124', fontSize: '14px', fontWeight: 500 },

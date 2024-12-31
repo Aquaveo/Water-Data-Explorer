@@ -12,7 +12,7 @@ class HISCatalog(CuahsiBase):
     endpoint = Column(String(2083))
     name = Column(String(1000))
     tags = Column(ARRAY(String), default=[])
-
+    servicescount = Column(Integer)
     # NOTE: The key update here is 'lazy="selectin"', which avoids sync-based lazy loading
     services = relationship(
         "CUAHSIService",

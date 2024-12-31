@@ -97,8 +97,8 @@ class CatalogBackendHandler(RBH):
         """
         
         # 1) Validate the incoming data with Pydantic
+        data["servicecount"] = len(data.get("views", []))
         schema = HISCatalogCreate(**data)
-
         # 2) Create the record in the DB
         new_catalog = await create_his_catalog(session, schema)
 

@@ -1,5 +1,5 @@
 // ImportCatalogMenu.js
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { AppContext } from "features/react-tethys/context/context";
 import ViewTable from 'features/Views/components/ViewTable';
@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import useTagInput from 'components/tags/useTag';
 import { TagField } from 'components/tags/tagField';
 import useCatalogStore from '../hooks/useCatalogStore';
-import { useShallow } from 'zustand/react/shallow'
+import { useShallow } from 'zustand/react/shallow';
 
 const ClearButton = styled.button`
   border-top-left-radius: 0;
@@ -48,15 +48,20 @@ const ImportCatalogMenu = () => {
   const [endpointError, setEndpointError] = useState('');
   const { tags, handleAddTag, handleRemoveTag, cleanTags } = useTagInput(MAX_TAGS); // pass the maximum tags
   const { addCatalog } = useCatalogStore();
-  const catalogs = useCatalogStore(useShallow((state) => state.catalogs));
 
-  const importCatalog = (catalog) =>{
-    
+
+  // New state to track selected views
+  const [selectedViews, setSelectedViews] = useState([]);
+
+  // Handler for row selection changes
+  const handleSelectedRows = (state) => {
+    setSelectedViews(state.selectedRows);
+  };
+
+  const importCatalog = (catalog) => {
     addCatalog(catalog);
-
     for (let i = 0; i < catalog.services.length; i++) {
-      console.log(catalogs);
-      backend.do(backend.actions.IMPORT_VIEW, {catalog_id: catalog.id, ...catalog.services[i]});
+      backend.do(backend.actions.IMPORT_VIEW, { catalog_id: catalog.id, ...catalog.services[i] });
     }
   }
 
@@ -79,10 +84,11 @@ const ImportCatalogMenu = () => {
   };
 
   const handleImport = () => {
-    console.log('Importing catalog:', { name, endpoint, tags, services });
-    if (!endpointError && endpoint) {
-      backend.do(backend.actions.IMPORT_CATALOG, { name, endpoint, tags, services });
-    }
+    console.log('Importing catalog:', { name, endpoint, tags, selectedViews });
+    // if (!endpointError && endpoint.trim()) {
+    //   // Send only selected views
+    //   backend.do(backend.actions.IMPORT_CATALOG, { name, endpoint, tags, services: selectedViews });
+    // }
   };
 
   const handleClear = () => {
@@ -91,16 +97,16 @@ const ImportCatalogMenu = () => {
       setEndpoint('');
       cleanTags();
       setServices([]);
+      setSelectedViews([]); // Clear selected views
       setEndpointError('');
     }
   };
-
 
   return (
     <>
       <Form>
 
-      <Form.Group className="mb-3" controlId="catalogEndpoint">
+        <Form.Group className="mb-3" controlId="catalogEndpoint">
           <Form.Label>Endpoint</Form.Label>
           <FilterWrapper>
             <Form.Control
@@ -142,7 +148,10 @@ const ImportCatalogMenu = () => {
 
       {/* Show ViewTable if services is available and has data */}
       {services && services.length > 0 && (
-        <ViewTable data={services} />
+        <ViewTable 
+          data={services} 
+          onSelectedRowsChange={handleSelectedRows} // Pass the handler
+        />
       )}
 
       {/* Show error alert if there's an endpoint error */}
@@ -152,11 +161,11 @@ const ImportCatalogMenu = () => {
         </Alert>
       )}
 
-      {/* Query Services button below the table */}
+      {/* Import button below the table */}
       <Button 
         variant="primary" 
         onClick={handleImport} 
-        disabled={!!endpointError || !endpoint.trim()}
+        disabled={!!endpointError || !endpoint.trim() || selectedViews.length === 0} // Disable if no selection
       >
         Import
       </Button>

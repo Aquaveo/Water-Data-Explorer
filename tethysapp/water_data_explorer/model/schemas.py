@@ -29,6 +29,7 @@ class CUAHSIServiceRead(CUAHSIServiceBase):
 class HISCatalogBase(BaseModel):
     name: str
     endpoint: str
+    servicescount: Optional[int] = 0
     tags: List[str] = []
 
 class HISCatalogCreate(HISCatalogBase):

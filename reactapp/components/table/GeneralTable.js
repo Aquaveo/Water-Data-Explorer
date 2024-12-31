@@ -19,6 +19,7 @@ const GeneralTable = ({
   subHeader = false,
   subHeaderComponent = null,
   paginationResetDefaultPage = false,
+  onSelectedRowsChange, // Accept the selection handler
 }) => (
   <DataTable
     title={title}
@@ -30,6 +31,7 @@ const GeneralTable = ({
     pagination={pagination}
     selectableRows={selectableRows}
     selectableRowsHighlight={selectableRowsHighlight}
+    onSelectedRowsChange={onSelectedRowsChange} // Pass the handler to DataTable
     expandableRows={expandableRows}
     expandOnRowClicked={expandOnRowClicked}
     expandableRowsHideExpander={expandableRowsHideExpander}
