@@ -1,6 +1,6 @@
 // ImportCatalogMenu.js
 import React, { useState, useContext, useEffect } from 'react';
-import { Form, Button, Alert } from 'react-bootstrap';
+import { Form, Button, Alert,Spinner } from 'react-bootstrap';
 import { AppContext } from "features/react-tethys/context/context";
 import ViewTable from 'features/Views/components/ViewTable';
 import { MdClear } from "react-icons/md";
@@ -9,6 +9,7 @@ import useTagInput from 'components/tags/useTag';
 import { TagField } from 'components/tags/tagField';
 import useCatalogStore from '../hooks/useCatalogStore';
 import { useShallow } from 'zustand/react/shallow';
+
 
 const ClearButton = styled.button`
   border-top-left-radius: 0;
@@ -48,7 +49,7 @@ const ImportCatalogMenu = () => {
   const [endpointError, setEndpointError] = useState('');
   const { tags, handleAddTag, handleRemoveTag, cleanTags } = useTagInput(MAX_TAGS); // pass the maximum tags
   const { addCatalog } = useCatalogStore();
-
+  const [isServicesLoading, setIsServicesLoading] = useState(false);
 
   // New state to track selected views
   const [selectedViews, setSelectedViews] = useState([]);
@@ -77,7 +78,15 @@ const ImportCatalogMenu = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (services.length > 0) {
+      setIsServicesLoading(false);
+    }
+  }, [services]);
+
+
   const handleEndpointChange = (e) => {
+    setIsServicesLoading(true);
     const value = e.target.value;
     backend.do(backend.actions.GET_LIST_SERVICES, { endpoint: value });
     setEndpoint(value);
@@ -85,10 +94,10 @@ const ImportCatalogMenu = () => {
 
   const handleImport = () => {
     console.log('Importing catalog:', { name, endpoint, tags, selectedViews });
-    // if (!endpointError && endpoint.trim()) {
-    //   // Send only selected views
-    //   backend.do(backend.actions.IMPORT_CATALOG, { name, endpoint, tags, services: selectedViews });
-    // }
+    if (!endpointError && endpoint.trim()) {
+      // Send only selected views
+      backend.do(backend.actions.IMPORT_CATALOG, { name, endpoint, tags, services: selectedViews });
+    }
   };
 
   const handleClear = () => {
@@ -145,8 +154,13 @@ const ImportCatalogMenu = () => {
             />
         </Form.Group>
       </Form>
+        {
+         isServicesLoading ? (
+            <Spinner animation="border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>) : null
+        }
 
-      {/* Show ViewTable if services is available and has data */}
       {services && services.length > 0 && (
         <ViewTable 
           data={services} 
@@ -165,7 +179,7 @@ const ImportCatalogMenu = () => {
       <Button 
         variant="primary" 
         onClick={handleImport} 
-        disabled={!!endpointError || !endpoint.trim() || selectedViews.length === 0} // Disable if no selection
+        disabled={!endpoint.trim() || !name.trim() || selectedViews.length === 0}
       >
         Import
       </Button>
