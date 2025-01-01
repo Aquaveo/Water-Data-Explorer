@@ -4,23 +4,26 @@ import { TbSitemap } from 'react-icons/tb';
 export const CatalogColumns = [
 	{
 		cell: () => <TbSitemap size={20} />,
-		width: '56px',
+		minWidth: '50px', 
+		maxWidth: '70px',
 		style: {
 			borderBottom: '1px solid #FFFFFF',
-			marginBottom: '-1px',
 		},
 	},
 	{
 		name: 'Name',
 		selector: row => row.name,
 		sortable: true,
-		grow: 2,
+		minWidth: '100px', 
+		maxWidth: '150px',
 		style: { color: '#202124', fontSize: '14px', fontWeight: 500 },
 	},
 	{
 		name: 'View Count',
 		selector: row => row.count,
 		sortable: true,
+		width: '90px',
+		maxWidth: '100px',
 		style: { color: 'rgba(0,0,0,.54)' },
 	},
 	{
