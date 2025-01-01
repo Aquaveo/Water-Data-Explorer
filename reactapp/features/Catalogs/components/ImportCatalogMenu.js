@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import useTagInput from 'components/tags/useTag';
 import { TagField } from 'components/tags/tagField';
 import useCatalogStore from '../hooks/useCatalogStore';
-import { useShallow } from 'zustand/react/shallow';
+import LoadingServices from './LoadingServices';
 
 
 const ClearButton = styled.button`
@@ -156,9 +156,8 @@ const ImportCatalogMenu = () => {
       </Form>
         {
          isServicesLoading ? (
-            <Spinner animation="border" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </Spinner>) : null
+          <LoadingServices />
+          ) : null
         }
 
       {services && services.length > 0 && (
