@@ -8,8 +8,9 @@ import useCatalogStore from 'features/Catalogs/hooks/useCatalogStore';
 
 function CatalogsList() {
   const catalogs = useCatalogStore(useShallow((state) => state.catalogs));
-  const views = useCatalogStore(useShallow((state) => state.view));
   
+  const views = useCatalogStore(useShallow((state) => state.getAllViews()));
+
   return (
     <Accordion>
       <Accordion.Item eventKey="0">
