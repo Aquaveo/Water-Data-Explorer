@@ -76,7 +76,7 @@ class CatalogBackendHandler(RBH):
 
                     services_json.append({
                         "servURL": serv_url_text,
-                        "Title": title_text,
+                        "title": title_text,
                         "valuecount": valuecount_text,
                         "sitecount": sitecount_text,
                         "variablecount": variablecount_text
