@@ -67,12 +67,12 @@ const useCatalogStore = create((set, get) => ({
     }),
 
   // 2. View-level actions
-  addSites: (catalogName, viewName, newSites) =>
+  addSites: (catalogID, viewID, newSites) =>
     set((state) => {
       const updatedCatalogs = state.catalogs.map((cat) => {
-        if (cat.name === catalogName) {
+        if (cat.id === catalogID) {
           const updatedViews = cat.views.map((v) => {
-            if (v.name === viewName) {
+            if (v.id === viewID) {
               return {
                 ...v,
                 sites: [...v.sites, ...newSites],

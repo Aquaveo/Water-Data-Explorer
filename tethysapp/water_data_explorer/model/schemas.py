@@ -20,7 +20,7 @@ class CUAHSIServiceCreate(CUAHSIServiceBase):
 class CUAHSIServiceRead(CUAHSIServiceBase):
     """Schema for reading CUAHSIService from the DB"""
     id: UUID4
-
+    
     class Config:
         from_attributes = True
 
@@ -45,6 +45,48 @@ class HISCatalogRead(HISCatalogBase):
         from_attributes = True
 
 
+# ------------------ CUAHSISite ------------------ #
+class CUAHSISiteBase(BaseModel):
+    title: str
+    code: str
+    latitude: float
+    longitude: float
+    elevation: Optional[float] = None
+    state: Optional[str] = None
+    county: Optional[str] = None
+    comments: Optional[str] = None
+
+class CUAHSISiteCreate(CUAHSISiteBase):
+    """Schema for creating a CUAHSISite"""
+    pass
+
+class CUAHSISiteRead(CUAHSISiteBase):
+    """Schema for reading CUAHSISite from the DB"""
+    id: UUID4
+
+    class Config:
+        from_attributes = True
 
 
-# And so on for CUAHSISite, CUAHSIVariable if needed...
+# ------------------ CUAHSIVariable ------------------ #
+class CUAHSIVariableBase(BaseModel):
+    name: str
+    code: str
+    units: str
+    datatype: str
+    valuetype: str
+    samplemedium: str
+    timesupport: Optional[float] = None
+    timesupportunits: Optional[str] = None
+    comments: Optional[str] = None
+
+class CUAHSIVariableCreate(CUAHSIVariableBase):
+    """Schema for creating a CUAHSIVariable"""
+    pass
+
+class CUAHSIVariableRead(CUAHSIVariableBase):
+    """Schema for reading CUAHSIVariable from the DB"""
+    id: UUID4
+
+    class Config:
+        from_attributes = True

@@ -48,7 +48,7 @@ const ImportCatalogMenu = () => {
   const [services, setServices] = useState([]);
   const [endpointError, setEndpointError] = useState('');
   const { tags, handleAddTag, handleRemoveTag, cleanTags } = useTagInput(MAX_TAGS); // pass the maximum tags
-  const { addCatalog } = useCatalogStore();
+  const { addCatalog, addSites } = useCatalogStore();
   const [isServicesLoading, setIsServicesLoading] = useState(false);
 
   // New state to track selected views
@@ -66,10 +66,15 @@ const ImportCatalogMenu = () => {
     }
   }
 
+  const importSites = (view) => {
+    console.log('Importing sites for view:', view);
+    backend.do(backend.actions.IMPORT_SITES, {view_id:view.id, url: view.url, catalog_id:view.catalog_id } );
+  };
+
   useEffect(() => {
     backend.on(backend.actions.GET_LIST_SERVICES, setServices);
     backend.on(backend.actions.IMPORT_CATALOG, importCatalog);
-    backend.on(backend.actions.IMPORT_VIEW, importCatalog);
+    backend.on(backend.actions.IMPORT_VIEW,importSites );
     // Cleanup on unmount
     return () => {
       backend.off(backend.actions.GET_LIST_SERVICES);

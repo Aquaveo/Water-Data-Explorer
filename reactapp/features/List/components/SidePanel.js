@@ -47,7 +47,7 @@ const SidePanel = () => {
           onClick={toggleSidePanelVisibility} 
         />
         <Offcanvas.Title>
-          {currentOffCanvasView === 'catalogList' ? 'My Catalogs' : 'Import Catalog'}
+          {currentOffCanvasView === 'catalogList' ? 'Data' : 'Import Catalog'}
         </Offcanvas.Title>
       </Offcanvas.Header>
       <Offcanvas.Body>

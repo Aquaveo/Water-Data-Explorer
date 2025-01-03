@@ -14,13 +14,13 @@ function CatalogsList() {
   return (
     <Accordion>
       <Accordion.Item eventKey="0">
-        <Accordion.Header>Catalogs</Accordion.Header>
+        <Accordion.Header>CUAHSI WOF HIS Central Catalog</Accordion.Header>
         <Accordion.Body>
           <CatalogTable data={catalogs} />
         </Accordion.Body>
       </Accordion.Item>
       <Accordion.Item eventKey="1">
-        <Accordion.Header>Views</Accordion.Header>
+        <Accordion.Header>Services</Accordion.Header>
         <Accordion.Body>
         <ViewTable data={views}/>
         </Accordion.Body>
@@ -30,7 +30,6 @@ function CatalogsList() {
         <Accordion.Body>
         </Accordion.Body>
       </Accordion.Item>
-
     </Accordion>
   );
 }

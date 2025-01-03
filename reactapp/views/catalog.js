@@ -22,7 +22,6 @@ const WDEView = () => {
     
     addCatalogs(catalogs);
     for (const catalog of catalogs){
-      console.log('views',catalog.views);
       addViews(catalog.views);
     }
   }

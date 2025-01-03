@@ -11,5 +11,8 @@ class BackendActions(StrEnum):
     IMPORT_VIEW = auto()
     GET_VIEWS_FROM_CATALOG = auto()
     GET_VIEW = auto()
+    GET_SITES = auto()
+    GET_SITE = auto()
+    IMPORT_SITES = auto()
     MESSAGE_AKNOWLEDGE = auto()
     MESSAGE_ERROR = auto()

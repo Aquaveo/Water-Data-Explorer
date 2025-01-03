@@ -30,8 +30,9 @@ class ServiceViewBackendHandler(RBH):
         """
         catalog_id = data.get("catalog_id")
         # 1) Validate the incoming data with Pydantic
+        
         renamed_data = {
-            "title": data.get("Title"),
+            "title": data.get("title"),
             "url": data.get("servURL"),
             "description": data.get("servDesc",""),
             "sitecount": data.get("sitecount"),
@@ -48,7 +49,8 @@ class ServiceViewBackendHandler(RBH):
         view_json = {   
             "id": new_view.id,
             "name": new_view.title,
-            "sites": data.get("sites"),
+            "url": new_view.url,
+            "catalog_id": catalog_id,
         }
         
         await self.send_action(self.SEND_IMPORT_VIEW, view_json)

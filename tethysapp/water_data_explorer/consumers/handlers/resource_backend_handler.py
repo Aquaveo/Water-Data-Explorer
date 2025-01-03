@@ -10,8 +10,8 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy import select
 from typing import AsyncGenerator,List
 
-from tethysapp.water_data_explorer.model.cuahsi import HISCatalog,CUAHSIService
-from tethysapp.water_data_explorer.model.schemas import HISCatalogRead,CUAHSIServiceRead
+from tethysapp.water_data_explorer.model.cuahsi import HISCatalog,CUAHSIService,CUAHSISite
+from tethysapp.water_data_explorer.model.schemas import HISCatalogRead,CUAHSIServiceRead, CUAHSISiteRead, CUAHSIVariableRead
 
 
 from tethysapp.water_data_explorer.app import App
@@ -105,13 +105,51 @@ class ResourceBackendHandler:
             raise ValueError(f'Could not find HIS Catalog with ID "{view_id}"')
         return view
 
-
     async def get_views_from_catalog(self, event, action, data, session) -> list[CUAHSIService]:
         """Get all views from a catalog."""
         catalog = await self.get_catalog(data, session)
         views = catalog.views
         return views
     
+    async def get_sites(self, event, action, data, session) -> list[CUAHSISite]:
+        """Get a single CUAHSIService record by ID."""
+
+        result = await session.execute(
+            select(CUAHSISite).options(selectinload(CUAHSISite.variables))
+        )
+        sites = result.scalars().all()  # Fetch all results as a list
+        return sites
+
+    async def get_site(self, event, action, data, session) -> CUAHSISite:
+        site_id = data.get('id')
+
+        def _query(session, site_id):
+            return session.query(CUAHSISite).get(site_id)
+
+        site = await session.run_sync(_query, site_id=site_id)
+        if not site:
+            raise ValueError(f'Could not find HIS Catalog with ID "{site_id}"')
+        return site
+
+    async def get_sites_generator(self, session: AsyncSession) -> AsyncGenerator[dict, None]:
+        """
+        Async generator that yields each Site as a Pydantic dict,
+        including its related Variables.
+        """
+        sites = await self.get_sites(session)  # Await the list of catalogs
+        
+        for site in sites:  # Use regular for loop
+
+            # Convert Sites to Pydantic
+            site_read = CUAHSISiteRead.model_validate(site)
+            
+            # Convert related CUAHSIService to Pydantic
+            variables_reads = [CUAHSIVariableRead.model_validate(variable) for variable in site.variables]
+            site_read.variables = variables_reads
+            
+            # Yield as dict
+            yield site_read.model_dump()
+
     async def send_action(self, action: BackendActions, payload: dict):
         print('send_action')
         await self.backend_consumer.send_action(action, payload)

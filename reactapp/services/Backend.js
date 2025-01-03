@@ -43,6 +43,8 @@ export default class Backend {
       IMPORT_VIEW: "IMPORT_VIEW",
       GET_VIEWS_FROM_CATALOG: "GET_VIEWS_FROM_CATALOG",
       GET_VIEW: "GET_VIEW",
+      GET_SITES: "GET_SITES",
+      IMPORT_SITES: "IMPORT_SITES",
     };
   }
 
