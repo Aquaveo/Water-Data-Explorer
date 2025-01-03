@@ -67,6 +67,10 @@ class SitesBackendHandler(RBH):
             site_json = {
                 "id": str(new_site.id),
                 "name": new_site.title,
+                "latitude": new_site.latitude,
+                "longitude": new_site.longitude,
+                "countries": new_site.countries,
+                "elevation": new_site.elevation,
                 "variables": data.get("variables", []),
             }
 
