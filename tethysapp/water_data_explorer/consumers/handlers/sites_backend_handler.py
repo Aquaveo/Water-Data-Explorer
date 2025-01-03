@@ -92,7 +92,7 @@ class SitesBackendHandler(RBH):
         await self.send_action(self.SEND_GET_SITE, site_json)
 
     @RBH.action_handler
-    async def get_views(self, event, action, data, session):
+    async def get_sites(self, event, action, data, session):
         """
         Fetch all CUAHSISite rows, convert them (and their related Variables)
         to Pydantic using a generator, and send them out.
