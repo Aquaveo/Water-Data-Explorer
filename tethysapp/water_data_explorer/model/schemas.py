@@ -49,12 +49,11 @@ class HISCatalogRead(HISCatalogBase):
 class CUAHSISiteBase(BaseModel):
     title: str
     code: str
+    description: Optional[str] = None
     latitude: float
     longitude: float
     elevation: Optional[float] = None
-    state: Optional[str] = None
-    county: Optional[str] = None
-    comments: Optional[str] = None
+    countries: Optional[str] = None
 
 class CUAHSISiteCreate(CUAHSISiteBase):
     """Schema for creating a CUAHSISite"""

@@ -71,7 +71,7 @@ class SitesBackendHandler(RBH):
             }
 
             # Option 1A: Accumulate to send a single batch
-            created_sites_info['view_id'].append(site_json)
+            created_sites_info['sites'].append(site_json)
 
             # Option 1B: If you prefer sending each site individually:
             # await self.send_action(self.SEND_IMPORT_VIEW, site_json)
