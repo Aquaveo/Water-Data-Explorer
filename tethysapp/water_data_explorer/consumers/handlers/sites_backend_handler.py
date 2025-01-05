@@ -35,7 +35,7 @@ class SitesBackendHandler(RBH):
         """
 
         view_id = data.get("view_id")  # e.g., a UUID that matches service_id
-        url = data.get("url") + "?WSDL"
+        url = data.get("url") + "?request=GetSitesObject&format=WML1"
 
         # (A) Instantiate AsyncSOAPClient and get the asynchronous generator
         async_soap_client = AsyncSOAPClient()
@@ -43,6 +43,7 @@ class SitesBackendHandler(RBH):
         try:
             # Fetch sites as an asynchronous generator
             sites_gen = async_soap_client.get_sites_from_endpoint(url)  # Removed 'await'
+            breakpoint()
         except Exception as e:
             log.error(f"Failed to initiate site fetching: {e}")
             error_payload = {"error": f"Failed to fetch sites: {str(e)}"}
