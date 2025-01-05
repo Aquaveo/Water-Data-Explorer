@@ -38,7 +38,7 @@ class AsyncSOAPClient:
         # 3) Make an async call using httpx
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.post(url, content=soap_envelope, headers=headers, timeout=30.0)
+                response = await client.post(url, content=soap_envelope, headers=headers, timeout=None)
                 response.raise_for_status()  # Raise an exception if request failed
             except httpx.RequestError as e:
                 # Handle network-related errors
