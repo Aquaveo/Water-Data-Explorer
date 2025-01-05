@@ -70,16 +70,21 @@ const ImportCatalogMenu = () => {
     console.log('Importing sites for view:', view);
     backend.do(backend.actions.IMPORT_SITES, {view_id:view.id, url: view.url, catalog_id:view.catalog_id } );
   };
+  const saveSites = (sites) => {
+    console.log('Saving sites:', sites);
+  }; 
 
   useEffect(() => {
     backend.on(backend.actions.GET_LIST_SERVICES, setServices);
     backend.on(backend.actions.IMPORT_CATALOG, importCatalog);
-    backend.on(backend.actions.IMPORT_VIEW,importSites );
+    backend.on(backend.actions.IMPORT_VIEW,importSites);
+    backend.on(backend.actions.IMPORT_SITES,saveSites);
     // Cleanup on unmount
     return () => {
       backend.off(backend.actions.GET_LIST_SERVICES);
       backend.off(backend.actions.IMPORT_CATALOG);
       backend.off(backend.actions.IMPORT_VIEW);
+      backend.off(backend.actions.IMPORT_SITES);
     };
   }, []);
 

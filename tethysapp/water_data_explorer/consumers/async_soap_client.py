@@ -1,122 +1,148 @@
 import httpx
-import xmltodict
-import json
-import uuid
-from dataclasses import asdict
 import xml.etree.ElementTree as ET
+from typing import AsyncGenerator, Optional, Dict, Any
+import xmltodict
+
 
 class AsyncSOAPClient:
     def __init__(self):
         # You can store default headers or any other settings here
         pass
 
-    async def get_sites_from_endpoint(self, url):
+    async def get_sites_from_endpoint(self, url: str) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Make an async SOAP request using httpx,
-        parse the XML response manually with xmltodict,
-        and return a generator that yields site objects one by one.
+        parse the XML response using xmltodict,
+        and return an asynchronous generator that yields site dictionaries one by one.
         """
         # 1) Define your SOAP envelope
-        # Adjust the namespace, method name, and request body as needed
-        soap_envelope = """
+        soap_envelope = """<?xml version="1.0" encoding="utf-8"?>
             <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                            xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap:Body>
-                    <GetSites xmlns="http://www.cuahsi.org/his/1.1/ws/">
-                        <site>[:]</site> 
+                    <GetSites xmlns="http://www.cuahsi.org/waterML/1.1/">
                         <!-- Adjust parameters as needed -->
+                        <site>[:]</site> 
                     </GetSites>
                 </soap:Body>
             </soap:Envelope>
         """
 
         # 2) SOAPAction can be required by some SOAP endpoints
-        # The value depends on the service’s WSDL definition
         headers = {
             "Content-Type": "text/xml; charset=utf-8",
-            "SOAPAction": "http://www.cuahsi.org/his/1.1/ws/GetSites"
+            "SOAPAction": "http://www.cuahsi.org/waterML/1.1/GetSites"
         }
 
         # 3) Make an async call using httpx
         async with httpx.AsyncClient() as client:
-            response = await client.post(url, content=soap_envelope, headers=headers, timeout=30.0)
-            response.raise_for_status()  # Raise an exception if request failed
+            try:
+                response = await client.post(url, content=soap_envelope, headers=headers, timeout=30.0)
+                response.raise_for_status()  # Raise an exception if request failed
+            except httpx.RequestError as e:
+                # Handle network-related errors
+                print(f"An error occurred while requesting {e.request.url!r}: {e}")
+                return  # Yield nothing if request fails
+            except httpx.HTTPStatusError as e:
+                # Handle non-2xx responses
+                print(f"Error response {e.response.status_code} while requesting {e.request.url!r}")
+                return  # Yield nothing if response is invalid
 
-            # 4) Now parse the SOAP XML body
-            #    If the service returns raw XML, we can parse it via xmltodict
-            root_dict = xmltodict.parse(response.text)
+            # 4) Parse the SOAP XML body using xmltodict
+            try:
+                # Convert XML to OrderedDict
+                xml_dict = xmltodict.parse(response.text)
+            except Exception as e:
+                # Handle parsing errors
+                print(f"Error parsing SOAP response: {e}")
+                return  # Yield nothing if parsing fails
 
-        # 5) Extract the site information from root_dict
-        #    This depends on your SOAP response structure.
-        #    For demonstration, assume something like:
-        #      root_dict["soap:Envelope"]["soap:Body"]["GetSitesResponse"]["GetSitesResult"]
-        #    Adjust the keys to match your actual response
+        # 5) Extract the GetSitesResult content
+        try:
+            get_sites_result_text = xml_dict['soap:Envelope']['soap:Body']['GetSitesResponse']['GetSitesResult']
+            if not get_sites_result_text:
+                print("GetSitesResult is empty.")
+                return  # Yield nothing if GetSitesResult is empty
+        except KeyError as e:
+            print(f"Expected key not found in SOAP response: {e}")
+            return  # Yield nothing if structure is unexpected
+
+        # 6) Parse the GetSitesResult content (which is a string containing XML)
+        try:
+            sites_response_dict = xmltodict.parse(get_sites_result_text)
+            sites_response = sites_response_dict.get('sitesResponse', {})
+            sites = sites_response.get('site', [])
+
+            # Ensure sites is a list
+            if isinstance(sites, dict):
+                sites = [sites]
+            elif not isinstance(sites, list):
+                print("Unexpected structure for sites.")
+                return  # Yield nothing if structure is unexpected
+
+        except Exception as e:
+            print(f"Error parsing GetSitesResult content: {e}")
+            return  # Yield nothing if parsing fails
+
+        # 7) Iterate over each site element and yield site dictionaries
+        for site in sites:
+            site_dict = self.parse_site(site)
+            if site_dict:
+                yield site_dict
+
+    def parse_site(self, site: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """
+        Parses a single site dictionary from xmltodict and returns a standardized site dictionary.
+        """
+        hs_json = {}
 
         try:
-            body = root_dict.get("soap:Envelope", {}).get("soap:Body", {})
-            sites_response = body.get("GetSitesResponse", {})
-            sites_result = sites_response.get("GetSitesResult", {})
-        except AttributeError:
-            # The structure may differ; add logging or error handling
-            return
+            # Extract siteName
+            site_name = site['siteInfo']['siteName']
+            if isinstance(site_name, str):
+                hs_json["sitename"] = site_name.strip()
+            else:
+                hs_json["sitename"] = "Unknown Site"
 
-        # Suppose 'sites_result' is still an XML-like dict with site data
-        # Convert it to JSON-friendly data
-        sites_json = json.loads(json.dumps(sites_result))
+            # Extract latitude and longitude
+            latitude = site['siteInfo']['geoLocation']['geogLocation']['latitude']
+            longitude = site['siteInfo']['geoLocation']['geogLocation']['longitude']
+            hs_json["latitude"] = float(latitude) if latitude else None
+            hs_json["longitude"] = float(longitude) if longitude else None
 
-        # 6) Now yield each site from parse_sites(...)
-        #    parse_sites is a generator that yields dicts
-        return self.parse_sites(sites_json)
+            # Extract siteCode attributes and text
+            site_code_info = site['siteInfo']['siteCode']
+            hs_json["sitecode"] = site_code_info['#text'].strip() if site_code_info.get('#text') else ""
+            hs_json["network"] = site_code_info.get('@network', "")
+            hs_json["siteID"] = site_code_info.get('@siteID', "")
 
-    def parse_sites(self, sites_json):
-        """
-        A generator that yields site dicts from the SOAP response JSON.
-        Adjust keys to match your actual data structure.
-        """
-        # For demonstration, assume structure is something like:
-        # sites_json = {
-        #   'site': [
-        #       {'siteInfo': {...}},
-        #       {'siteInfo': {...}},
-        #        ...
-        #   ]
-        # }
+            # Extract elevation
+            elevation = site['siteInfo'].get('elevation_m', None)
+            hs_json["elevation"] = float(elevation) if elevation else 0.0
 
-        site_list = sites_json.get("site", [])
-        if isinstance(site_list, dict):
-            # Only one site in the response
-            yield self._extract_site_dict(site_list)
-        else:
-            # Multiple sites
-            for site_dict in site_list:
-                yield self._extract_site_dict(site_dict)
+            # Extract country from siteProperty if available
+            hs_json["country"] = "No Data was Provided"
+            site_properties = site['siteInfo'].get('siteProperty', [])
+            if isinstance(site_properties, dict):
+                site_properties = [site_properties]
+            for prop in site_properties:
+                if prop.get('@name') == 'Country':
+                    hs_json["country"] = prop.get('#text', "No Data was Provided").strip()
+                    break  # Assuming only one country property is needed
 
-    def _extract_site_dict(self, site_data):
-        """
-        Transform each site XML/JSON structure into a Python dict
-        that you can use to create a CUAHSISite in your DB.
-        """
-        # Example keys. Adapt them to match your SOAP data.
-        site_info = site_data.get("siteInfo", {})
-        location = site_info.get("geoLocation", {}).get("geogLocation", {})
+            # Add any additional fields as necessary
+            hs_json["fullSiteCode"] = f"{hs_json.get('network', '')}:{hs_json.get('sitecode', '')}"
+            hs_json["service"] = "SOAP"
 
-        hs_json = {
-            "sitename": site_info.get("siteName", "Unknown Site"),
-            "latitude": location.get("latitude", 0.0),
-            "longitude": location.get("longitude", 0.0),
-            "country": "No Data",
-            "sitecode": None,
-            "network": None,
-            "siteID": None,
-            # etc.
-        }
-        # You can parse siteCode, network, etc. if your SOAP contains them
-        site_code_info = site_info.get("siteCode", {})
-        if isinstance(site_code_info, dict):
-            hs_json["sitecode"] = site_code_info.get("#text", "")
-            hs_json["network"] = site_code_info.get("@network", "")
-            hs_json["siteID"] = site_code_info.get("@siteID")
+            # Optional: Validate latitude and longitude
+            if hs_json["latitude"] is None or hs_json["longitude"] is None:
+                print(f"Invalid coordinates for site: {hs_json.get('sitename', 'Unknown')}")
+                return None  # Skip sites with invalid coordinates
+
+        except Exception as e:
+            print(f"Error extracting site data: {e}")
+            return None  # Skip this site if any error occurs during extraction
 
         return hs_json
 
