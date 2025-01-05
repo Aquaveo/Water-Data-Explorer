@@ -9,6 +9,7 @@ import useTagInput from 'components/tags/useTag';
 import { TagField } from 'components/tags/tagField';
 import useCatalogStore from '../hooks/useCatalogStore';
 import LoadingServices from './LoadingServices';
+import { toast } from "react-toastify";
 
 
 const ClearButton = styled.button`
@@ -68,7 +69,7 @@ const ImportCatalogMenu = () => {
 
   const importSites = (view) => {
     console.log('Importing sites for view:', view);
-    backend.do(backend.actions.IMPORT_SITES, {view_id:view.id, url: view.url, catalog_id:view.catalog_id } );
+    backend.do(backend.actions.IMPORT_SITES, {view_id:view.id, url: view.url, catalog_id:view.catalog_id, sitecount: view.sitecount  } );
   };
   const saveSites = (sites) => {
     console.log('Saving sites:', sites);

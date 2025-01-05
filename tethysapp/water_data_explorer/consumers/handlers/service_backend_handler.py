@@ -51,6 +51,7 @@ class ServiceViewBackendHandler(RBH):
             "name": new_view.title,
             "url": new_view.url,
             "catalog_id": catalog_id,
+            "sitecount": new_view.sitecount,
         }
         
         await self.send_action(self.SEND_IMPORT_VIEW, view_json)

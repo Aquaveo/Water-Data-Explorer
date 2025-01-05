@@ -7,21 +7,88 @@ import tempfile
 import os
 import logging
 import asyncio
+from math import ceil
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class AsyncSOAPClient:
     def __init__(self):
         # You can store default headers or any other settings here
-        self.BATCH_SITES_SIZE = 500
-        pass
+        self.CHUNK_SITE_SIZE = 512000
+        self.MAX_CHUNK_MULTIPLIER = 32  # Maximum multiplier to prevent oversized chunks
+        self.DEFAULT_BATCH_SIZE = 500   # Default batch size if not determined by sites_count
+        
+        # Define batch size thresholds and corresponding multipliers
+        self.BATCH_SIZE_CONFIG = [
+            (1000, self.DEFAULT_BATCH_SIZE),
+            (10000, 5000),
+            (50000, 10000),
+            (100000, 20000),
+            (500000, 100000),
+            (1000000, 500000),
+        ]
+        self.MAX_BATCH_SIZE = 1000000  # Cap to prevent oversized batches
     
-    async def get_sites_from_endpoint(self, url: str) -> AsyncGenerator[List[Dict[str, Any]], None]:
+    def get_sites_batch_size(self, sites_count: int) -> int:
+        """
+        Determines the optimal batch size based on the number of sites.
+        
+        Args:
+            sites_count (int): The total number of sites to process.
+        
+        Returns:
+            int: The calculated batch size.
+        """
+        for threshold, batch_size in self.BATCH_SIZE_CONFIG:
+            if sites_count < threshold:
+                logger.info(f"Determined batch size: {batch_size} for {sites_count} sites.")
+                return batch_size
+        # If sites_count exceeds all thresholds, return MAX_BATCH_SIZE
+        logger.info(f"Determined batch size: {self.MAX_BATCH_SIZE} for {sites_count} sites.")
+        return self.MAX_BATCH_SIZE
+    
+    def get_sites_chunk_size(self, sites_count: int) -> int:
+        """
+        Determines the optimal chunk size based on the number of sites.
+        
+        Args:
+            sites_count (int): The total number of sites to process.
+        
+        Returns:
+            int: The calculated chunk size in bytes.
+        """
+        base_size = self.CHUNK_SITE_SIZE
+        max_multiplier = self.MAX_CHUNK_MULTIPLIER
+        
+        if sites_count < 10_000:
+            multiplier = 1
+        elif sites_count < 50_000:
+            multiplier = 4
+        elif sites_count < 100_000:
+            multiplier = 8
+        elif sites_count < 500_000:
+            multiplier = 16    
+        else:
+            multiplier = max_multiplier  # Cap the multiplier to prevent oversized chunks
+        
+        chunk_size = base_size * multiplier
+        
+        logger.info(f"Determined chunk size: {chunk_size} bytes for {sites_count} sites.")
+        return chunk_size
+
+    async def get_sites_from_endpoint(self, url: str, sites_count: int) -> AsyncGenerator[List[Dict[str, Any]], None]:
         """
         Make an async GET request using httpx,
         stream the response to a temporary file using aiofiles,
         parse the XML response using xmltodict,
-        and return an asynchronous generator that yields site dictionaries one by one.
+        and return an asynchronous generator that yields batches of site dictionaries.
+
+        Args:
+            url (str): The SOAP endpoint URL.
+            sites_count (int): The total number of sites to process.
+
+        Yields:
+            AsyncGenerator[List[Dict[str, Any]], None]: Batches of site dictionaries.
         """
         headers = {
             "Accept": "application/xml",
@@ -35,15 +102,21 @@ class AsyncSOAPClient:
         temp_file.close()
         logger.info(f"Temporary file created at {temp_file_path}")
 
+        # Determine batch size and chunk size based on sites_count
+        batch_size = self.get_sites_batch_size(sites_count)
+        chunk_size_bytes = self.get_sites_chunk_size(sites_count)
+
         # Stream the response to the temporary file
         async with httpx.AsyncClient() as client:
             try:
                 async with client.stream('GET', url, headers=headers, timeout=None) as response:
                     response.raise_for_status()
                     async with aiofiles.open(temp_file_path, mode='wb') as tmp_file:
-                        async for chunk in response.aiter_bytes(chunk_size=512000):  # 500 KB
+                        total_downloaded = 0
+                        async for chunk in response.aiter_bytes(chunk_size=chunk_size_bytes):
                             await tmp_file.write(chunk)
-                            # logger.debug(f"Wrote chunk of size {len(chunk)} bytes")
+                            total_downloaded += len(chunk)
+                            logger.info(f"Downloaded {total_downloaded} bytes so far.")
             except httpx.RequestError as e:
                 logger.error(f"An error occurred while requesting {e.request.url!r}: {e}")
                 return
@@ -98,13 +171,13 @@ class AsyncSOAPClient:
             logger.error(f"Error extracting site elements: {e}")
             return
 
-        # 9) Iterate over each site element and yield site dictionaries
+        # Iterate over each site element and yield site dictionaries in batches
         batch = []
         for site in sites:
             site_dict = await asyncio.to_thread(self.parse_site, site)
             if site_dict:
                 batch.append(site_dict)
-            if len(batch) == self.BATCH_SITES_SIZE:
+            if len(batch) == batch_size:
                 yield batch
                 batch = []
         if batch:

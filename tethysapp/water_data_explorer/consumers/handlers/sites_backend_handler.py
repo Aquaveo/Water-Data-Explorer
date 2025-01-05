@@ -40,6 +40,8 @@ class SitesBackendHandler(RBH):
         """
         view_id = data.get("view_id")  # e.g., a UUID that matches service_id
         base_url = data.get("url")
+        site_count = data.get("sitecount", 0)
+
         params = {
             "request": "GetSitesObject",
             "format": "WML1"
@@ -51,7 +53,7 @@ class SitesBackendHandler(RBH):
 
         try:
             # Fetch sites as an asynchronous generator yielding batches
-            sites_gen = async_soap_client.get_sites_from_endpoint(url)
+            sites_gen = async_soap_client.get_sites_from_endpoint(url,site_count)
         except Exception as e:
             logger.error(f"Failed to initiate site fetching: {e}")
             error_payload = {"error": f"Failed to fetch sites: {str(e)}"}
