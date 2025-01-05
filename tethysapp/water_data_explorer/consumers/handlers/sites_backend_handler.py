@@ -43,7 +43,7 @@ class SitesBackendHandler(RBH):
         try:
             # Fetch sites as an asynchronous generator
             sites_gen = async_soap_client.get_sites_from_endpoint(url)  # Removed 'await'
-            breakpoint()
+            
         except Exception as e:
             log.error(f"Failed to initiate site fetching: {e}")
             error_payload = {"error": f"Failed to fetch sites: {str(e)}"}
@@ -100,7 +100,7 @@ class SitesBackendHandler(RBH):
 
             # Option 1B: If you prefer sending each site individually:
             # await self.send_action(self.SEND_IMPORT_SITES, site_json)
-
+        breakpoint()
         # If batching, send them once at the end
         if created_sites_info['sites']:
             await self.send_action(self.SEND_IMPORT_SITES, created_sites_info)

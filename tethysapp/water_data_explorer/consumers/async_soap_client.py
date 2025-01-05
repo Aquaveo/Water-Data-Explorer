@@ -101,7 +101,6 @@ class AsyncSOAPClient:
         # 9) Iterate over each site element and yield site dictionaries
         for site in sites:
             site_dict = self.parse_site(site)
-            breakpoint()
             if site_dict:
                 yield site_dict
 
