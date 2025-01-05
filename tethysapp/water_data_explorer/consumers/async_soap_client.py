@@ -5,7 +5,7 @@ import uuid
 from dataclasses import asdict
 import xml.etree.ElementTree as ET
 
-class MyAsyncSOAPClient:
+class AsyncSOAPClient:
     def __init__(self):
         # You can store default headers or any other settings here
         pass
@@ -148,9 +148,9 @@ class MyAsyncSOAPClient:
             root = ET.fromstring(response.text)
             return self._parse_catalog_services(root)
 
-    def _parse_catalog_services(self, root):
+    async def _parse_catalog_services(self, root):
         """
-        Parse the XML response to extract catalog services.
+        Asynchronous generator to parse the XML response and yield services.
         """
         namespaces = {'ns': 'http://hiscentral.cuahsi.org/20100205/'}
         service_info_list = root.findall('.//ns:ServiceInfo', namespaces)
@@ -162,13 +162,14 @@ class MyAsyncSOAPClient:
             sitecount = si.find('ns:sitecount', namespaces)
             variablecount = si.find('ns:variablecount', namespaces)
 
-            # Extract text or None if element not found
-            serv_url_text = serv_url.text if serv_url is not None else None
-            title_text = title.text if title is not None else None
-            valuecount_text = valuecount.text if valuecount is not None else None
-            sitecount_text = sitecount.text if sitecount is not None else None
-            variablecount_text = variablecount.text if variablecount is not None else None
+            # Extract text or default values
+            serv_url_text = serv_url.text if serv_url is not None else ""
+            title_text = title.text if title is not None else ""
+            valuecount_text = int(valuecount.text) if valuecount is not None and valuecount.text.isdigit() else 0
+            sitecount_text = int(sitecount.text) if sitecount is not None and sitecount.text.isdigit() else 0
+            variablecount_text = int(variablecount.text) if variablecount is not None and variablecount.text.isdigit() else 0
 
+            # Asynchronously yield the service dictionary
             yield {
                 "servURL": serv_url_text,
                 "title": title_text,
