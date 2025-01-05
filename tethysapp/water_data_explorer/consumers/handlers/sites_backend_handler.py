@@ -1,7 +1,7 @@
 import logging
 from ..backend_actions import BackendActions
 from .resource_backend_handler import ResourceBackendHandler as RBH
-from tethysapp.water_data_explorer.model.crud import create_site
+from tethysapp.water_data_explorer.model.crud import create_site,create_sites_bulk
 from tethysapp.water_data_explorer.model.schemas import  CUAHSISiteCreate, CUAHSISiteRead
 from pydantic import ValidationError
 from suds.client import Client
@@ -9,7 +9,12 @@ import xmltodict
 import json
 from suds.sudsobject import asdict
 from ..async_soap_client import AsyncSOAPClient
-log = logging.getLogger(__name__)
+from typing import Dict, Any
+import asyncio
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 
 class SitesBackendHandler(RBH):
@@ -29,85 +34,140 @@ class SitesBackendHandler(RBH):
     @RBH.action_handler
     async def create_sites(self, event, action, data, session):
         """
-        1) Fetch sites from the SOAP endpoint (as an asynchronous generator of dicts).
-        2) For each site, build a Pydantic schema and create a CUAHSISite in DB.
-        3) Send each site info or batch them into one response.
+        1) Fetch sites from the SOAP endpoint (as an asynchronous generator of batches of dicts).
+        2) For each batch, validate and create CUAHSISite records in bulk.
+        3) Send each batch of created sites as a response.
         """
-
         view_id = data.get("view_id")  # e.g., a UUID that matches service_id
-        url = data.get("url") + "?request=GetSitesObject&format=WML1"
+        base_url = data.get("url")
+        params = {
+            "request": "GetSitesObject",
+            "format": "WML1"
+        }
+        url = f"{base_url}?request={params['request']}&format={params['format']}"
 
         # (A) Instantiate AsyncSOAPClient and get the asynchronous generator
         async_soap_client = AsyncSOAPClient()
 
         try:
-            # Fetch sites as an asynchronous generator
-            sites_gen = async_soap_client.get_sites_from_endpoint(url)  # Removed 'await'
-            
+            # Fetch sites as an asynchronous generator yielding batches
+            sites_gen = async_soap_client.get_sites_from_endpoint(url)
         except Exception as e:
-            log.error(f"Failed to initiate site fetching: {e}")
+            logger.error(f"Failed to initiate site fetching: {e}")
             error_payload = {"error": f"Failed to fetch sites: {str(e)}"}
             await self.send_action(self.SEND_IMPORT_SITES, error_payload)
             return
 
-        # Option 1: Accumulate sites to send as a single batch
-        created_sites_info = {
-            "view_id": view_id,
-            "catalog_id": data.get("catalog_id"),
-            "sites": [],
-        }
-
         # Iterate over the asynchronous generator using 'async for'
-        async for site_dict in sites_gen:
-            # Validate and create Pydantic schema
+        async for batch in sites_gen:
+            if not batch:
+                continue  # Skip empty batches
+
+            # Convert site dicts to CUAHSISiteCreate schemas
             try:
-                schema = CUAHSISiteCreate(
-                    title=site_dict["sitename"],
-                    code=site_dict["sitecode"],
-                    description="",  # You can adjust as needed
-                    latitude=site_dict["latitude"],
-                    longitude=site_dict["longitude"],
-                    elevation=0,  # or parse from site_dict if you have it
-                    countries=site_dict["country"],
-                )
+                sites_in = [
+                    CUAHSISiteCreate(
+                        title=site_dict.get("sitename", "Unknown Site"),
+                        code=site_dict.get("sitecode", ""),
+                        description="",  # Adjust as needed
+                        latitude=site_dict.get("latitude"),
+                        longitude=site_dict.get("longitude"),
+                        elevation=site_dict.get("elevation", 0.0),
+                        countries=site_dict.get("country", "No Data was Provided"),
+                    )
+                    for site_dict in batch
+                ]
             except ValidationError as ve:
-                log.error(f"Pydantic validation error for site {site_dict}: {ve}")
-                continue  # Skip this site if validation fails
-            except KeyError as ke:
-                log.error(f"Missing key in site data {site_dict}: {ke}")
-                continue  # Skip this site if required keys are missing
+                logger.error(f"Pydantic validation error in batch: {ve}")
+                # Optionally, send error details or skip the entire batch
+                continue
 
-            # Create site in DB
+            # Insert sites in bulk
             try:
-                new_site = await create_site(session, view_id, schema)
+                inserted_sites = await create_sites_bulk(session, view_id, sites_in)
             except Exception as e:
-                log.error(f"Error creating site {schema.title}: {e}")
-                continue  # Skip this site if creation fails
+                logger.error(f"Bulk insert failed for batch: {e}")
+                # Optionally, send error details or skip the entire batch
+                continue
 
-            # Build the JSON for your message (adjust as needed)
-            site_json = {
-                "id": str(new_site.id),
-                "name": new_site.title,
-                "latitude": new_site.latitude,
-                "longitude": new_site.longitude,
-                "countries": new_site.countries,
-                "elevation": new_site.elevation,
-                "variables": data.get("variables", []),
+            # Prepare the JSON payload for the inserted sites
+            sites_json = [
+                {
+                    "id": str(site.id),
+                    "name": site.title,
+                    "latitude": site.latitude,
+                    "longitude": site.longitude,
+                    "countries": site.countries,
+                    "elevation": site.elevation,
+                    "variables": data.get("variables", []),  # Adjust as needed
+                }
+                for site in inserted_sites
+            ]
+
+            # Prepare the batch response
+            created_sites_info = {
+                "view_id": view_id,
+                "catalog_id": data.get("catalog_id"),
+                "sites": sites_json,
             }
 
-            # Option 1A: Accumulate to send a single batch
-            created_sites_info['sites'].append(site_json)
-
-            # Option 1B: If you prefer sending each site individually:
-            # await self.send_action(self.SEND_IMPORT_SITES, site_json)
-        breakpoint()
-        # If batching, send them once at the end
-        if created_sites_info['sites']:
+            # Send the batch of created sites
             await self.send_action(self.SEND_IMPORT_SITES, created_sites_info)
-        else:
-            # Optionally, send a message indicating no sites were processed
-            log.info("No sites were imported.")
-            await self.send_action(self.SEND_IMPORT_SITES, {"message": "No sites were imported."})
+            logger.info(f"Sent batch of {len(sites_json)} sites.")
+
+        # Optionally, send a completion message
+        logger.info("Completed processing all site batches.")
+
+    async def process_site(
+        self,
+        site_dict: Dict[str, Any],
+        view_id: str,
+        session,
+        variables: list
+    ) -> Dict[str, Any]:
+        """
+        Processes a single site:
+        - Validates and creates a Pydantic schema.
+        - Creates the site in the database.
+        - Builds the JSON payload for the response.
+        """
+        try:
+            # Validate and create Pydantic schema
+            schema = CUAHSISiteCreate(
+                title=site_dict.get("sitename", "Unknown Site"),
+                code=site_dict.get("sitecode", ""),
+                description="",  # Adjust as needed
+                latitude=site_dict.get("latitude"),
+                longitude=site_dict.get("longitude"),
+                elevation=site_dict.get("elevation", 0.0),
+                countries=site_dict.get("country", "No Data was Provided"),
+            )
+        except ValidationError as ve:
+            logger.error(f"Pydantic validation error for site {site_dict.get('sitename', 'Unknown')}: {ve}")
+            raise ve  # Re-raise exception to be handled in the calling function
+        except KeyError as ke:
+            logger.error(f"Missing key in site data {site_dict}: {ke}")
+            raise ke
+
+        # Create site in DB
+        try:
+            new_site = await create_site(session, view_id, schema)
+        except Exception as e:
+            logger.error(f"Error creating site {schema.title}: {e}")
+            raise e
+
+        # Build the JSON for your message
+        site_json = {
+            "id": str(new_site.id),
+            "name": new_site.title,
+            "latitude": new_site.latitude,
+            "longitude": new_site.longitude,
+            "countries": new_site.countries,
+            "elevation": new_site.elevation,
+            "variables": variables,
+        }
+
+        return site_json
 
     @RBH.action_handler
     async def get_site(self, event, action, data, session):

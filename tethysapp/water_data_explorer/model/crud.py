@@ -1,12 +1,16 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, AsyncGenerator
 
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
 from .cuahsi import HISCatalog, CUAHSIService, CUAHSISite
 from .schemas import HISCatalogCreate, CUAHSIServiceCreate, CUAHSISiteCreate
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 async def get_his_catalog_by_id(
     db: AsyncSession,
@@ -105,3 +109,59 @@ async def create_site(
     await db.commit()
     await db.refresh(site)
     return site
+
+
+async def create_sites_bulk(
+    db: AsyncSession,
+    view_id: str,
+    sites_in: List[CUAHSISiteCreate]
+) -> List[CUAHSISite]:
+    """
+    Create multiple CUAHSISite records in bulk for a given CUAHSIService.
+
+    Args:
+        db (AsyncSession): The database session.
+        view_id (str): The ID of the CUAHSIService to associate the sites with.
+        sites_in (List[CUAHSISiteCreate]): A list of site creation schemas.
+
+    Returns:
+        List[CUAHSISite]: A list of created CUAHSISite ORM objects.
+    """
+    # Fetch the CUAHSIService by view_id
+    service = await get_his_view_by_id(db, view_id)
+    if service is None:
+        raise ValueError(f"CUAHSIService with id {view_id} not found")
+
+    # Convert Pydantic schemas to ORM objects
+    sites = [
+        CUAHSISite(
+            title=site.title,
+            code=site.code,
+            description=site.description,
+            latitude=site.latitude,
+            longitude=site.longitude,
+            elevation=site.elevation,
+            countries=site.countries
+        )
+        for site in sites_in
+    ]
+
+    # Associate sites with the service
+    service.sites.extend(sites)
+
+    # Add all sites to the session
+    db.add_all(sites)
+
+    # Commit the transaction
+    try:
+        await db.commit()
+        # Refresh the ORM objects to get populated fields (like ID)
+        for site in sites:
+            await db.refresh(site)
+        logger.info(f"Successfully inserted {len(sites)} sites in bulk.")
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Bulk insert failed: {e}")
+        raise e
+
+    return sites
