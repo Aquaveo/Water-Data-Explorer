@@ -1,5 +1,5 @@
 // ViewTableColumns.js
-import { TbBrandDatabricks } from 'react-icons/tb';
+import { TbMapPin  } from 'react-icons/tb';
 
 export const SitesTableStyles = {
   headRow: { style: { border: 'none' } },
@@ -17,7 +17,7 @@ export const SitesTableStyles = {
 
 export const SitesTableColumns = [
   {
-    cell: () => <TbBrandDatabricks size={20} />,
+    cell: () => <TbMapPin size={20} />,
 	  minWidth: '50px', 
 	  maxWidth: '70px',
     style: {
