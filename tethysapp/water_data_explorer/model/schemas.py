@@ -2,6 +2,34 @@
 from pydantic import BaseModel, UUID4, ValidationError
 from typing import Optional, List
 
+
+
+# ------------------ CUAHSISite ------------------ #
+class CUAHSISiteBase(BaseModel):
+    title: str
+    code: str
+    description: Optional[str] = None
+    latitude: float
+    longitude: float
+    elevation: Optional[float] = None
+    countries: Optional[str] = None
+
+class CUAHSISiteCreate(CUAHSISiteBase):
+    """Schema for creating a CUAHSISite"""
+    pass
+
+class CUAHSISiteRead(CUAHSISiteBase):
+    """Schema for reading CUAHSISite from the DB"""
+    id: UUID4
+    service_id: UUID4 
+    catalog_id: UUID4 = None 
+    tags: List[str] = []  # Ensure 'tags' is included
+    variables: List["CUAHSIVariableRead"] = []
+    class Config:
+        from_attributes = True
+
+
+
 # ------------------ CUAHSIService ------------------ #
 class CUAHSIServiceBase(BaseModel):
     title: str
@@ -20,7 +48,7 @@ class CUAHSIServiceCreate(CUAHSIServiceBase):
 class CUAHSIServiceRead(CUAHSIServiceBase):
     """Schema for reading CUAHSIService from the DB"""
     id: UUID4
-    
+    sites: List[CUAHSISiteRead] = []
     class Config:
         from_attributes = True
 
@@ -45,27 +73,6 @@ class HISCatalogRead(HISCatalogBase):
         from_attributes = True
 
 
-# ------------------ CUAHSISite ------------------ #
-class CUAHSISiteBase(BaseModel):
-    title: str
-    code: str
-    description: Optional[str] = None
-    latitude: float
-    longitude: float
-    elevation: Optional[float] = None
-    countries: Optional[str] = None
-
-class CUAHSISiteCreate(CUAHSISiteBase):
-    """Schema for creating a CUAHSISite"""
-    pass
-
-class CUAHSISiteRead(CUAHSISiteBase):
-    """Schema for reading CUAHSISite from the DB"""
-    id: UUID4
-
-    class Config:
-        from_attributes = True
-
 
 # ------------------ CUAHSIVariable ------------------ #
 class CUAHSIVariableBase(BaseModel):
@@ -89,3 +96,7 @@ class CUAHSIVariableRead(CUAHSIVariableBase):
 
     class Config:
         from_attributes = True
+
+
+# To handle forward references if CUAHSISiteRead refers to CUAHSIVariableRead
+CUAHSISiteRead.model_rebuild()        

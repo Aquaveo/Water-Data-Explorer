@@ -67,26 +67,49 @@ const useCatalogStore = create((set, get) => ({
     }),
 
   // 2. View-level actions
-  addSites: (catalogID, viewID, newSites) =>
+  addSites: (newSites) =>
     set((state) => {
-      const updatedCatalogs = state.catalogs.map((cat) => {
-        if (cat.id === catalogID) {
-          const updatedViews = cat.views.map((v) => {
-            if (v.id === viewID) {
-              return {
-                ...v,
-                sites: [...v.sites, ...newSites],
-              };
-            }
-            return v;
-          });
-          return {
-            ...cat,
-            views: updatedViews,
-          };
+      // Create a map of catalogs for quick access
+      const catalogMap = new Map(state.catalogs.map(cat => [cat.id, cat]));
+      
+      // Group newSites by catalog_id and view_id
+      const groupedSites = {};
+      newSites.forEach(site => {
+        const { catalog_id, service_id } = site;
+        if (!catalogMap.has(catalog_id)) {
+          console.warn(`Catalog ID ${catalog_id} does not exist for site ID ${site.id}`);
+          return; // Skip sites with invalid catalog_id
         }
-        return cat;
+        if (!groupedSites[catalog_id]) {
+          groupedSites[catalog_id] = {};
+        }
+        if (!groupedSites[catalog_id][service_id]) {
+          groupedSites[catalog_id][service_id] = [];
+        }
+        groupedSites[catalog_id][service_id].push(site);
       });
+      
+      // Update catalogs
+      const updatedCatalogs = state.catalogs.map(cat => {
+        const catalogSites = groupedSites[cat.id];
+        if (!catalogSites) return cat; // No new sites for this catalog
+        
+        const updatedViews = cat.views.map(view => {
+          const viewSites = catalogSites[view.id];
+          if (!viewSites) return view; // No new sites for this view
+          
+          return {
+            ...view,
+            sites: [...view.sites, ...viewSites],
+          };
+        });
+        
+        return {
+          ...cat,
+          views: updatedViews,
+        };
+      });
+      
       return { catalogs: updatedCatalogs };
     }),
 
@@ -169,17 +192,12 @@ const useCatalogStore = create((set, get) => ({
     }, []);
   },
   getAllSites: () => {
-    const catalogs = get().catalogs;
-    return catalogs.reduce((acc, catalog) => {
-      if (catalog.views && Array.isArray(catalog.views)) {
-        catalog.views.forEach((view) => {
-          if (view.sites && Array.isArray(view.sites)) {
-            acc = acc.concat(view.sites);
-          }
-        });
-      }
-      return acc;
-    }, []);
+    const catalogs = get().catalogs || [];
+    return catalogs.flatMap(catalog => 
+      (catalog.views && Array.isArray(catalog.views)) 
+        ? catalog.views.flatMap(view => view.sites || []) 
+        : []
+    );
   },
 }));
 

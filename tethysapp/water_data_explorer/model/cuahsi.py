@@ -72,10 +72,8 @@ class CUAHSISite(CuahsiBase):
     elevation = Column(DOUBLE_PRECISION)
     countries = Column(Text)
     tags = Column(ARRAY(String), default=[])
-
     service_id = Column(UUID(as_uuid=True), ForeignKey('cuahsi_service.id'))
     service = relationship("CUAHSIService", back_populates="sites")
-
     variables = relationship(
         "CUAHSIVariable",
         back_populates="site",

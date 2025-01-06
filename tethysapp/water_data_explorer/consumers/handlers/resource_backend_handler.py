@@ -1,3 +1,4 @@
+# resource_backend_handler.py
 import logging
 from collections import namedtuple
 from aiopath import AsyncPath
@@ -111,15 +112,6 @@ class ResourceBackendHandler:
         views = catalog.views
         return views
     
-    async def get_sites(self, event, action, data, session) -> list[CUAHSISite]:
-        """Get a single CUAHSIService record by ID."""
-
-        result = await session.execute(
-            select(CUAHSISite).options(selectinload(CUAHSISite.variables))
-        )
-        sites = result.scalars().all()  # Fetch all results as a list
-        return sites
-
     async def get_site(self, event, action, data, session) -> CUAHSISite:
         site_id = data.get('id')
 
@@ -131,21 +123,39 @@ class ResourceBackendHandler:
             raise ValueError(f'Could not find HIS Catalog with ID "{site_id}"')
         return site
 
+    async def get_sites(self, session) -> List[CUAHSISite]:
+        """Get all CUAHSISite records with related variables, service, and catalog loaded."""
+        
+        result = await session.execute(
+            select(CUAHSISite).options(
+                selectinload(CUAHSISite.variables),
+                selectinload(CUAHSISite.service).selectinload(CUAHSIService.catalog)
+            )
+        )
+        sites = result.scalars().all()  # Fetch all results as a list
+        return sites
+    
+
+
     async def get_sites_generator(self, session: AsyncSession) -> AsyncGenerator[dict, None]:
         """
         Async generator that yields each Site as a Pydantic dict,
-        including its related Variables.
+        including its related Variables and associated service and catalog IDs.
         """
-        sites = await self.get_sites(session)  # Await the list of catalogs
+        sites = await self.get_sites(session)  # Await the list of sites
         
         for site in sites:  # Use regular for loop
 
-            # Convert Sites to Pydantic
+            # Convert Site to Pydantic
             site_read = CUAHSISiteRead.model_validate(site)
             
-            # Convert related CUAHSIService to Pydantic
+            # Convert related Variables to Pydantic
             variables_reads = [CUAHSIVariableRead.model_validate(variable) for variable in site.variables]
             site_read.variables = variables_reads
+
+            # Include service_id and catalog_id
+            site_read.service_id = site.service_id
+            site_read.catalog_id = site.service.catalog_id if site.service else None
             
             # Yield as dict
             yield site_read.model_dump()

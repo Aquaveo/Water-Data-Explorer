@@ -66,7 +66,7 @@ class BackendConsumer(AsyncConsumer):
                 message_action = data.get("action", {})
                 message_type = message_action.get("type")
                 message_data = data.get("payload")
-
+                
                 if not message_action or not message_type or not message_data:
                     msg = f"Malformed message received: {event.get('text', 'no text in message')}"
                     log.error(msg)

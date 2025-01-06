@@ -25,14 +25,15 @@ const WDEView = () => {
     }
   }
    const addSitesData = (data) => {
-    addSites({catalogID: data.catalog_id, viewID: data.view_id, sites: data.sites });
+    console.log(data);
+    addSites(data);
   }
 
   useEffect(() => {
     backend.on(backend.actions.GET_LIST_CATALOGS, addCatalogsAndViewsData);
     backend.do(backend.actions.GET_LIST_CATALOGS,{type: 'his'});
     backend.on(backend.actions.GET_SITES, addSitesData);
-    backend.do(backend.actions.GET_SITES);
+    backend.do(backend.actions.GET_SITES,{type: 'all'});
 
     return () => {
       backend.off(backend.actions.GET_LIST_CATALOGS);

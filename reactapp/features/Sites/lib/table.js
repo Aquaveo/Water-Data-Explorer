@@ -1,4 +1,4 @@
-// ViewTableColumns.js
+// table.js
 import { TbMapPin  } from 'react-icons/tb';
 
 export const SitesTableStyles = {
@@ -48,12 +48,12 @@ export const SitesTableColumns = [
 	  maxWidth: '100px',
     style: { color: 'rgba(0,0,0,.54)' },
   },
-  {
-    name: 'tags',
-    selector: row => row.tags,
-    sortable: true,
-    width: '90px',
-	  maxWidth: '100px',
-    style: { color: 'rgba(0,0,0,.54)' },
-  },
+  // {
+  //   name: 'tags',
+  //   selector: row => row.tags,
+  //   sortable: true,
+  //   width: '90px',
+	//   maxWidth: '100px',
+  //   style: { color: 'rgba(0,0,0,.54)' },
+  // },
 ];

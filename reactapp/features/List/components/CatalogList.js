@@ -9,9 +9,9 @@ import useCatalogStore from 'features/Catalogs/hooks/useCatalogStore';
 
 function CatalogsList() {
   const catalogs = useCatalogStore(useShallow((state) => state.catalogs));
-  
   const views = useCatalogStore(useShallow((state) => state.getAllViews()));
   const sites = useCatalogStore(useShallow((state) => state.getAllSites()));
+  console.log(views);
   return (
     <Accordion>
       <Accordion.Item eventKey="0">
@@ -23,7 +23,7 @@ function CatalogsList() {
       <Accordion.Item eventKey="1">
         <Accordion.Header>Services</Accordion.Header>
         <Accordion.Body>
-        <ViewTable data={views}/>
+          <ViewTable data={views}/>
         </Accordion.Body>
       </Accordion.Item>
       <Accordion.Item eventKey="2">

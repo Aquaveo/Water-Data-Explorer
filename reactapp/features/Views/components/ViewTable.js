@@ -1,4 +1,4 @@
-// TableComponent2.js
+// ViewTable.js
 import React from 'react';
 import GeneralTable from 'components/table/GeneralTable';
 import { ViewTableColumns, ViewTableStyles } from 'features/Views/lib/table';
