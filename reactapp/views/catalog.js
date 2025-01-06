@@ -25,7 +25,6 @@ const WDEView = () => {
     }
   }
    const addSitesData = (data) => {
-    console.log(data);
     addSites(data);
   }
 
