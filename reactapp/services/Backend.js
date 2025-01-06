@@ -72,7 +72,7 @@ export default class Backend {
     /***************************************************************************/
     this.webSocket.addEventListener("message", (event) => {
       const data = JSON.parse(event.data);
-      console.log("Received message: ", data);
+      // console.log("Received message: ", data);
       if (!("action" in data) || !("type" in data.action) || !("payload" in data)) {
         console.error(
           `Error: malformed message received: ${JSON.stringify(data)}`

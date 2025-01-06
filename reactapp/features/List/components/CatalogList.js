@@ -11,7 +11,6 @@ function CatalogsList() {
   const catalogs = useCatalogStore(useShallow((state) => state.catalogs));
   const views = useCatalogStore(useShallow((state) => state.getAllViews()));
   const sites = useCatalogStore(useShallow((state) => state.getAllSites()));
-  console.log(views);
   return (
     <Accordion>
       <Accordion.Item eventKey="0">
