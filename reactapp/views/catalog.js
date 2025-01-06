@@ -15,25 +15,28 @@ const SidePanel = lazy(() => import('features/List/components/SidePanel.js'));
 const WDEView = () => {
   const { backend } = useContext(AppContext);
   const addCatalogs = useCatalogStore(useShallow((state) => state.addCatalogs));
-  const addView = useCatalogStore(useShallow((state) => state.addView));
   const addViews = useCatalogStore(useShallow((state) => state.addViews));
+  const addSites = useCatalogStore(useShallow((state) => state.addSites));
   
-  const addData = (catalogs) => {
-    
+  const addCatalogsAndViewsData = (catalogs) => {
     addCatalogs(catalogs);
     for (const catalog of catalogs){
       addViews(catalog.views);
     }
   }
+   const addSitesData = (data) => {
+    addSites({catalogID: data.catalog_id, viewID: data.view_id, sites: data.sites });
+  }
 
   useEffect(() => {
-    backend.on(backend.actions.GET_LIST_CATALOGS, addData);
-    backend.on(backend.actions.SEND_GET_VIEW, addView);
+    backend.on(backend.actions.GET_LIST_CATALOGS, addCatalogsAndViewsData);
     backend.do(backend.actions.GET_LIST_CATALOGS,{type: 'his'});
+    backend.on(backend.actions.GET_SITES, addSitesData);
+    backend.do(backend.actions.GET_SITES);
+
     return () => {
       backend.off(backend.actions.GET_LIST_CATALOGS);
-      backend.off(backend.actions.SEND_GET_VIEW);
-
+      backend.off(backend.actions.GET_SITES);
     };
   }, []);
 
