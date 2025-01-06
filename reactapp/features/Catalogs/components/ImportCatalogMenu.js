@@ -71,8 +71,9 @@ const ImportCatalogMenu = () => {
     console.log('Importing sites for view:', view);
     backend.do(backend.actions.IMPORT_SITES, {view_id:view.id, url: view.url, catalog_id:view.catalog_id, sitecount: view.sitecount  } );
   };
-  const saveSites = (sites) => {
+  const saveSites = (data) => {
     console.log('Saving sites:', sites);
+    addSites({catalogID: data.catalog_id, viewID: data.view_id, sites: data.sites });
   }; 
 
   useEffect(() => {

@@ -168,7 +168,19 @@ const useCatalogStore = create((set, get) => ({
       return acc;
     }, []);
   },
-
+  getAllSites: () => {
+    const catalogs = get().catalogs;
+    return catalogs.reduce((acc, catalog) => {
+      if (catalog.views && Array.isArray(catalog.views)) {
+        catalog.views.forEach((view) => {
+          if (view.sites && Array.isArray(view.sites)) {
+            acc = acc.concat(view.sites);
+          }
+        });
+      }
+      return acc;
+    }, []);
+  },
 }));
 
 export default useCatalogStore;
