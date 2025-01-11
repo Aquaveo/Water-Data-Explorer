@@ -4,6 +4,7 @@ import GeneralTable from 'components/table/GeneralTable';
 import { SitesTableColumns, SitesTableStyles } from 'features/Sites/lib/table';
 import FilterComponent from 'components/table/FilterComponent';
 
+
 const SiteTable = ({ 
   data, 
   columns = SitesTableColumns, 
@@ -37,20 +38,20 @@ const SiteTable = ({
 
     return(
       <GeneralTable
-      title="Sites"
-      columns={columns}
-      data={filteredItems}
-      customStyles={styles}
-      highlightOnHover
-      pointerOnHover
-      pagination
-      selectableRows
-      selectableRowsHighlight
-      onSelectedRowsChange={onSelectedRowsChange} // Pass the handler to GeneralTable
-      subHeader
-      subHeaderComponent={subHeaderComponent}
-      paginationResetDefaultPage={resetPaginationToggle}
-    />
+        title="Sites"
+        columns={columns}
+        data={filteredItems}
+        customStyles={styles}
+        highlightOnHover
+        pointerOnHover
+        pagination
+        selectableRows
+        selectableRowsHighlight
+        onSelectedRowsChange={onSelectedRowsChange} // Pass the handler to GeneralTable
+        subHeader
+        subHeaderComponent={subHeaderComponent}
+        paginationResetDefaultPage={resetPaginationToggle}
+      />
     );
 
 }

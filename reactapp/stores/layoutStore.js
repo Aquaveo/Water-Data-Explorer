@@ -2,14 +2,14 @@ import { create } from 'zustand';
 
 const useLayoutStore = create((set) => ({
   isSidePanelVisible: false,
-  currentOffCanvasView: 'catalogList', // default view
+  currentOffCanvasView: 'siteList', // default view
 
   toggleSidePanelVisibility: () => {
     set((state) => ({
       isSidePanelVisible: !state.isSidePanelVisible 
   }))},
 
-  showCatalogList: () => set({ currentOffCanvasView: 'catalogList' }),
+  showSiteList: () => set({ currentOffCanvasView: 'siteList' }),
 
   showImportCatalogMenu: () => set({
     currentOffCanvasView: 'importCatalogMenu',

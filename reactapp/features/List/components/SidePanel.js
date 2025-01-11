@@ -2,7 +2,7 @@ import React,{useContext} from 'react';
 import styled from 'styled-components';
 import { Offcanvas } from 'react-bootstrap';
 import useLayoutStore from 'stores/layoutStore';
-import CatalogsList from './CatalogList';
+import SitesList from './SitesList';
 import ImportCatalogMenu from 'features/Catalogs/components/ImportCatalogMenu';
 import { BsArrowLeft } from 'react-icons/bs';
 
@@ -15,7 +15,6 @@ export const StyledOffcanvas = styled(Offcanvas)`
   }
 `;
 
-
 const SidePanel = () => {
 
   const { 
@@ -26,8 +25,8 @@ const SidePanel = () => {
 
 
   let content;
-  if (currentOffCanvasView === 'catalogList') {
-    content = <CatalogsList />;
+  if (currentOffCanvasView === 'siteList') {
+    content = <SitesList />;
   } else if (currentOffCanvasView === 'importCatalogMenu') {
     content = <ImportCatalogMenu />;
   }
@@ -40,16 +39,21 @@ const SidePanel = () => {
       scroll={true}
       backdrop={false}
     >
-      <Offcanvas.Header>
-        <BsArrowLeft 
-          size={24} 
-          style={{ cursor: 'pointer', marginRight: '10px' }} 
-          onClick={toggleSidePanelVisibility} 
-        />
-        <Offcanvas.Title>
-          {currentOffCanvasView === 'catalogList' ? 'Data' : 'Import Catalog'}
-        </Offcanvas.Title>
-      </Offcanvas.Header>
+          {currentOffCanvasView != 'siteList' ?
+           <Offcanvas.Header>
+              <Offcanvas.Title>
+                <BsArrowLeft 
+                  size={24} 
+                  style={{ cursor: 'pointer', marginRight: '10px' }} 
+                  onClick={toggleSidePanelVisibility} 
+                />
+                  Import Catalog
+              </Offcanvas.Title>
+          </Offcanvas.Header>
+          
+          :<></> }
+
+
       <Offcanvas.Body>
         {content}
       </Offcanvas.Body>

@@ -15,13 +15,10 @@ import AddMenuButton from './MenuButton';
 
 const MapComponent = () => {
   const theme = useTheme();
-  const { toggleSidePanelVisibility, showCatalogList, isSidePanelVisible } = useLayoutStore();
+  const { toggleSidePanelVisibility, showSiteList, isSidePanelVisible } = useLayoutStore();
 
-  const handleShowCatalogList = () => {
-    // Switch to CatalogList content
-    showCatalogList();
-
-    // Only toggle visibility if the panel is currently hidden
+  const handleShowSiteList = () => {
+    showSiteList();
     if (!isSidePanelVisible) {
       toggleSidePanelVisibility();
     }
@@ -37,7 +34,7 @@ const MapComponent = () => {
         <ScaleLine />
       </Map>
       <AddMenuButton />
-      <ControlButton onClick={handleShowCatalogList}>
+      <ControlButton onClick={handleShowSiteList}>
         <FaDatabase size={20} />
       </ControlButton>
     </StyledMapContainer>
