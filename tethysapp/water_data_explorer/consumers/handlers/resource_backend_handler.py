@@ -1,30 +1,37 @@
-# resource_backend_handler.py
+from __future__ import annotations
+
 import logging
-from collections import namedtuple
-from aiopath import AsyncPath
-from asgiref.sync import sync_to_async
-from channels.db import database_sync_to_async
+from typing import (
+    AsyncGenerator,
+    List,
+    Optional,
+    Union,
+    Dict,
+    Any
+)
+
 from pydantic import ValidationError
-from ..backend_actions import BackendActions
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy import select
-from typing import AsyncGenerator,List
 
-from tethysapp.water_data_explorer.model.cuahsi import HISCatalog,CUAHSIService,CUAHSISite
-from tethysapp.water_data_explorer.model.schemas import HISCatalogRead,CUAHSIServiceRead, CUAHSISiteRead, CUAHSIVariableRead
+from ..backend_actions import BackendActions
+from tethysapp.water_data_explorer.model import (
+    CUAHSISite
+    )
 
+from tethysapp.water_data_explorer.schemas import (
+    CUAHSISiteRead,
+)
 
-from tethysapp.water_data_explorer.app import App
 
 log = logging.getLogger(__name__)
 
-
 class ResourceBackendHandler:
-    SEND_DATA_ACTION: BackendActions = None
+    SEND_DATA_ACTION: Optional[BackendActions] = None
     PROP_DNE = '###prop-doesnt-exist###'  # For getattr checks where None value is valid
 
-    def __init__(self, backend_consumer):
+    def __init__(self, backend_consumer: Any) -> None:
         self.backend_consumer = backend_consumer
         self.sessionmaker = backend_consumer.sessionmaker
 
@@ -32,15 +39,23 @@ class ResourceBackendHandler:
     def receiving_actions(self) -> dict[BackendActions, callable]:
         raise NotImplementedError("The receiving_actions property must be implemented by the subclass.")
 
+    @staticmethod
     def action_handler(method):
-        """Decorator method to automatically handle sqlalchemy async session and errors."""
-        async def _action_handler(self, event, action, data):
+        """Decorator to automatically handle async SQLAlchemy session and errors."""
+        async def _action_handler(
+            self: ResourceBackendHandler,
+            event: dict[str, Any],
+            action: dict[str, Any],
+            data: dict[str, Any]
+        ) -> None:
             async with self.sessionmaker() as session:
                 try:
                     await method(self, event, action, data, session)
                 except ValidationError as e:
-                    msg = (f'Validation error occurred while handling {action.get("type")} '
-                        f'action "{action.get("id")}": {e}')
+                    msg = (
+                        f'Validation error occurred while handling {action.get("type")} '
+                        f'action "{action.get("id")}": {e}'
+                    )
                     await self.send_error(msg, action, data, {'errors': e.errors()})
                     log.debug(msg)
                 except ValueError as e:
@@ -48,174 +63,127 @@ class ResourceBackendHandler:
                     await self.send_error(msg, action, data, {})
                     log.debug(msg)
                 except Exception as e:
-                    msg = (f'An unexpected error occurred while handling action "{action}": {str(e)}')
+                    msg = (
+                        f'An unexpected error occurred while handling action "{action}": {str(e)}'
+                    )
                     await self.send_error(msg, action, data, {})
                     log.exception(msg)
         return _action_handler
 
-    async def get_his_catalogs(self, session: AsyncSession) -> List[HISCatalog]:
+    async def get_site(
+        self,
+        event: dict[str, Any],
+        action: dict[str, Any],
+        data: dict[str, Any],
+        session: AsyncSession
+    ) -> CUAHSISite:
         """
-        Fetch all HISCatalog records with their related services loaded.
+        Retrieve a CUAHSISite by ID.
         """
-        result = await session.execute(
-            select(HISCatalog).options(selectinload(HISCatalog.services))
-        )
-        catalogs = result.scalars().all()  # Fetch all results as a list
-        return catalogs
-
-
-    async def get_catalog_generator(self, session: AsyncSession) -> AsyncGenerator[dict, None]:
-        """
-        Async generator that yields each HISCatalog as a Pydantic dict,
-        including its related services (views).
-        """
-        catalogs = await self.get_his_catalogs(session)  # Await the list of catalogs
-        
-        for catalog in catalogs:  # Use regular for loop
-            # Convert HISCatalog to Pydantic
-            catalog_read = HISCatalogRead.model_validate(catalog)
-            
-            # Convert related CUAHSIService to Pydantic
-            service_reads = [CUAHSIServiceRead.model_validate(service) for service in catalog.services]
-            catalog_read.views = service_reads
-            
-            # Yield as dict
-            yield catalog_read.model_dump()
-
-    async def get_catalog(self,data,session) -> HISCatalog:
-        """Get a single HISCatalog record by ID."""
-        catalog_id = data.get('id')
-
-        def _query(session, catalog_id):
-            return session.query(HISCatalog).get(catalog_id)
-
-        catalog = await session.run_sync(_query, catalog_id=catalog_id)
-        if not catalog:
-            raise ValueError(f'Could not find HIS Catalog with ID "{catalog_id}"')
-        return catalog
-    
-    async def get_view(self,data,session) -> CUAHSIService:
-        """Get a single CUAHSIService record by ID."""
-        view_id = data.get('id')
-
-        def _query(session, view_id):
-            return session.query(CUAHSIService).get(view_id)
-
-        view = await session.run_sync(_query, view_id=view_id)
-        if not view:
-            raise ValueError(f'Could not find HIS Catalog with ID "{view_id}"')
-        return view
-
-    async def get_views_from_catalog(self, event, action, data, session) -> list[CUAHSIService]:
-        """Get all views from a catalog."""
-        catalog = await self.get_catalog(data, session)
-        views = catalog.views
-        return views
-    
-    async def get_site(self, event, action, data, session) -> CUAHSISite:
         site_id = data.get('id')
+        if not site_id:
+            raise ValueError("No 'id' provided to get_site")
 
-        def _query(session, site_id):
-            return session.query(CUAHSISite).get(site_id)
+        def _query(s, site_id):
+            return s.query(CUAHSISite).get(site_id)
 
-        site = await session.run_sync(_query, site_id=site_id)
+        site: Optional[CUAHSISite] = await session.run_sync(_query, site_id=site_id)
         if not site:
-            raise ValueError(f'Could not find HIS Catalog with ID "{site_id}"')
+            raise ValueError(f'Could not find Site with ID "{site_id}"')
         return site
 
-    async def get_sites(self, session) -> List[CUAHSISite]:
-        """Get all CUAHSISite records with related variables, service, and catalog loaded."""
-        
-        result = await session.execute(
-            select(CUAHSISite).options(
-                selectinload(CUAHSISite.variables),
-                selectinload(CUAHSISite.service).selectinload(CUAHSIService.catalog)
+    async def get_sites(self, session: AsyncSession) -> List[CUAHSISite]:
+        """
+        Get all CUAHSISite records with their relationships loaded.
+        Adjust the loading strategy (e.g. variables, service) as needed.
+        """
+        stmt = (
+            select(CUAHSISite)
+            .options(
+                selectinload(CUAHSISite.datastreams)
             )
         )
-        sites = result.scalars().all()  # Fetch all results as a list
+        result = await session.execute(stmt)
+        sites: List[CUAHSISite] = result.scalars().all()
         return sites
-    
 
-
-    async def get_sites_generator(self, session: AsyncSession) -> AsyncGenerator[dict, None]:
+    async def get_sites_generator(self, session: AsyncSession) -> AsyncGenerator[Dict[str, Any], None]:
         """
-        Async generator that yields each Site as a Pydantic dict,
-        including its related Variables and associated service and catalog IDs.
+        Async generator that yields each Site as a Pydantic dict.
         """
-        sites = await self.get_sites(session)  # Await the list of sites
-        
-        for site in sites:  # Use regular for loop
-
-            # Convert Site to Pydantic
+        sites = await self.get_sites(session)
+        for site in sites:
             site_read = CUAHSISiteRead.model_validate(site)
-            
-            # Convert related Variables to Pydantic
-            variables_reads = [CUAHSIVariableRead.model_validate(variable) for variable in site.variables]
-            site_read.variables = variables_reads
-
-            # Include service_id and catalog_id
-            site_read.service_id = site.service_id
-            site_read.catalog_id = site.service.catalog_id if site.service else None
-            
-            # Yield as dict
+            # If you have additional relations, convert them here
+            # e.g. site_read.datastreams = [...]
             yield site_read.model_dump()
 
-    async def send_action(self, action: BackendActions, payload: dict):
-        print('send_action')
-        await self.backend_consumer.send_action(action, payload)
-
-    async def send_data(self, session, resource: HISCatalog | list[HISCatalog] | CUAHSIService | list[CUAHSIService] , from_action: str):
+    async def send_data(
+        self,
+        session: AsyncSession,
+        resource: Union[CUAHSISite, List[CUAHSISite]],
+        from_action: str
+    ) -> None:
+        """
+        Convert one or many CUAHSISite objects to a Pydantic model and send them.
+        """
         if not self.SEND_DATA_ACTION:
             log.error(f'No SEND_DATA_ACTION defined for "{self.__class__.__name__}".')
-            raise NotImplementedError("The send_data_action property must be implemented by the subclass.")
+            raise NotImplementedError("SEND_DATA_ACTION must be defined in the subclass.")
 
-        def _serialize(_, resource):
-            # Add metadata for frontend
-            if from_action:
-                resource.set_attribute('fromAction', str(from_action))
+        if isinstance(resource, list):
+            data_out: List[dict[str, Any]] = []
+            for r in resource:
+                site_read = CUAHSISiteRead.model_validate(r)
+                data_out.append(site_read.model_dump())
+        else:
+            site_read = CUAHSISiteRead.model_validate(resource)
+            data_out = site_read.model_dump()
 
-            # Resource.serialize ends calls lazy loaded properties (e.g. Resource.organizations)
-            return resource.serialize()
+        payload: dict[str, Any] = {
+            "fromAction": from_action,
+            "data": data_out
+        }
+        await self.send_action(self.SEND_DATA_ACTION, payload)
 
-        data_json = await session.run_sync(_serialize, resource=resource)
+    async def send_action(self, action: BackendActions, payload: dict[str, Any]) -> None:
+        """Send an action + payload to the frontend via the consumer."""
+        await self.backend_consumer.send_action(action, payload)
 
-        await self.send_action(self.SEND_DATA_ACTION, data_json)
-
-    async def send_acknowledge(self, msg: str, action: BackendActions, payload: dict, details: dict = None):
-        """Convenience wrapper for consumer send_acknowledge()."""
+    async def send_acknowledge(
+        self,
+        msg: str,
+        action: BackendActions,
+        payload: dict[str, Any],
+        details: Optional[dict[str, Any]] = None
+    ) -> None:
+        """Sends an acknowledgement."""
         await self.backend_consumer.send_acknowledge(msg, action, payload, details)
 
-    async def send_error(self, msg: str, action: dict, payload: dict, details: dict = None):
-        """Convenience wrapper for consumer send_error()."""
+    async def send_error(
+        self,
+        msg: str,
+        action: dict[str, Any],
+        payload: dict[str, Any],
+        details: Optional[dict[str, Any]] = None
+    ) -> None:
+        """Sends an error message."""
         await self.backend_consumer.send_error(msg, action, payload, details)
 
-    async def set_status(self, session, resource, status):
-        """Set the status of a Resource and commit the session.
-        Args:
-            session (Session): SQLAlchemy session.
-            resource (Resource): Resource to set the status for.
-            status (str): Status to set on the resource.
+    async def set_status(
+        self,
+        session: AsyncSession,
+        resource: Any,
+        status: str
+    ) -> None:
+        """
+        Example: Set status on a Tethys `Resource` object if you have that pattern.
+        Otherwise, adapt to your actual data model.
         """
         def _set_status(s, resource, status):
-            resource.set_status(status=status)
+            resource.set_status(status=status)  # If your model has .set_status
             s.commit()
 
         await session.run_sync(_set_status, resource=resource, status=status)
 
 
-
-
-
-    # async def get_his_catalogs(self, session) -> list[HISCatalog]:
-    #     """Get all records from the HISCatalog model."""
-        
-    #     def _query(session):
-    #         return (
-    #             session.query(HISCatalog)
-    #             .options(selectinload(HISCatalog.services))
-    #             .all()
-    #         )
-    #     catalogs = await session.run_sync(_query)
-    #     if not catalogs:
-    #         raise ValueError('No HISCatalog records found.')
-    #     return catalogs

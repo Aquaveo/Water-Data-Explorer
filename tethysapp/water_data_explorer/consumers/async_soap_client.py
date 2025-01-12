@@ -251,7 +251,7 @@ class AsyncSOAPClient:
         }
 
         async with httpx.AsyncClient(verify=True) as client:
-            response = await client.post(url, content=soap_envelope, headers=headers)
+            response = await client.post(url, content=soap_envelope, headers=headers, timeout=None)
             response.raise_for_status()  # Raise an exception if request failed
 
             # Parse the XML response

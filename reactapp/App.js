@@ -4,7 +4,7 @@ import ErrorBoundary from 'features/react-tethys/components/error/ErrorBoundary'
 import Layout from 'features/react-tethys/components/layout/Layout';
 import Loader from 'features/react-tethys/components/loader/Loader';
 
-import WDEView from 'views/catalog.js';
+import WDEView from 'views/wde.js';
 
 import 'App.scss';
 

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Offcanvas } from 'react-bootstrap';
 import useLayoutStore from 'stores/layoutStore';
 import SitesList from './SitesList';
-import ImportCatalogMenu from 'features/Catalogs/components/ImportCatalogMenu';
+import ImportSitesFromCatalogMenu from 'features/Cuahsi/components/ImportSitesFromCatalogMenu';
 import { BsArrowLeft } from 'react-icons/bs';
 
 
@@ -28,7 +28,7 @@ const SidePanel = () => {
   if (currentOffCanvasView === 'siteList') {
     content = <SitesList />;
   } else if (currentOffCanvasView === 'importCatalogMenu') {
-    content = <ImportCatalogMenu />;
+    content = <ImportSitesFromCatalogMenu />;
   }
 
   return (

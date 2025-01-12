@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Dropdown } from 'react-bootstrap';
 import { FaPlus } from "react-icons/fa";
-import { TbBrandDatabricks, TbMapPinPlus, TbSitemap } from "react-icons/tb";
+import { TbBrandDatabricks, TbSitemap } from "react-icons/tb";
 import styled from 'styled-components';
 import useLayoutStore from 'stores/layoutStore';
 
@@ -42,12 +42,12 @@ const AddMenuButton = () => {
             <Dropdown.Toggle as={Dropdown.Item} className="w-100 d-flex align-items-center">
               <IconWithText>
                 <TbSitemap size={20}/>
-                <span>New Catalog</span>
+                <span>Cuahsi</span>
               </IconWithText>
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item as={Button} onClick={showImportCatalogMenu}>Import HIS Central Catalog</Dropdown.Item>
-              <Dropdown.Item as={Button}>Add Custom Catalog</Dropdown.Item>
+              <Dropdown.Item as={Button} onClick={showImportCatalogMenu}>Import from Catalog</Dropdown.Item>
+              <Dropdown.Item as={Button}>Import from Service</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
 
@@ -58,13 +58,9 @@ const AddMenuButton = () => {
             <Dropdown.Toggle as={Dropdown.Item} className="w-100 d-flex align-items-center">
               <IconWithText>
                 <TbBrandDatabricks size={20}/>
-                <span>New Server</span>
+                <span>HydroServer 2</span>
               </IconWithText>
             </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item as={Button}>Add Server to Custom Catalog</Dropdown.Item>
-              <Dropdown.Item as={Button}>Add Custom Server</Dropdown.Item>
-            </Dropdown.Menu>
           </Dropdown>
 
           <Dropdown.Divider />
@@ -73,13 +69,10 @@ const AddMenuButton = () => {
           <Dropdown drop="start" autoClose="outside">
             <Dropdown.Toggle as={Dropdown.Item} className="w-100 d-flex align-items-center">
               <IconWithText>
-                <TbMapPinPlus size={20} />
-                <span>New Site</span>
+                <TbBrandDatabricks size={20} />
+                <span>Wis2Box</span>
               </IconWithText>
             </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item as={Button}>Add Sites</Dropdown.Item>
-            </Dropdown.Menu>
           </Dropdown>
         </Dropdown.Menu>
       </Dropdown>

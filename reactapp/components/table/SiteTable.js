@@ -1,7 +1,7 @@
 // SiteTable.js
 import React from 'react';
 import GeneralTable from 'components/table/GeneralTable';
-import { SitesTableColumns, SitesTableStyles } from 'features/Sites/lib/table';
+import { SitesTableColumns, SitesTableStyles } from 'components/table/constants';
 import FilterComponent from 'components/table/FilterComponent';
 
 

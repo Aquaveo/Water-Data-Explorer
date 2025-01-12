@@ -1,16 +1,15 @@
 // ImportCatalogMenu.js
 import React, { useState, useContext, useEffect } from 'react';
-import { Form, Button, Alert,Spinner } from 'react-bootstrap';
+import { Form, Button, Alert } from 'react-bootstrap';
 import { AppContext } from "features/react-tethys/context/context";
-import ViewTable from 'features/Views/components/ViewTable';
+import ViewTable from 'features/Cuahsi/components/ViewTable';
 import { MdClear } from "react-icons/md";
 import styled from 'styled-components';
 import useTagInput from 'components/tags/useTag';
 import { TagField } from 'components/tags/tagField';
-import useCatalogStore from '../hooks/useCatalogStore';
+import useDataStore from '../../Sites/hooks/useDataStore';
 import LoadingServices from './LoadingServices';
-import { toast } from "react-toastify";
-
+import { useShallow } from 'zustand/react/shallow'
 
 const ClearButton = styled.button`
   border-top-left-radius: 0;
@@ -42,59 +41,44 @@ const FilterWrapper = styled.div`
 `;
 const MAX_TAGS = 5;
 
-const ImportCatalogMenu = () => {
+
+const ImportSitesFromCatalogMenu = () => {
   const { backend } = useContext(AppContext);
-  const [name, setName] = useState('');
   const [endpoint, setEndpoint] = useState('');
   const [services, setServices] = useState([]);
   const [endpointError, setEndpointError] = useState('');
   const { tags, handleAddTag, handleRemoveTag, cleanTags } = useTagInput(MAX_TAGS); // pass the maximum tags
-  const { addCatalog, addSites } = useCatalogStore();
+  const addSites = useDataStore(useShallow((state) => state.addSites));
   const [isServicesLoading, setIsServicesLoading] = useState(false);
-
-  // New state to track selected views
   const [selectedViews, setSelectedViews] = useState([]);
 
-  // Handler for row selection changes
+
+
   const handleSelectedRows = (state) => {
     setSelectedViews(state.selectedRows);
   };
+  
 
-  const importCatalog = (catalog) => {
-    addCatalog(catalog);
-    for (let i = 0; i < catalog.services.length; i++) {
-      backend.do(backend.actions.IMPORT_VIEW, { catalog_id: catalog.id, ...catalog.services[i] });
-    }
+  const handleImportSitesFromCatalog = (data) => {
+    console.log('Imported sites:', data);
+    addSites(data.sites);
+  };
+  
+  const handleGetServices = (data) =>{
+    setIsServicesLoading(false);
+    setServices(data);
   }
 
-  const importSites = (view) => {
-    backend.do(backend.actions.IMPORT_SITES, {view_id:view.id, url: view.url, catalog_id:view.catalog_id, sitecount: view.sitecount  } );
-  };
-  const saveSites = (data) => {
-    console.log('Saving sites:', sites);
-    addSites({catalogID: data.catalog_id, viewID: data.view_id, sites: data.sites });
-  }; 
 
   useEffect(() => {
-    backend.on(backend.actions.GET_LIST_SERVICES, setServices);
-    backend.on(backend.actions.IMPORT_CATALOG, importCatalog);
-    backend.on(backend.actions.IMPORT_VIEW,importSites);
-    backend.on(backend.actions.IMPORT_SITES,saveSites);
+    backend.on(backend.actions.GET_LIST_SERVICES, handleGetServices);
+    backend.on(backend.actions.GET_IMPORTED_CUAHSI_SITES, handleImportSitesFromCatalog);
     // Cleanup on unmount
     return () => {
       backend.off(backend.actions.GET_LIST_SERVICES);
-      backend.off(backend.actions.IMPORT_CATALOG);
-      backend.off(backend.actions.IMPORT_VIEW);
-      backend.off(backend.actions.IMPORT_SITES);
+      backend.off(backend.actions.IMPORT_SITES_FROM_CATALOG);
     };
   }, []);
-
-  useEffect(() => {
-    if (services.length > 0) {
-      setIsServicesLoading(false);
-    }
-  }, [services]);
-
 
   const handleEndpointChange = (e) => {
     setIsServicesLoading(true);
@@ -104,10 +88,9 @@ const ImportCatalogMenu = () => {
   };
 
   const handleImport = () => {
-    console.log('Importing catalog:', { name, endpoint, tags, selectedViews });
+    console.log('Importing Sites from catalog:', {tags, selectedViews });
     if (!endpointError && endpoint.trim()) {
-      // Send only selected views
-      backend.do(backend.actions.IMPORT_CATALOG, { name, endpoint, tags, services: selectedViews });
+      backend.do(backend.actions.IMPORT_SITES_FROM_CATALOG, {tags, services: selectedViews });
     }
   };
 
@@ -144,17 +127,6 @@ const ImportCatalogMenu = () => {
           {endpointError && <Form.Text className="text-danger">{endpointError}</Form.Text>}
         </Form.Group>
 
-        <Form.Group className="mb-3" controlId="catalogName">
-          <Form.Label>Name</Form.Label>
-          <Form.Control 
-            type="text" 
-            placeholder="Enter catalog name" 
-            value={name} 
-            onChange={(e) => setName(e.target.value)} 
-          />
-        </Form.Group>
-
-
         <Form.Group className="mb-3" controlId="catalogDescription">
           <Form.Label>Tags</Form.Label>
             <TagField
@@ -189,12 +161,12 @@ const ImportCatalogMenu = () => {
       <Button 
         variant="primary" 
         onClick={handleImport} 
-        disabled={!endpoint.trim() || !name.trim() || selectedViews.length === 0}
+        disabled={!endpoint.trim() || selectedViews.length === 0}
       >
-        Import
+        Import Sites
       </Button>
     </>
   );
 };
 
-export default ImportCatalogMenu;
+export default ImportSitesFromCatalogMenu;
