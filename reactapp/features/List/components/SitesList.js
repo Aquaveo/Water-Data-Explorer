@@ -1,16 +1,13 @@
 import React, { useEffect,useContext } from 'react';
 import { useShallow } from 'zustand/react/shallow'
-import Accordion from 'react-bootstrap/Accordion';
-import { CatalogTable } from 'features/Cuahsi/components/CatalogTable';
-import ViewTable from 'features/Cuahsi/components/ViewTable';
 import SiteTable from 'components/table/SiteTable';
-import useCatalogStore from 'features/Sites/hooks/useDataStore';
+import useDataStore from 'features/Sites/hooks/useDataStore';
 
 
 function SitesList() {
-  const sites = useCatalogStore(useShallow((state) => state.getAllSites()));
+  const sites = useDataStore(useShallow((state) => state.getAllSites()));
   return (
-    <SiteTable data={sites}/>
+    <SiteTable data={sites}  />
   );
 }
 

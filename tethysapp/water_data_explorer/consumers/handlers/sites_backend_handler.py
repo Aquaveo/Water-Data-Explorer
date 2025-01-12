@@ -35,6 +35,7 @@ class SitesBackendHandler(RBH):
         Fetch all CUAHSISite rows, convert them (and their related variables)
         to Pydantic using a generator, and send them out.
         """
+
         try:
             # get_sites_generator is defined in ResourceBackendHandler
             sites_generator = self.get_sites_generator(session)
@@ -44,6 +45,7 @@ class SitesBackendHandler(RBH):
             
             if not sites_json:
                 raise ValueError("No Sites records found.")
+            
             
             # Send them back with SEND_DATA_ACTION
             await self.send_action(self.SEND_DATA_ACTION, sites_json)

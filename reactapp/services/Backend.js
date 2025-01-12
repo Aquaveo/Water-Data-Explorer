@@ -28,11 +28,6 @@ export default class Backend {
     this.reconnectInterval = 5000; // Time interval to attempt reconnection (5 seconds)
     this.isReconnecting = false;
     this.onConnectCallback = null;
-
-    // // Setup the file upload complete handlers
-    // this.on(this.actions.UPLOAD_FILE_COMPLETE, (data) => {
-    //   this.handle_upload_complete(data);
-    // });
   }
 
   get actions() {
@@ -69,7 +64,7 @@ export default class Backend {
     /***************************************************************************/
     this.webSocket.addEventListener("message", (event) => {
       const data = JSON.parse(event.data);
-      // console.log("Received message: ", data);
+      console.log("Received message: ", data);
       if (!("action" in data) || !("type" in data.action) || !("payload" in data)) {
         console.error(
           `Error: malformed message received: ${JSON.stringify(data)}`

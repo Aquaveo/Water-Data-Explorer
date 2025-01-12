@@ -5,18 +5,22 @@ import { SitesTableColumns, SitesTableStyles } from 'components/table/constants'
 import FilterComponent from 'components/table/FilterComponent';
 
 
+const oncClickSiteRow = (row) => {
+  console.log(row);
+}
+
 const SiteTable = ({ 
   data, 
   columns = SitesTableColumns, 
   styles = SitesTableStyles, 
-  onSelectedRowsChange // Accept the selection handler
+  onSelectedRowsChange = {oncClickSiteRow}
 }) =>{
 
   const [filterText, setFilterText] = React.useState('');
   const [resetPaginationToggle, setResetPaginationToggle] = React.useState(false);
 
   const filteredItems = data.filter(
-    (item) => item.title && item.title.toLowerCase().includes(filterText.toLowerCase())
+    (item) => item.name && item.name.toLowerCase().includes(filterText.toLowerCase())
   );
 
   const subHeaderComponent = React.useMemo(() => {
@@ -47,7 +51,7 @@ const SiteTable = ({
         pagination
         selectableRows
         selectableRowsHighlight
-        onSelectedRowsChange={onSelectedRowsChange} // Pass the handler to GeneralTable
+        onSelectedRowsChange={onSelectedRowsChange}
         subHeader
         subHeaderComponent={subHeaderComponent}
         paginationResetDefaultPage={resetPaginationToggle}
