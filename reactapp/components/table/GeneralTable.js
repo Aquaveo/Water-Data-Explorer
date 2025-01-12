@@ -10,7 +10,7 @@ const GeneralTable = ({
   highlightOnHover = false,
   pointerOnHover = false,
   pagination = false,
-  paginationPerPage=50,
+  paginationPerPage = 50,
   selectableRows = false,
   selectableRowsHighlight = false,
   expandableRows = false,
@@ -20,7 +20,8 @@ const GeneralTable = ({
   subHeader = false,
   subHeaderComponent = null,
   paginationResetDefaultPage = false,
-  onSelectedRowsChange, // Accept the selection handler
+  onSelectedRowsChange, // for checkbox selection events
+  onRowClicked, // <-- new prop for handling row clicks
 }) => (
   <DataTable
     title={title}
@@ -33,7 +34,8 @@ const GeneralTable = ({
     paginationPerPage={paginationPerPage}
     selectableRows={selectableRows}
     selectableRowsHighlight={selectableRowsHighlight}
-    onSelectedRowsChange={onSelectedRowsChange} // Pass the handler to DataTable
+    onSelectedRowsChange={onSelectedRowsChange} // for row selection
+    onRowClicked={onRowClicked} // <-- pass it to DataTable
     expandableRows={expandableRows}
     expandOnRowClicked={expandOnRowClicked}
     expandableRowsHideExpander={expandableRowsHideExpander}
