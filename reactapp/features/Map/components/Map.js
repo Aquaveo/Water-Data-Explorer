@@ -1,35 +1,28 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useCallback, useState } from "react";
 import Map, { Source, Layer, Popup } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
+import maplibregl from "maplibre-gl";
+import styled from "styled-components";
+
 import useTheme from "hooks/useTheme";
 import useLayoutStore from "stores/layoutStore";
-import useDataStore from 'features/Sites/hooks/useDataStore';
+import useDataStore from "features/Sites/hooks/useDataStore";
 import { FaDatabase } from "react-icons/fa";
 
 import { ControlButton, StyledMapContainer } from "./styledComponents";
 import AddMenuButton from "./MenuButton";
-import maplibregl from 'maplibre-gl';
-import Table from 'react-bootstrap/Table';
 
-
-
-const onMapLoad = (event) => {
-  const map = event.target;
-  const hoverLayers = ['unclustered-point', 'clusters'];
-
-  hoverLayers.forEach((layer) => {
-    // Change cursor to pointer on mouse enter
-    map.on('mouseenter', layer, () => {
-      map.getCanvas().style.cursor = 'pointer';
-    });
-
-    // Revert cursor to default on mouse leave
-    map.on('mouseleave', layer, () => {
-      map.getCanvas().style.cursor = '';
-    });
-  });
-};
-
+const Tooltip = styled.div`
+  position: absolute;
+  margin: 8px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  max-width: 300px;
+  font-size: 10px;
+  z-index: 9;
+  pointer-events: none;
+`;
 
 const clusterLayer = {
   id: "clusters",
@@ -56,7 +49,6 @@ const clusterLayer = {
       25,
     ],
   },
-
 };
 
 const clusterCountLayer = {
@@ -68,10 +60,9 @@ const clusterCountLayer = {
     "text-field": "{point_count_abbreviated}",
     "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
     "text-size": 12,
-    
   },
   paint: {
-    "text-color": "white", // Primary color for text
+    "text-color": "white",
   },
 };
 
@@ -81,17 +72,39 @@ const unclusteredPointLayer = {
   source: "sites",
   filter: ["!", ["has", "point_count"]],
   paint: {
-    "circle-color": "#ACE894", // Success color for unclustered points
+    "circle-color": "#ACE894",
     "circle-radius": 8,
     "circle-stroke-width": 2,
-    "circle-stroke-color": "white", // Primary color for stroke
+    "circle-stroke-color": "white",
   },
 };
 
+const onMapLoad = (event) => {
+  const map = event.target;
+
+  // Handle cursor change for only `unclustered-point` layer
+  map.on("mouseenter", "unclustered-point", () => {
+    map.getCanvas().style.cursor = "pointer";
+  });
+
+  map.on("mouseleave", "unclustered-point", () => {
+    map.getCanvas().style.cursor = "";
+  });
+
+  map.on("mouseenter", "clusters", () => {
+    map.getCanvas().style.cursor = "pointer";
+  });
+
+  map.on("mouseleave", "clusters", () => {
+    map.getCanvas().style.cursor = "";
+  });
+
+};
 
 const MapComponent = () => {
   const theme = useTheme();
-  const { toggleSidePanelVisibility, showSiteList, isSidePanelVisible } = useLayoutStore();
+  const { toggleSidePanelVisibility, showSiteList, isSidePanelVisible } =
+    useLayoutStore();
   const sites = useDataStore((state) => state.getAllSites());
 
   const [popupInfo, setPopupInfo] = useState(null);
@@ -99,18 +112,34 @@ const MapComponent = () => {
 
   const geojsonData = {
     type: "FeatureCollection",
-    crs: { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
-    features: sites.map((site) => ({
-      type: "Feature",
-      geometry: {
-        type: "Point",
-        coordinates: [site.longitude, site.latitude],
-      },
-      properties: site,
-    })),
+    features: sites
+      .filter((site) => site.longitude !== null && site.latitude !== null)
+      .map((site) => ({
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [site.longitude, site.latitude],
+        },
+        properties: site,
+      })),
   };
 
+  const onHover = useCallback((event) => {
+    const { features } = event;
+    const hoveredFeature =
+      features &&
+      features.find((feature) => feature.layer.id === "unclustered-point");
 
+    if (hoveredFeature) {
+      setPopupInfo({
+        feature: hoveredFeature,
+        longitude: hoveredFeature.geometry.coordinates[0],
+        latitude: hoveredFeature.geometry.coordinates[1],
+      });
+    } else {
+      setPopupInfo(null);
+    }
+  }, []);
 
   const handleShowSiteList = () => {
     showSiteList();
@@ -118,7 +147,6 @@ const MapComponent = () => {
       toggleSidePanelVisibility();
     }
   };
-
 
   const handleMapClick = (event) => {
     const map = event.target;
@@ -134,9 +162,10 @@ const MapComponent = () => {
         const layerId = feature.layer.id;
         if (layerId === 'unclustered-point') {
           const { properties } = feature;
-          setPopupInfo(properties);
+          // setPopupInfo(properties);
           return;
-        } else if (layerId === 'clusters') {
+        } 
+        else if (layerId === 'clusters') {
           setPopupInfo(null);
           console.log("hey")
           const clusterId = feature.properties.cluster_id;
@@ -148,7 +177,7 @@ const MapComponent = () => {
             mapRef.current.easeTo({
               center: feature.geometry.coordinates,
               zoom,
-              duration: 500
+              duration: 1000
             });
           });
           
@@ -168,12 +197,13 @@ const MapComponent = () => {
           zoom: 4,
         }}
         mapStyle="https://api.maptiler.com/maps/openstreetmap/style.json?key=wiM3UexBscV7exuZmApI"
-        interactiveLayerIds={["clusters", "unclustered-point"]}
+        interactiveLayerIds={["unclustered-point"]}
         mapLib={maplibregl}
-        onClick={handleMapClick}
+        onMouseMove={onHover}
         ref={mapRef}
         style={{ width: "100%", height: "100%" }}
         onLoad={onMapLoad}
+        onClick={handleMapClick}
       >
         <Source
           id="sites"
@@ -190,26 +220,18 @@ const MapComponent = () => {
 
         {popupInfo && (
           <Popup
-          longitude={popupInfo.longitude}
-          latitude={popupInfo.latitude}
-          anchor="top"
-          maxWidth="500px"
-          onClose={() => setPopupInfo(null)}
-        >
-          <div>
-            <p>{popupInfo.name}</p>
-            <Table striped bordered hover variant="dark">
-              <tbody>
-                {Object.entries(popupInfo).map(([key, value]) => (
-                  <tr key={key}>
-                    <td><strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong></td>
-                    <td>{typeof value === 'string' && value.startsWith('http') ? <a href={value} target="_blank" rel="noopener noreferrer">{value}</a> : value}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
-        </Popup>
+            longitude={popupInfo.longitude}
+            latitude={popupInfo.latitude}
+            anchor="top"
+            
+            onClose={() => setPopupInfo(null)}
+          >
+            <Tooltip>
+              <div>Site: {popupInfo.feature.properties.name}</div>
+              <div>ID: {popupInfo.feature.properties.id}</div>
+              <div>Type: {popupInfo.feature.properties.type}</div>
+            </Tooltip>
+          </Popup>
         )}
       </Map>
       <AddMenuButton />
