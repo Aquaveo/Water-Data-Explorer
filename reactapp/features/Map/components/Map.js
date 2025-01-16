@@ -2,6 +2,9 @@ import React, { useRef, useCallback, useState } from "react";
 import Map, { Source, Layer } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import maplibregl from "maplibre-gl";
+import { point as turfPoint } from "@turf/helpers";
+import buffer from "@turf/buffer";
+import bbox from "@turf/bbox";
 
 import useTheme from "hooks/useTheme";
 import useLayoutStore from "stores/layoutStore";
@@ -12,15 +15,24 @@ import { ControlButton, StyledMapContainer } from "./styledComponents";
 import AddMenuButton from "./MenuButton";
 
 import { clusterLayer, clusterCountLayer, unclusteredPointLayer, onMapLoad } from "../lib/layers";
-import {Tooltip} from "../lib/tooltip";
+import { Tooltip } from "../lib/tooltip";
+
+const bufferLayer = {
+  id: "buffer-layer",
+  type: "fill",
+  paint: {
+    "fill-color": "#1e90ff",
+    "fill-opacity": 0.3,
+  },
+};
 
 const MapComponent = () => {
   const theme = useTheme();
-  const { toggleSidePanelVisibility, showSiteList, isSidePanelVisible } =
-    useLayoutStore();
+  const { toggleSidePanelVisibility, showSiteList, isSidePanelVisible } = useLayoutStore();
   const sites = useDataStore((state) => state.getAllSites());
 
   const [popupInfo, setPopupInfo] = useState(null);
+  const [bufferData, setBufferData] = useState(null); // State for buffer GeoJSON
   const mapRef = useRef(null);
 
   const geojsonData = {
@@ -37,11 +49,11 @@ const MapComponent = () => {
       })),
   };
 
+
   const onHover = useCallback((event) => {
     const { features } = event;
     const hoveredFeature =
-      features &&
-      features.find((feature) => feature.layer.id === "unclustered-point");
+      features && features.find((feature) => feature.layer.id === "unclustered-point");
 
     if (hoveredFeature) {
       setPopupInfo({
@@ -64,42 +76,51 @@ const MapComponent = () => {
   };
 
   const handleMapClick = (event) => {
-    const map = event.target;
-    console.log(event);
-    // Prioritize clicking on 'unclustered-point' and 'clusters' layers first
+    const map = mapRef.current.getMap(); // Get the raw Mapbox GL map instance
     const features = map.queryRenderedFeatures(event.point, {
-      layers: ['unclustered-point', 'clusters'],
+      layers: ["unclustered-point", "clusters"],
     });
-
+  
     if (features.length > 0) {
-      // Loop through all features at the click point
       for (const feature of features) {
         const layerId = feature.layer.id;
-        if (layerId === 'unclustered-point') {
-          const { properties } = feature;
+        if (layerId === "unclustered-point") {
+          const { geometry, properties } = feature;  
+          const center = turfPoint(geometry.coordinates);
+          const radius = 0.5; // Radius in kilometers
+          const options = { units: "kilometers" }; // Specify units for the buffer
+          const circle = buffer(center, radius, options);
+  
+          // Update buffer state
+          setBufferData(circle);
+  
+          // Zoom in to the clicked site
+          const bounds = bbox(circle);
+          map.fitBounds(bounds, {
+            padding: 20, // Add padding to the edges of the map
+            duration: 1000, // Smooth transition duration in milliseconds
+          });
+          // Optionally log the site or perform other actions
+          console.log("Clicked site:", properties);
           return;
-        } 
-        else if (layerId === 'clusters') {
-          setPopupInfo(null);
+        } else if (layerId === "clusters") {
           const clusterId = feature.properties.cluster_id;
-          map.getSource('sites').getClusterExpansionZoom(clusterId, (err, zoom) => {
+          map.getSource("sites").getClusterExpansionZoom(clusterId, (err, zoom) => {
             if (err) {
               return;
             }
-      
-            mapRef.current.easeTo({
+  
+            map.easeTo({
               center: feature.geometry.coordinates,
               zoom,
-              duration: 1000
+              duration: 1000,
             });
           });
-          
           return;
         }
       }
     }
   };
-
 
   return (
     <StyledMapContainer theme={theme}>
@@ -131,13 +152,18 @@ const MapComponent = () => {
           <Layer {...unclusteredPointLayer} />
         </Source>
 
-        {popupInfo && (
+        {bufferData && (
+          <Source id="buffer" type="geojson" data={bufferData}>
+            <Layer {...bufferLayer} />
+          </Source>
+        )}
 
-            <Tooltip className="hola" left={`${popupInfo.x}px`} top={`${popupInfo.y}px`}>
-              <div>Site: {popupInfo.feature.properties.name}</div>
-              <div>ID: {popupInfo.feature.properties.id}</div>
-              <div>Type: {popupInfo.feature.properties.type}</div>
-            </Tooltip>
+        {popupInfo && (
+          <Tooltip left={`${popupInfo.x}px`} top={`${popupInfo.y}px`}>
+            <div>Site: {popupInfo.feature.properties.name}</div>
+            <div>ID: {popupInfo.feature.properties.id}</div>
+            <div>Type: {popupInfo.feature.properties.type}</div>
+          </Tooltip>
         )}
       </Map>
       <AddMenuButton />
