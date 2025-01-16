@@ -50,7 +50,7 @@ const SiteTable = ({
 
   return (
     <GeneralTable
-      title="Sites"
+      title=""
       columns={columns}
       data={filteredItems}
       customStyles={styles}

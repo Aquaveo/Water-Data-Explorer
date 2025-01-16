@@ -9,7 +9,7 @@ import { BsArrowLeft } from 'react-icons/bs';
 
 export const StyledOffcanvas = styled(Offcanvas)`
   margin-top: var(--ts-header-height);
-  width: 600px !important; 
+  width: 700px !important; 
   .offcanvas-body {
     max-width: 100%;
   }
@@ -39,7 +39,6 @@ const SidePanel = () => {
       scroll={true}
       backdrop={false}
     >
-          {currentOffCanvasView != 'siteList' ?
            <Offcanvas.Header>
               <Offcanvas.Title>
                 <BsArrowLeft 
@@ -47,11 +46,22 @@ const SidePanel = () => {
                   style={{ cursor: 'pointer', marginRight: '10px' }} 
                   onClick={toggleSidePanelVisibility} 
                 />
-                  Import Catalog
+                  
+                  {currentOffCanvasView != 'siteList' ?
+                    <div>
+                      <div style={{display: 'inline-block'}}>Import Sites</div>
+                      <div style={{display: 'inline-block', marginLeft: '10px', fontSize: '12px', color: 'gray'}}>from Catalog</div>
+                    </div>
+                    
+                  :
+                    <div>
+                      <div style={{display: 'inline-block'}}>Sites</div>
+                    </div>
+                  }
               </Offcanvas.Title>
           </Offcanvas.Header>
           
-          :<></> }
+          
 
 
       <Offcanvas.Body>
