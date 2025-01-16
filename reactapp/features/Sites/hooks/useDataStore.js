@@ -3,11 +3,13 @@ import { create } from 'zustand';
 
 const useDataStore = create((set, get) => ({
   sites: [],
+  filteredSites: [],
   datastreams: [],
 
   addSites: (newSites) =>
     set((state) => ({
       sites: [...state.sites, ...newSites],
+      filteredSites: [...state.sites, ...newSites],
     })),
 
   addDatastreams: (newDatastreams) =>
@@ -18,7 +20,14 @@ const useDataStore = create((set, get) => ({
   setSites: (newSites) =>
     set({
       sites: newSites,
+      filteredSites: newSites,
     }),
+  setFilteredSites: (filteredSites) =>
+    set({
+      filteredSites,
+    }),
+
+
   setDatastreams: (newDatastreams) =>
     set({
       datastreams: newDatastreams,
@@ -26,6 +35,10 @@ const useDataStore = create((set, get) => ({
 
   getAllSites: () => {
     return get().sites;
+  },
+
+  getFilteredSites: () => {
+    return get().filteredSites;
   },
 
   getAllDatastreams: () => {

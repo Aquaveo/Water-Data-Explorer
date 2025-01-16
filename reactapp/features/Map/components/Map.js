@@ -29,7 +29,8 @@ const bufferLayer = {
 const MapComponent = () => {
   const theme = useTheme();
   const { toggleSidePanelVisibility, showSiteList, isSidePanelVisible } = useLayoutStore();
-  const sites = useDataStore((state) => state.getAllSites());
+  // const sites = useDataStore((state) => state.getAllSites());
+  const filteredSites = useDataStore((state) => state.getFilteredSites());
 
   const [popupInfo, setPopupInfo] = useState(null);
   const [bufferData, setBufferData] = useState(null); // State for buffer GeoJSON
@@ -37,7 +38,7 @@ const MapComponent = () => {
 
   const geojsonData = {
     type: "FeatureCollection",
-    features: sites
+    features: filteredSites
       .filter((site) => site.longitude !== null && site.latitude !== null)
       .map((site) => ({
         type: "Feature",
