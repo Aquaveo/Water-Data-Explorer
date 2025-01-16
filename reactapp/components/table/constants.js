@@ -176,7 +176,7 @@ export const SitesTableColumns = [
         </div>
       );
     },
-    sortable: false,
+    sortable: true,
     // optional width settings
     minWidth: '120px',
     maxWidth: '200px',
