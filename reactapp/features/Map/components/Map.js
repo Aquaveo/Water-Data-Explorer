@@ -2,7 +2,6 @@ import React, { useRef, useCallback, useState } from "react";
 import Map, { Source, Layer } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import maplibregl from "maplibre-gl";
-import styled from "styled-components";
 
 import useTheme from "hooks/useTheme";
 import useLayoutStore from "stores/layoutStore";
@@ -12,97 +11,8 @@ import { FaDatabase } from "react-icons/fa";
 import { ControlButton, StyledMapContainer } from "./styledComponents";
 import AddMenuButton from "./MenuButton";
 
-const Tooltip = styled.div`
-  position: relative;
-  margin: 8px;
-  padding: 4px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  max-width: 300px;
-  font-size: 12px;
-  z-index: 9;
-  pointer-events: none;
-  border-radius: 4px;
-  left: ${(props) => props.left || '0px'};
-  top: ${(props) => props.top || '0px'};
-`;
-
-const clusterLayer = {
-  id: "clusters",
-  type: "circle",
-  source: "sites",
-  filter: ["has", "point_count"],
-  paint: {
-    "circle-color": [
-      "step",
-      ["get", "point_count"],
-      "#8E4162", // Secondary color for clusters with point_count < 10
-      10,
-      "#E98A15", // Warning color for clusters with point_count < 50
-      50,
-      "#84CAE7", // Info color for clusters with point_count >= 50
-    ],
-    "circle-radius": [
-      "step",
-      ["get", "point_count"],
-      15,
-      10,
-      20,
-      50,
-      25,
-    ],
-  },
-};
-
-const clusterCountLayer = {
-  id: "cluster-count",
-  type: "symbol",
-  source: "sites",
-  filter: ["has", "point_count"],
-  layout: {
-    "text-field": "{point_count_abbreviated}",
-    "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-    "text-size": 12,
-  },
-  paint: {
-    "text-color": "white",
-  },
-};
-
-const unclusteredPointLayer = {
-  id: "unclustered-point",
-  type: "circle",
-  source: "sites",
-  filter: ["!", ["has", "point_count"]],
-  paint: {
-    "circle-color": "#ACE894",
-    "circle-radius": 8,
-    "circle-stroke-width": 2,
-    "circle-stroke-color": "white",
-  },
-};
-
-const onMapLoad = (event) => {
-  const map = event.target;
-
-  // Handle cursor change for only `unclustered-point` layer
-  map.on("mouseenter", "unclustered-point", () => {
-    map.getCanvas().style.cursor = "pointer";
-  });
-
-  map.on("mouseleave", "unclustered-point", () => {
-    map.getCanvas().style.cursor = "";
-  });
-
-  map.on("mouseenter", "clusters", () => {
-    map.getCanvas().style.cursor = "pointer";
-  });
-
-  map.on("mouseleave", "clusters", () => {
-    map.getCanvas().style.cursor = "";
-  });
-
-};
+import { clusterLayer, clusterCountLayer, unclusteredPointLayer, onMapLoad } from "../lib/layers";
+import {Tooltip} from "../lib/tooltip";
 
 const MapComponent = () => {
   const theme = useTheme();
