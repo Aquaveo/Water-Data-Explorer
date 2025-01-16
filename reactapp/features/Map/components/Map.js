@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useState } from "react";
-import Map, { Source, Layer, Popup } from "react-map-gl/maplibre";
+import Map, { Source, Layer } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import maplibregl from "maplibre-gl";
 import styled from "styled-components";
@@ -13,15 +13,18 @@ import { ControlButton, StyledMapContainer } from "./styledComponents";
 import AddMenuButton from "./MenuButton";
 
 const Tooltip = styled.div`
-  position: absolute;
+  position: relative;
   margin: 8px;
   padding: 4px;
   background: rgba(0, 0, 0, 0.8);
   color: #fff;
   max-width: 300px;
-  font-size: 10px;
+  font-size: 12px;
   z-index: 9;
   pointer-events: none;
+  border-radius: 4px;
+  left: ${(props) => props.left || '0px'};
+  top: ${(props) => props.top || '0px'};
 `;
 
 const clusterLayer = {
@@ -132,6 +135,8 @@ const MapComponent = () => {
 
     if (hoveredFeature) {
       setPopupInfo({
+        x: event.point.x,
+        y: event.point.y,
         feature: hoveredFeature,
         longitude: hoveredFeature.geometry.coordinates[0],
         latitude: hoveredFeature.geometry.coordinates[1],
@@ -150,7 +155,7 @@ const MapComponent = () => {
 
   const handleMapClick = (event) => {
     const map = event.target;
-
+    console.log(event);
     // Prioritize clicking on 'unclustered-point' and 'clusters' layers first
     const features = map.queryRenderedFeatures(event.point, {
       layers: ['unclustered-point', 'clusters'],
@@ -162,12 +167,10 @@ const MapComponent = () => {
         const layerId = feature.layer.id;
         if (layerId === 'unclustered-point') {
           const { properties } = feature;
-          // setPopupInfo(properties);
           return;
         } 
         else if (layerId === 'clusters') {
           setPopupInfo(null);
-          console.log("hey")
           const clusterId = feature.properties.cluster_id;
           map.getSource('sites').getClusterExpansionZoom(clusterId, (err, zoom) => {
             if (err) {
@@ -219,19 +222,12 @@ const MapComponent = () => {
         </Source>
 
         {popupInfo && (
-          <Popup
-            longitude={popupInfo.longitude}
-            latitude={popupInfo.latitude}
-            anchor="top"
-            
-            onClose={() => setPopupInfo(null)}
-          >
-            <Tooltip>
+
+            <Tooltip className="hola" left={`${popupInfo.x}px`} top={`${popupInfo.y}px`}>
               <div>Site: {popupInfo.feature.properties.name}</div>
               <div>ID: {popupInfo.feature.properties.id}</div>
               <div>Type: {popupInfo.feature.properties.type}</div>
             </Tooltip>
-          </Popup>
         )}
       </Map>
       <AddMenuButton />
