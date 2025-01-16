@@ -29,7 +29,6 @@ const bufferLayer = {
 const MapComponent = () => {
   const theme = useTheme();
   const { toggleSidePanelVisibility, showSiteList, isSidePanelVisible } = useLayoutStore();
-  // const sites = useDataStore((state) => state.getAllSites());
   const filteredSites = useDataStore((state) => state.getFilteredSites());
 
   const [popupInfo, setPopupInfo] = useState(null);
