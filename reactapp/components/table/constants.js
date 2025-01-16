@@ -182,3 +182,24 @@ export const SitesTableColumns = [
     maxWidth: '200px',
   },
 ];
+
+
+
+export const DetailedSiteRowColumns= [
+  {
+    name: 'Attribute',
+    selector: (row) => row.attribute,
+    sortable: true,
+    minWidth: '100px',
+    maxWidth: '150px',
+    style: { color: '#202124', fontSize: '14px', fontWeight: 500 },
+  },
+  {
+    name: 'Value',
+    selector: (row) => row.value,
+    sortable: true,
+    width: '90px',
+    maxWidth: '100px',
+    style: { color: 'rgba(0,0,0,.54)' },
+  }
+];

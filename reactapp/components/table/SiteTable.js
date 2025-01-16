@@ -3,6 +3,10 @@ import React from 'react';
 import GeneralTable from 'components/table/GeneralTable';
 import { SitesTableColumns, SitesTableStyles } from 'components/table/constants';
 import FilterComponent from 'components/table/FilterComponent';
+import { DetailedSiteRow } from "components/table/DetailedSiteRow";
+
+
+
 
 const onSiteRowClick = (row) => {
   console.log('Row clicked:', row);
@@ -57,6 +61,8 @@ const SiteTable = ({
       subHeader
       subHeaderComponent={subHeaderComponent}
       paginationResetDefaultPage={resetPaginationToggle}
+      expandableRows
+      expandableRowsComponent={DetailedSiteRow}
     />
   );
 };
