@@ -2,7 +2,9 @@ import { create } from 'zustand';
 
 const useLayoutStore = create((set) => ({
   isSidePanelVisible: false,
-  currentOffCanvasView: 'siteList', // default view
+  currentOffCanvasView: 'siteList',
+  isTimeSeriesPanelVisible: false,
+
 
   toggleSidePanelVisibility: () => {
     set((state) => ({
@@ -13,8 +15,18 @@ const useLayoutStore = create((set) => ({
 
   showImportCatalogMenu: () => set({
     currentOffCanvasView: 'importCatalogMenu',
-    isSidePanelVisible: true // ensure panel is visible
-  })
+    isSidePanelVisible: true
+  }),
+
+  showTimeSeriesPanel: () => set({
+    isTimeSeriesPanelVisible: true
+  }),
+
+  toggleTimeSeriesPanelVisibility: () => {
+    set((state) => ({
+      isTimeSeriesPanelVisible: !state.isTimeSeriesPanelVisible 
+  }))},
+
 }));
 
 export default useLayoutStore;

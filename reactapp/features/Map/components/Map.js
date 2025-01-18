@@ -23,7 +23,7 @@ import { AppContext } from "features/react-tethys/context/context";
 const MapComponent = () => {
   const { backend } = useContext(AppContext);
   const theme = useTheme();
-  const { toggleSidePanelVisibility, showSiteList, isSidePanelVisible } = useLayoutStore();
+  const { toggleSidePanelVisibility, showSiteList, isSidePanelVisible, showTimeSeriesPanel } = useLayoutStore();
   const filteredSites = useDataStore((state) => state.getFilteredSites());
 
   const [popupInfo, setPopupInfo] = useState(null);
@@ -95,6 +95,7 @@ const MapComponent = () => {
           });
           console.log("Clicked site:", properties);
           backend.do(backend.actions.GET_SITE_INFO, { ...properties });
+          showTimeSeriesPanel();
           return;
         } else if (layerId === "clusters") {
           const clusterId = feature.properties.cluster_id;

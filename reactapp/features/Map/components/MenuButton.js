@@ -7,7 +7,7 @@ import useLayoutStore from 'stores/layoutStore';
 
 const AddMenuButtonContainer = styled.div`
   position: absolute; 
-  bottom: 100px; 
+  top: 100px; 
   right: 10px;
   width: 40px;
   height: 40px;

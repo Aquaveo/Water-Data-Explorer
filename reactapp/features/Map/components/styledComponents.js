@@ -20,7 +20,7 @@ export const ControlButton = styled.button`
   align-items: center;
   justify-content: center;
   position: absolute; 
-  bottom: 50px; 
+  top: 150px; 
   right: 10px;
   width: 40px;
   height: 40px;

@@ -10,7 +10,7 @@ import { ToastContainer } from 'react-toastify';
 
 const MapView = lazy(() => import('features/Map/components/Map.js'));
 const SidePanel = lazy(() => import('features/List/components/SidePanel.js'));
-
+const SeriesPanel = lazy(() => import('features/Sites/components/SeriesPanel'));
 
 const WDEView = () => {
   const { backend } = useContext(AppContext);
@@ -35,6 +35,7 @@ const WDEView = () => {
         <Suspense fallback={<LoadingAnimation />}>
           <SidePanel />
           <MapView />
+          <SeriesPanel />
           <ToastContainer />
         </Suspense>
     </Container>
