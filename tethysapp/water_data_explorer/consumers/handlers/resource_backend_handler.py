@@ -70,6 +70,45 @@ class ResourceBackendHandler:
                     log.exception(msg)
         return _action_handler
 
+
+
+    @staticmethod
+    def single_service_action_handler(func):
+        """
+        Decorator to automatically handle async SQLAlchemy session and errors
+        for a single-service import task.
+        """
+        async def wrapper(self, event, action, data):
+            # 1) Create and manage a session
+            async with self.sessionmaker() as session:
+                try:
+                    # 2) Call the original function, passing session
+                    return await func(self, event, action, data, session)
+
+                except ValidationError as e:
+                    msg = (
+                        f'Validation error occurred while handling action "{action.get("id")}": {e}'
+                    )
+                    await self.send_error(msg, action, data, {'errors': e.errors()})
+                    self.log.debug(msg)
+
+                except ValueError as e:
+                    msg = str(e)
+                    await self.send_error(msg, action, data, {})
+                    self.log.debug(msg)
+
+                except Exception as e:
+                    msg = (
+                        f'An unexpected error occurred while handling action "{action}": {str(e)}'
+                    )
+                    await self.send_error(msg, action, data, {})
+                    self.log.exception(msg)
+
+            # Return None if an exception occurred
+            return None
+
+        return wrapper
+
     async def get_site(
         self,
         event: dict[str, Any],

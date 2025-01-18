@@ -1,5 +1,6 @@
 # cuahsi_backend_handler.py
 import logging
+import asyncio
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -103,28 +104,63 @@ class CuahsiBackendHandler(RBH):
 
         return sites
 
-    @RBH.action_handler
-    async def import_sites_from_catalog(self, event, action, data, session):
+    # @RBH.action_handler
+    # async def import_sites_from_catalog(self, event, action, data, session):
+    #     """
+    #     Suppose 'data' has a 'services' list, each containing info 
+    #     needed to create CUAHSI sites from that service (view_id, url, etc.).
+    #     We'll call create_cuahsi_sites for each service entry.
+    #     """
+    #     services = data.get("services", [])
+    #     tags = data.get("tags", [])
+    
+    #     # For each service dict, call create_cuahsi_sites
+    #     for service in services:
+    #         new_data = {
+    #             "url": service.get("servURL"),
+    #             "sitecount": service.get("sitecount", 0),
+    #             "tags": tags
+
+    #         }
+    #         # Reuse the create_cuahsi_sites method:
+    #         await self.create_cuahsi_sites(event, action, new_data,session)
+
+    async def import_sites_from_catalog(self, event, action, data):
         """
-        Suppose 'data' has a 'services' list, each containing info 
-        needed to create CUAHSI sites from that service (view_id, url, etc.).
-        We'll call create_cuahsi_sites for each service entry.
+        Instead of using the "session" injected by the decorator here,
+        we ignore it (hence the _session unused parameter) 
+        and open new sessions for each parallel task.
         """
         services = data.get("services", [])
         tags = data.get("tags", [])
-    
-        # For each service dict, call create_cuahsi_sites
+
+        tasks = []
         for service in services:
+            # Build the data
             new_data = {
                 "url": service.get("servURL"),
                 "sitecount": service.get("sitecount", 0),
                 "tags": tags
-
             }
-            # Reuse the create_cuahsi_sites method:
-            await self.create_cuahsi_sites(event, action, new_data,session)
+            # Schedule a concurrent task
+            task = asyncio.create_task(
+                self._import_single_service(event, action, new_data)
+            )
+            tasks.append(task)
 
-    
+        # Wait for all tasks (services) to complete
+        await asyncio.gather(*tasks,return_exceptions=True)
+
+    @RBH.single_service_action_handler
+    async def _import_single_service(self, event, action, data,session):
+        """
+        Each import task gets its own session to avoid conflicts.
+        """
+        # async with self.sessionmaker() as session:
+        #     # Reuse the create_cuahsi_sites method with a dedicated session
+        await self.create_cuahsi_sites(event, action, data, session)
+
+
     async def create_cuahsi_sites(self, event, action, data,session):
         """
         1) Fetch site info from the SOAP endpoint (async generator).
@@ -147,7 +183,10 @@ class CuahsiBackendHandler(RBH):
             sites_gen = async_soap_client.get_sites_from_endpoint(url, site_count)
         except Exception as e:
             logger.error(f"Failed to initiate site fetching: {e}")
-            error_payload = {"error": f"Failed to fetch sites: {str(e)}"}
+            error_payload = {
+                "sites": [],
+                "error": f"Failed to fetch sites: {str(e)}"
+            }
             await self.send_action(self.SEND_GET_IMPORTED_CUAHSI_SITES, error_payload)
             return
 
@@ -183,7 +222,6 @@ class CuahsiBackendHandler(RBH):
                 logger.error(f"Bulk insert failed for batch: {e}")
                 continue
 
-            # Prepare JSON for each inserted site using the *new* CUAHSISiteRead
             sites_json = []
             for site in inserted_sites:
                 try:
@@ -196,11 +234,9 @@ class CuahsiBackendHandler(RBH):
             
             sites_upload_count += len(sites_json)
             created_sites_info = {
-                "sites": sites_json,
-                "sites_upload_count": sites_upload_count,
-                "site_count": site_count
+                "sites": sites_json
             }
-            # Send this batch to the frontend
+            
             await self.send_action(self.SEND_GET_IMPORTED_CUAHSI_SITES, created_sites_info)
             logger.info(f"Sent batch of {len(sites_json)} sites.")
 
