@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState } from "react";
+import React, { useRef, useCallback, useState, useContext } from "react";
 import Map, { Source, Layer } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import maplibregl from "maplibre-gl";
@@ -14,19 +14,14 @@ import { FaDatabase } from "react-icons/fa";
 import { ControlButton, StyledMapContainer } from "./styledComponents";
 import AddMenuButton from "./MenuButton";
 
-import { clusterLayer, clusterCountLayer, unclusteredPointLayer, onMapLoad } from "../lib/layers";
+import { clusterLayer, clusterCountLayer, unclusteredPointLayer,bufferLayer, onMapLoad } from "../lib/layers";
 import { Tooltip } from "../lib/tooltip";
 
-const bufferLayer = {
-  id: "buffer-layer",
-  type: "fill",
-  paint: {
-    "fill-color": "#1e90ff",
-    "fill-opacity": 0.3,
-  },
-};
+import { AppContext } from "features/react-tethys/context/context";
+
 
 const MapComponent = () => {
+  const { backend } = useContext(AppContext);
   const theme = useTheme();
   const { toggleSidePanelVisibility, showSiteList, isSidePanelVisible } = useLayoutStore();
   const filteredSites = useDataStore((state) => state.getFilteredSites());
@@ -91,17 +86,15 @@ const MapComponent = () => {
           const options = { units: "kilometers" }; // Specify units for the buffer
           const circle = buffer(center, radius, options);
   
-          // Update buffer state
           setBufferData(circle);
   
-          // Zoom in to the clicked site
           const bounds = bbox(circle);
           map.fitBounds(bounds, {
-            padding: 20, // Add padding to the edges of the map
-            duration: 1000, // Smooth transition duration in milliseconds
+            padding: 20,
+            duration: 1000,
           });
-          // Optionally log the site or perform other actions
           console.log("Clicked site:", properties);
+          backend.do(backend.actions.GET_SITE_INFO, { ...properties });
           return;
         } else if (layerId === "clusters") {
           const clusterId = feature.properties.cluster_id;

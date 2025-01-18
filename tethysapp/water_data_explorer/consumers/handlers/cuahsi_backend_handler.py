@@ -24,13 +24,13 @@ class CuahsiBackendHandler(RBH):
     
     SEND_DATA_ACTION: BackendActions = BackendActions.IMPORT_SITES_FROM_CATALOG
     SEND_LIST_SERVICES_ACTION: BackendActions = BackendActions.GET_LIST_SERVICES
-    SEND_GET_IMPORTED_CUAHSI_SITES = BackendActions.GET_IMPORTED_CUAHSI_SITES  # or however it's defined
-
+    SEND_GET_IMPORTED_CUAHSI_SITES = BackendActions.GET_IMPORTED_CUAHSI_SITES
+    SEND_GET_SITE_INFO = BackendActions.GET_SITE_INFO
     @property
     def receiving_actions(self) -> dict[BackendActions, callable]:
         return {
             BackendActions.IMPORT_SITES_FROM_CATALOG: self.import_sites_from_catalog,
-            BackendActions.GET_LIST_SERVICES: self.get_catalog_services
+            BackendActions.GET_LIST_SERVICES: self.get_catalog_services,
         }
 
     async def get_catalog_services(self, event, action, data):
@@ -104,27 +104,6 @@ class CuahsiBackendHandler(RBH):
 
         return sites
 
-    # @RBH.action_handler
-    # async def import_sites_from_catalog(self, event, action, data, session):
-    #     """
-    #     Suppose 'data' has a 'services' list, each containing info 
-    #     needed to create CUAHSI sites from that service (view_id, url, etc.).
-    #     We'll call create_cuahsi_sites for each service entry.
-    #     """
-    #     services = data.get("services", [])
-    #     tags = data.get("tags", [])
-    
-    #     # For each service dict, call create_cuahsi_sites
-    #     for service in services:
-    #         new_data = {
-    #             "url": service.get("servURL"),
-    #             "sitecount": service.get("sitecount", 0),
-    #             "tags": tags
-
-    #         }
-    #         # Reuse the create_cuahsi_sites method:
-    #         await self.create_cuahsi_sites(event, action, new_data,session)
-
     async def import_sites_from_catalog(self, event, action, data):
         """
         Instead of using the "session" injected by the decorator here,
@@ -172,7 +151,6 @@ class CuahsiBackendHandler(RBH):
         site_count = data.get("sitecount", 0)
         sites_upload_count = 0
 
-        # SOAP params
         params = {"request": "GetSitesObject", "format": "WML1"}
         url = f"{base_url}?request={params['request']}&format={params['format']}"
 
@@ -242,3 +220,23 @@ class CuahsiBackendHandler(RBH):
 
         logger.info("Completed processing all site batches.")
 
+
+    async def get_cuahsi_site_info(self, data):
+        base_url = data.get("service_url")
+        site_code = data.get("code")
+        params = {"request": "GetSiteInfoObject","site_code": site_code , "format": "WML1"}
+        url = f"{base_url}?request={params['request']}&site={params['site_code']}&format={params['format']}"
+        async_soap_client = AsyncSOAPClient()
+        try:
+            # sites_info_series = await async_soap_client.get_site_info(url)
+            sites_info_series = [record async for record in async_soap_client.get_site_info(url)]
+
+            await self.send_action(self.SEND_GET_SITE_INFO, sites_info_series)
+
+        except Exception as e:
+            logger.error(f"Failed to get site info: {e}")
+            error_payload = {
+                "error": f"Failed to fetch sites: {str(e)}"
+            }
+            await self.send_action(self.SEND_GET_SITE_INFO, error_payload)
+            

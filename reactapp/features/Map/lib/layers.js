@@ -74,11 +74,20 @@ const clusterLayer = {
     });
   
   };
-  
+
+  const bufferLayer = {
+    id: "buffer-layer",
+    type: "fill",
+    paint: {
+      "fill-color": "#1e90ff",
+      "fill-opacity": 0.3,
+    },
+  };
 
   export { 
     clusterLayer, 
     clusterCountLayer, 
-    unclusteredPointLayer, 
+    unclusteredPointLayer,
+    bufferLayer,
     onMapLoad 
 };
