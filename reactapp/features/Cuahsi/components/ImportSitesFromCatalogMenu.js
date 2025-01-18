@@ -54,10 +54,8 @@ const ImportSitesFromCatalogMenu = () => {
   const addSites = useDataStore(useShallow((state) => state.addSites));
   const [isServicesLoading, setIsServicesLoading] = useState(false);
   const [selectedViews, setSelectedViews] = useState([]);
-  const [toastId, setToastId] = useState(null);
-
-  const totalSitesRef = useRef(0); // Ref for totalSites
-  const toastIdRef = useRef(null); // Ref for toastId
+  const totalSitesRef = useRef(0);
+  const toastIdRef = useRef(null);
 
   const handleSelectedRows = (state) => {
     setSelectedViews(state.selectedRows);
