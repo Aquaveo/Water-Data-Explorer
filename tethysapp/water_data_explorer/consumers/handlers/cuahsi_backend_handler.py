@@ -134,7 +134,7 @@ class CuahsiBackendHandler(RBH):
         base_url = data.get("url")
         tags = data.get("tags")
         site_count = data.get("sitecount", 0)
-
+        sites_upload_count = 0
 
         # SOAP params
         params = {"request": "GetSitesObject", "format": "WML1"}
@@ -193,9 +193,12 @@ class CuahsiBackendHandler(RBH):
                 except ValidationError as ve:
                     logger.error(f"Pydantic validation error for site ID {site.id}: {ve}")
                     continue
-
+            
+            sites_upload_count += len(sites_json)
             created_sites_info = {
                 "sites": sites_json,
+                "sites_upload_count": sites_upload_count,
+                "site_count": site_count
             }
             # Send this batch to the frontend
             await self.send_action(self.SEND_GET_IMPORTED_CUAHSI_SITES, created_sites_info)

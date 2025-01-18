@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { Container } from 'views/styledComponents.js';
 import LoadingAnimation from 'features/react-tethys/components/loader/LoadingAnimation';
+import { ToastContainer } from 'react-toastify';
 
 
 const MapView = lazy(() => import('features/Map/components/Map.js'));
@@ -34,6 +35,7 @@ const WDEView = () => {
         <Suspense fallback={<LoadingAnimation />}>
           <SidePanel />
           <MapView />
+          <ToastContainer />
         </Suspense>
     </Container>
   );

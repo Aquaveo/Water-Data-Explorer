@@ -1,5 +1,5 @@
 // ImportCatalogMenu.js
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { AppContext } from "features/react-tethys/context/context";
 import ViewTable from 'features/Cuahsi/components/ViewTable';
@@ -10,6 +10,8 @@ import { TagField } from 'components/tags/tagField';
 import useDataStore from '../../Sites/hooks/useDataStore';
 import LoadingServices from './LoadingServices';
 import { useShallow } from 'zustand/react/shallow'
+import { toast } from 'react-toastify'; // Import toast library
+import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
 
 const ClearButton = styled.button`
   border-top-left-radius: 0;
@@ -46,13 +48,16 @@ const ImportSitesFromCatalogMenu = () => {
   const { backend } = useContext(AppContext);
   const [endpoint, setEndpoint] = useState('');
   const [services, setServices] = useState([]);
+  const [uploadedSites, setUploadedSites] = useState(0);
   const [endpointError, setEndpointError] = useState('');
-  const { tags, handleAddTag, handleRemoveTag, cleanTags } = useTagInput(MAX_TAGS); // pass the maximum tags
+  const { tags, handleAddTag, handleRemoveTag, cleanTags } = useTagInput(MAX_TAGS);
   const addSites = useDataStore(useShallow((state) => state.addSites));
   const [isServicesLoading, setIsServicesLoading] = useState(false);
   const [selectedViews, setSelectedViews] = useState([]);
+  const [toastId, setToastId] = useState(null);
 
-
+  const totalSitesRef = useRef(0); // Ref for totalSites
+  const toastIdRef = useRef(null); // Ref for toastId
 
   const handleSelectedRows = (state) => {
     setSelectedViews(state.selectedRows);
@@ -62,6 +67,35 @@ const ImportSitesFromCatalogMenu = () => {
   const handleImportSitesFromCatalog = (data) => {
     console.log('Imported sites:', data);
     addSites(data.sites);
+
+    setUploadedSites((prevUploadedSites) => {
+      const newUploadedCount = prevUploadedSites + data.sites.length;
+      console.log('New uploaded count:', newUploadedCount);
+      console.log('Total sites:', totalSitesRef.current);
+      console.log('Toast ID:', toastIdRef.current);
+
+      // Update the toast with progress
+      if (toastIdRef.current) {
+        toast.update(toastIdRef.current, {
+          render: `Uploading sites ${newUploadedCount}/${totalSitesRef.current}`,
+          type: "info",
+          isLoading: true,
+        });
+      }
+
+      // Check if the upload is complete
+      if (newUploadedCount >= totalSitesRef.current) {
+        toast.update(toastIdRef.current, {
+          render: `Upload complete: ${totalSitesRef.current} sites uploaded`,
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+        });
+        toastIdRef.current = null; // Clear the toast ID
+      }
+
+      return newUploadedCount; // Update the state
+    });
   };
   
   const handleGetServices = (data) =>{
@@ -89,7 +123,12 @@ const ImportSitesFromCatalogMenu = () => {
 
   const handleImport = () => {
     console.log('Importing Sites from catalog:', {tags, selectedViews });
+    const totalSiteCount = selectedViews.reduce((acc, view) => acc + (view.sitecount || 0), 0);
+    totalSitesRef.current = totalSiteCount; // Set the totalSites in ref
+    setUploadedSites(0); // Reset uploadedSites
     if (!endpointError && endpoint.trim()) {
+      const id = toast.loading(`Uploading sites 0/${totalSiteCount}`);
+      toastIdRef.current = id; // Set the toastId in ref
       backend.do(backend.actions.IMPORT_SITES_FROM_CATALOG, {tags, services: selectedViews });
     }
   };
