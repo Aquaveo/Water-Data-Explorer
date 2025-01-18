@@ -42,7 +42,15 @@ export default class Backend {
 
   connect(onConnectCallback) {
     this.onConnectCallback = onConnectCallback
+    if (this.webSocket) {
+      this.webSocket.removeEventListener("close", this.reconnect);
+      this.webSocket.removeEventListener("error", this.reconnect);
+    }
+
     this.webSocket = new WebSocket(this.wsUrl);
+    this.webSocket.addEventListener("close", this.reconnect);
+    this.webSocket.addEventListener("error", this.reconnect);
+
     this.webSocket.addEventListener("open", () => {
       if (this.isReconnecting) {
         toast.dismiss(this.reconnectToastId);
@@ -81,10 +89,6 @@ export default class Backend {
       }
     });
 
-    if (!this.reconnectInterval <= 320000) {
-      this.webSocket.addEventListener("close", this.reconnect);
-      this.webSocket.addEventListener("error", this.reconnect);
-    }
   }
 
   reconnect() {
@@ -104,7 +108,7 @@ export default class Backend {
       return;
     }
     if (!toast.isActive(this.reconnectToastId)) {
-      toast.error(`WebSocket connection lost, attempting to reconnect...`, {
+      toast.warning(`WebSocket connection lost, attempting to reconnect...`, {
         position: "top-right",
         autoClose: false,
         hideProgressBar: true,
