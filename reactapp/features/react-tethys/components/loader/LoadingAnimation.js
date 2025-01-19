@@ -16,7 +16,7 @@ const LoadingAnimation = ({delay}) => {
   return (
     <>
       {show &&
-      <div>
+      <div >
         <div className="center"></div>
         <div className="inner-spin">
           <div className="inner-arc inner-arc_start-a"></div>

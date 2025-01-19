@@ -2,7 +2,7 @@ import React,{useContext} from 'react';
 import styled from 'styled-components';
 import { Offcanvas } from 'react-bootstrap';
 import useLayoutStore from 'stores/useLayoutStore';
-import { BsArrowLeft } from 'react-icons/bs';
+import VariableMenuForm from 'features/Sites/components/VariableMenuForm';
 
 
 export const StyledOffcanvas = styled(Offcanvas)`
@@ -11,20 +11,18 @@ export const StyledOffcanvas = styled(Offcanvas)`
   }
 `;
 
-const SeriesPanel = () => {
+const handleFormSubmit = (values) => {
+  console.log("Form submitted:", values);
+  // values.selectedVariable, values.startDate, values.endDate
+};
+
+
+const SeriesPanel = ({variableList}) => {
 
   const { 
     isTimeSeriesPanelVisible, 
     toggleTimeSeriesPanelVisibility, 
   } = useLayoutStore();
-
-
-  let content = (
-    <div>
-      <p>Time Series Panel</p>
-    </div>
-  );
-
 
   return (
     <StyledOffcanvas
@@ -41,7 +39,7 @@ const SeriesPanel = () => {
           </Offcanvas.Header>
           
       <Offcanvas.Body>
-        {content}
+          <VariableMenuForm variableList={variableList} onSubmit={handleFormSubmit} />
       </Offcanvas.Body>
     </StyledOffcanvas>
   );
