@@ -1,60 +1,72 @@
 import React, { useState, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+
 
 const VariableMenuForm = ({ variableList = [], onSubmit }) => {
-  // Log the list to confirm its data changes over time
-  console.log("variableList:", variableList);
+  const [selectedVariable, setSelectedVariable] = useState("");
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [timeSupport, setTimeSupport] = useState(60); // default intervals
+  const [timeUnitName, setTimeUnitName] = useState("days"); // default 'days'
 
-  // If there's no data, handle gracefully
-  const firstItem = variableList[0] || {};
-
-  // Convert the date strings into JS Date objects
-  const firstBegin = firstItem.beginDateTime
-    ? new Date(firstItem.beginDateTime)
-    : new Date();
-  const firstEnd = firstItem.endDateTime
-    ? new Date(firstItem.endDateTime)
-    : new Date();
-
-  // Dropdown initial value
-  const initialDropdownValue = firstItem.siteCode && firstItem.variableCode
-    ? `${firstItem.siteCode}_${firstItem.variableCode}`
-    : "";
-
-  const [selectedVariable, setSelectedVariable] = useState(initialDropdownValue);
-
-  // Date picker states
-  const [startDate, setStartDate] = useState(firstBegin);
-  const [endDate, setEndDate] = useState(firstEnd);
-
-  // Whenever `variableList` changes, we re-parse the first item
   useEffect(() => {
-    const item = variableList[0] || {};
-    const newBegin = item.beginDateTime ? new Date(item.beginDateTime) : new Date();
-    const newEnd = item.endDateTime ? new Date(item.endDateTime) : new Date();
+    if (variableList.length > 0) {
+      const firstItem = variableList[0];
+      setSelectedVariable(
+        firstItem.siteCode && firstItem.variableCode
+          ? `${firstItem.siteCode}_${firstItem.variableCode}`
+          : ""
+      );
+      setStartDate(
+        firstItem.beginDateTime ? new Date(firstItem.beginDateTime) : new Date()
+      );
+      setEndDate(
+        firstItem.endDateTime ? new Date(firstItem.endDateTime) : new Date()
+      );
 
-    setStartDate(newBegin);
-    setEndDate(newEnd);
-
-    const newDropdownValue = 
-      item.siteCode && item.variableCode
-        ? `${item.siteCode}_${item.variableCode}`
-        : "";
-    setSelectedVariable(newDropdownValue);
+      if (firstItem.timeSupport) {
+        setTimeSupport(parseInt(firstItem.timeSupport, 10) || 60);
+      }
+      if (firstItem.timeUnitName) {
+        setTimeUnitName(firstItem.timeUnitName.toLowerCase()); 
+      }
+    }
   }, [variableList]);
 
-  // Boundaries for the date pickers (min and max)
+  // minDate and maxDate define the boundaries
   const minDate = startDate;
   const maxDate = endDate;
 
+  const isMinutes = timeUnitName === "min";
+  const isYears = timeUnitName === "years";
+
+  let dateFormat = "MMMM d, yyyy";
+  let showTimeSelect = false;
+  let showYearPicker = false;
+  let usedTimeIntervals = 60;
+
+  if (isMinutes) {
+    showTimeSelect = true;
+    dateFormat = "MMMM d, yyyy h:mm aa";
+    usedTimeIntervals = timeSupport;
+  } else if (isYears) {
+    showYearPicker = true;
+    dateFormat = "yyyy";
+    showTimeSelect = false;
+  }
+
   const handleSubmit = (e) => {
+    console.log("Form submitted:", {
+        selectedVariable,
+        startDate,
+        endDate,
+        });
     e.preventDefault();
     onSubmit({
       selectedVariable,
-      startDate,
-      endDate,
+      startDate:startDate.toISOString(),
+      endDate:  endDate.toISOString(),
     });
   };
 
@@ -62,8 +74,8 @@ const VariableMenuForm = ({ variableList = [], onSubmit }) => {
     <Form onSubmit={handleSubmit}>
       <Form.Group controlId="variableSelect">
         <Form.Label>Select Variable</Form.Label>
-        <Form.Control
-          as="select"
+        <select
+          className="form-control"
           value={selectedVariable}
           onChange={(e) => setSelectedVariable(e.target.value)}
         >
@@ -75,37 +87,39 @@ const VariableMenuForm = ({ variableList = [], onSubmit }) => {
               </option>
             );
           })}
-        </Form.Control>
+        </select>
       </Form.Group>
 
       <Form.Group controlId="startDate">
         <Form.Label>Start Date</Form.Label>
-        <DatePicker
-          selected={startDate}
-          onChange={(date) => date && setStartDate(date)}
-          minDate={minDate}
-          maxDate={maxDate}
-          showTimeSelect
-          timeFormat="HH:mm"
-          timeIntervals={60}
-          timeCaption="Time"
-          dateFormat="MMMM d, yyyy h:mm aa"
-        />
+          <DatePicker
+            selected={startDate}
+            onChange={(date) => date && setStartDate(date)}
+            minDate={minDate}
+            maxDate={maxDate}
+            showTimeSelect={showTimeSelect}
+            showYearPicker={showYearPicker}
+            timeFormat="HH:mm"
+            timeIntervals={usedTimeIntervals}
+            timeCaption="Time"
+            dateFormat={dateFormat}
+          />
       </Form.Group>
 
       <Form.Group controlId="endDate">
         <Form.Label>End Date</Form.Label>
-        <DatePicker
-          selected={endDate}
-          onChange={(date) => date && setEndDate(date)}
-          minDate={minDate}
-          maxDate={maxDate}
-          showTimeSelect
-          timeFormat="HH:mm"
-          timeIntervals={60}
-          timeCaption="Time"
-          dateFormat="MMMM d, yyyy h:mm aa"
-        />
+          <DatePicker
+            selected={endDate}
+            onChange={(date) => date && setEndDate(date)}
+            minDate={minDate}
+            maxDate={maxDate}
+            showTimeSelect={showTimeSelect}
+            showYearPicker={showYearPicker}
+            timeFormat="HH:mm"
+            timeIntervals={usedTimeIntervals}
+            timeCaption="Time"
+            dateFormat={dateFormat}
+          />
       </Form.Group>
 
       <Button variant="primary" type="submit">

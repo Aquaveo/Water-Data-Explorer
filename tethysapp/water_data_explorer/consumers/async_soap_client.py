@@ -330,13 +330,13 @@ class AsyncSOAPClient:
             # Only one series -> parse once
             record = self._parse_site_info(object_siteInfo, object_methods)
             minimal_record = self._transform_site_info(record)
-            yield minimal_record
+            yield record
         elif isinstance(object_methods, list):
             # Multiple series -> parse each
             for method in object_methods:
                 record = self._parse_site_info(object_siteInfo, method)
                 minimal_record = self._transform_site_info(record)
-                yield minimal_record
+                yield record
         else:
             # Unexpected structure => yield nothing
             return
@@ -350,6 +350,8 @@ class AsyncSOAPClient:
         - variable_name (concatenate variableName-dataType)
         - variableCode (use fullVariableCode)
         - siteCode (use fullSiteCode)
+        - timeUnitName (use timeUnitName)
+        - timeSupport (use timeSupport)
         """
         # Fallback for missing fields
         variable_name = record.get('variableName', "No Data was Provided")
@@ -361,6 +363,8 @@ class AsyncSOAPClient:
             "variable_name": f"{variable_name}-{data_type}",
             "variableCode": record.get("fullVariableCode", "No Data was Provided"),
             "siteCode": record.get("fullSiteCode", "No Data was Provided"),
+            "timeUnitName": record.get("timeUnitName", "No Data was Provided"),
+            "timeSupport": record.get("timeSupport", "No Data was Provided"),
         }
 
 
@@ -451,9 +455,9 @@ class AsyncSOAPClient:
         timeScale = variable.get('timeScale', {})
         ts_unit = timeScale.get('unit', {})
         return_obj['timeUnitAbbreviation'] = ts_unit.get('unitAbbreviation', "No Data was Provided")
-        return_obj['timeUnitName']         = ts_unit.get('unitName', "No Data was Provided")
+        return_obj['timeUnitName']         = ts_unit.get('unitName', "days")
         return_obj['timeUnitType']         = ts_unit.get('unitType', "No Data was Provided")
-        return_obj['timeSupport']          = timeScale.get('timeSupport', "No Data was Provided")
+        return_obj['timeSupport']          = timeScale.get('timeSupport', "1.0")
         return_obj['isRegular']            = timeScale.get('@isRegular', "No Data was Provided")
 
         # -- method --
