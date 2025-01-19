@@ -1,8 +1,8 @@
 import React from "react";
 import GeneralTable from "components/table/GeneralTable";
-import { SitesTableColumns, SitesTableStyles } from "components/table/constants";
+import { SitesTableColumns, SitesTableStyles } from "features/Sites/lib/table";
 import FilterComponent from "components/table/FilterComponent";
-import { DetailedSiteRow } from "components/table/DetailedSiteRow";
+import { DetailedSiteRow } from "features/Sites/components/DetailedSiteRow";
 import useDataStore from "features/Sites/hooks/useDataStore";
 
 
@@ -19,8 +19,6 @@ const SiteTable = ({
   const [resetPaginationToggle, setResetPaginationToggle] = React.useState(false);
   const setFilteredSites = useDataStore((state) => state.setFilteredSites);
 
-  // Enhanced filtering logic
-  // Enhanced filtering logic
   const filteredItems = React.useMemo(() => {
     const text = filterText.toLowerCase();
     const filtered = data.filter((item) => {

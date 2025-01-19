@@ -2,13 +2,13 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { AppContext } from "features/react-tethys/context/context";
-import ViewTable from 'features/Cuahsi/components/ViewTable';
+import ViewTable from 'features/Cuahsi/components/tables/ViewTable';
 import { MdClear } from "react-icons/md";
 import styled from 'styled-components';
 import useTagInput from 'components/tags/useTag';
 import { TagField } from 'components/tags/tagField';
-import useDataStore from '../../Sites/hooks/useDataStore';
-import LoadingServices from './LoadingServices';
+import useDataStore from '../../../Sites/hooks/useDataStore';
+import LoadingServices from '../LoadingServices';
 import { useShallow } from 'zustand/react/shallow'
 import { toast } from 'react-toastify'; // Import toast library
 import 'react-toastify/dist/ReactToastify.css'; // Import toast styles

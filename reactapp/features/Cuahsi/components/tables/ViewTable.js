@@ -1,7 +1,7 @@
 // ViewTable.js
 import React from 'react';
 import GeneralTable from 'components/table/GeneralTable';
-import { ViewTableColumns, ViewTableStyles } from 'components/table/constants';
+import { ViewTableColumns, ViewTableStyles } from 'features/Cuahsi/lib/table';
 
 const ViewTable = ({ 
   data, 

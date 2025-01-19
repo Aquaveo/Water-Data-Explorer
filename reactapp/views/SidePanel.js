@@ -2,8 +2,8 @@ import React,{useContext} from 'react';
 import styled from 'styled-components';
 import { Offcanvas } from 'react-bootstrap';
 import useLayoutStore from 'stores/layoutStore';
-import SitesList from './SitesList';
-import ImportSitesFromCatalogMenu from 'features/Cuahsi/components/ImportSitesFromCatalogMenu';
+import SitesList from '../features/Sites/components/SitesList';
+import ImportSitesFromCatalogMenu from 'features/Cuahsi/components/menus/ImportSitesFromCatalogMenu';
 import { BsArrowLeft } from 'react-icons/bs';
 
 

@@ -1,8 +1,8 @@
 // CatalogTable.js (refactored)
 import React from 'react';
 import GeneralTable from 'components/table/GeneralTable';
-import ViewTable from 'features/Cuahsi/components/ViewTable';
-import { CatalogColumns, CatalogTableStyles } from 'components/table/constants';
+import ViewTable from 'features/Cuahsi/components/tables/ViewTable';
+import { CatalogColumns, CatalogTableStyles } from 'features/Cuahsi/lib/table';
 
 const ExpandableViewTable = ({ data }) => {
   const { views = [] } = data || {};

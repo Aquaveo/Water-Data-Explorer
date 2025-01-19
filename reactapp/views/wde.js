@@ -9,8 +9,8 @@ import { ToastContainer } from 'react-toastify';
 
 
 const MapView = lazy(() => import('features/Map/components/Map.js'));
-const SidePanel = lazy(() => import('features/List/components/SidePanel.js'));
-const SeriesPanel = lazy(() => import('features/Sites/components/SeriesPanel'));
+const SidePanel = lazy(() => import('views/SidePanel.js'));
+const SeriesPanel = lazy(() => import('features/Sites/views/SeriesPanel'));
 
 const WDEView = () => {
   const { backend } = useContext(AppContext);

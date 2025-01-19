@@ -1,6 +1,6 @@
 import React, { useEffect,useContext } from 'react';
 import { useShallow } from 'zustand/react/shallow'
-import SiteTable from 'components/table/SiteTable';
+import SiteTable from 'features/Sites/components/SiteTable';
 import useDataStore from 'features/Sites/hooks/useDataStore';
 
 
