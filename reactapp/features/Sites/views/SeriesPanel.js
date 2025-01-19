@@ -1,7 +1,7 @@
 import React,{useContext} from 'react';
 import styled from 'styled-components';
 import { Offcanvas } from 'react-bootstrap';
-import useLayoutStore from 'stores/layoutStore';
+import useLayoutStore from 'stores/useLayoutStore';
 import { BsArrowLeft } from 'react-icons/bs';
 
 

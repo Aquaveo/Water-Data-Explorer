@@ -3,7 +3,7 @@ import { Button, Dropdown } from 'react-bootstrap';
 import { FaPlus } from "react-icons/fa";
 import { TbBrandDatabricks, TbSitemap } from "react-icons/tb";
 import styled from 'styled-components';
-import useLayoutStore from 'stores/layoutStore';
+import useLayoutStore from 'stores/useLayoutStore';
 
 const AddMenuButtonContainer = styled.div`
   position: absolute; 
