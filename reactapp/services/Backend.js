@@ -38,6 +38,7 @@ export default class Backend {
       GET_SITES: "GET_SITES",
       IMPORT_SITES: "IMPORT_SITES",
       GET_SITE_INFO: "GET_SITE_INFO",
+      GET_VALUES: "GET_VALUES",
     };
   }
 

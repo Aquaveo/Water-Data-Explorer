@@ -16,15 +16,16 @@ import AddMenuButton from "./MenuButton";
 
 import { clusterLayer, clusterCountLayer, unclusteredPointLayer,bufferLayer, onMapLoad } from "../lib/layers";
 import { Tooltip } from "../lib/tooltip";
+import { toast } from 'react-toastify';
 
 import { AppContext } from "features/react-tethys/context/context";
-
 
 const MapComponent = () => {
   const { backend } = useContext(AppContext);
   const theme = useTheme();
   const { toggleSidePanelVisibility, showSiteList, isSidePanelVisible, showTimeSeriesPanel } = useLayoutStore();
   const filteredSites = useDataStore((state) => state.getFilteredSites());
+  const setCurrentSite = useDataStore((state) => state.setCurrentSite);
 
   const [popupInfo, setPopupInfo] = useState(null);
   const [bufferData, setBufferData] = useState(null); // State for buffer GeoJSON
@@ -93,8 +94,9 @@ const MapComponent = () => {
             padding: 20,
             duration: 1000,
           });
-          console.log("Clicked site:", properties);
+          
           backend.do(backend.actions.GET_SITE_INFO, { ...properties });
+          setCurrentSite(properties);
           showTimeSeriesPanel();
           return;
         } else if (layerId === "clusters") {

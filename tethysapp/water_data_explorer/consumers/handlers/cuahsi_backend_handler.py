@@ -15,17 +15,21 @@ from tethysapp.water_data_explorer.schemas import (
 )
 
 from tethysapp.water_data_explorer.model import CUAHSISite
-from typing import List
+from typing import List, Dict, Any, AsyncGenerator
 
 logger = logging.getLogger(__name__)
 
 
 class CuahsiBackendHandler(RBH):
-    
+
+    async_soap_client = AsyncSOAPClient()
+
     SEND_DATA_ACTION: BackendActions = BackendActions.IMPORT_SITES_FROM_CATALOG
     SEND_LIST_SERVICES_ACTION: BackendActions = BackendActions.GET_LIST_SERVICES
     SEND_GET_IMPORTED_CUAHSI_SITES = BackendActions.GET_IMPORTED_CUAHSI_SITES
     SEND_GET_SITE_INFO = BackendActions.GET_SITE_INFO
+    SEND_GET_VALUES = BackendActions.GET_VALUES
+    
     @property
     def receiving_actions(self) -> dict[BackendActions, callable]:
         return {
@@ -226,11 +230,10 @@ class CuahsiBackendHandler(RBH):
         site_code = data.get("code")
         params = {"request": "GetSiteInfoObject","site_code": site_code , "format": "WML1"}
         url = f"{base_url}?request={params['request']}&site={params['site_code']}&format={params['format']}"
-        async_soap_client = AsyncSOAPClient()
+        
         try:
-            # sites_info_series = await async_soap_client.get_site_info(url)
-            sites_info_series = [record async for record in async_soap_client.get_site_info(url)]
-
+            
+            sites_info_series = [record async for record in self.async_soap_client.get_site_info(url)]
             await self.send_action(self.SEND_GET_SITE_INFO, sites_info_series)
 
         except Exception as e:
@@ -240,3 +243,43 @@ class CuahsiBackendHandler(RBH):
             }
             await self.send_action(self.SEND_GET_SITE_INFO, error_payload)
             
+
+    async def get_cuahsi_values(self, data: Dict[str, Any]) -> AsyncGenerator[Dict[str, Any], None]:
+        """
+        Retrieves and parses time series data for a specific site as an asynchronous generator.
+        
+        Args:
+            data (Dict[str, Any]): Dictionary containing `service_url`, `code`, `variable_code`, `start_date`, and `end_date`.
+
+        Yields:
+            Dict[str, Any]: Parsed time series data.
+        """
+        base_url = data.get("service_url")
+        site_code = data.get("site_code")
+        variable_code = data.get("variable_code")
+        start_date = data.get("start_date")
+        end_date = data.get("end_date")
+        params = {
+            "request": "GetValuesObject",
+            "site_code": site_code,
+            "variable_code": variable_code,
+            "start_date": start_date,
+            "end_date": end_date,
+            "format": "WML1",
+        }
+        url = (
+            f"{base_url}?request={params['request']}&site={params['site_code']}"
+            f"&variable={params['variable_code']}&beginDate={params['start_date']}"
+            f"&endDate={params['end_date']}&format={params['format']}"
+        )
+        try:
+            sites_series = [record async for record in self.async_soap_client.get_values(url)]
+
+            await self.send_action(self.SEND_GET_VALUES, sites_series)
+
+        except Exception as e:
+            logger.error(f"Failed to get site info: {e}")
+            error_payload = {
+                "error": f"Failed to fetch sites: {str(e)}"
+            }
+            await self.send_action(self.SEND_GET_VALUES, error_payload)

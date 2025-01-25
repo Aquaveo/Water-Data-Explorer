@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Form, Button, Dropdown, Row, Col } from "react-bootstrap";
 import DatePicker from "react-datepicker";
+import useDataStore from '../hooks/useDataStore';
+
 import "react-datepicker/dist/react-datepicker.css";
 
 const VariableMenuForm = ({ variableList = [], onSubmit }) => {
@@ -10,6 +12,7 @@ const VariableMenuForm = ({ variableList = [], onSubmit }) => {
   const [endDate, setEndDate] = useState(new Date());
   const [timeSupport, setTimeSupport] = useState(60);
   const [timeUnitName, setTimeUnitName] = useState("days");
+  const current_site = useDataStore((state) => state.getCurrentSite());
 
   useEffect(() => {
     if (variableList.length > 0) {
@@ -59,10 +62,14 @@ const VariableMenuForm = ({ variableList = [], onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log(current_site);
     onSubmit({
-      selectedVariable,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
+      site_code: selectedVariable.split("_")[0],
+      variable_code: selectedVariable.split("_")[1],
+      start_date: startDate.toISOString(),
+      end_date: endDate.toISOString(),
+      type: current_site.type,
+      service_url: current_site.service_url
     });
   };
 

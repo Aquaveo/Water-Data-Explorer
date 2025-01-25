@@ -21,7 +21,6 @@ const WDEView = () => {
     
   }
   const setSiteInfoVariableHandler = (data) => {
-    console.log(data);
     setSiteInfoVariables(data);
   }
 
@@ -41,7 +40,7 @@ const WDEView = () => {
     
       <Container>
       
-      <Suspense fallback={<LoadingAnimation />}>
+        <Suspense fallback={<LoadingAnimation />}>
 
         <SidePanel />
         <MapView />

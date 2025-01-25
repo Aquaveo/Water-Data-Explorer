@@ -496,3 +496,116 @@ class AsyncSOAPClient:
         return_obj['variableTimeInterval'] = vti if vti else "No Data was Provided"
 
         return return_obj
+
+
+
+    async def get_values(
+        self,
+        url: str,
+    ) -> AsyncGenerator[Dict[str, Any], None]:
+        """
+        Retrieves and parses time series data from the XML response as an asynchronous generator.
+
+        Args:
+            url (str): Endpoint to fetch the XML response.
+
+        Yields:
+            Dict[str, Any]: Parsed time series data.
+        """
+        headers = {
+            "Accept": "application/xml",
+        }
+
+        # Fetch the XML
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=headers, timeout=None)
+            response.raise_for_status()
+            response_text = response.text
+
+        try:
+            # Parse XML into a dictionary
+            xml_data = xmltodict.parse(response_text)
+            # Navigate to the `timeSeries` section
+            time_series_data = xml_data["soap:Envelope"]["soap:Body"]["TimeSeriesResponse"]["timeSeriesResponse"]["timeSeries"]
+
+            if isinstance(time_series_data, dict):
+                time_series_data = [time_series_data]  # Normalize single time series to a list
+
+            # Process each time series
+            for time_series in time_series_data:
+                try:
+                    # Initialize result object for parsed metadata
+                    result_obj = {}
+                    result_obj = self.parse_timeseries_metadata(time_series, result_obj)
+
+                    # Extract and parse individual values
+                    values_section = time_series.get("values", {}).get("value", [])
+                    if isinstance(values_section, dict):
+                        values_section = [values_section]  # Normalize single value to a list
+
+                    for value in values_section:
+                        # Parse individual value and yield result
+                        value_obj = self.parse_timeseries_value(value, result_obj.copy())
+                        yield value_obj
+
+                except Exception as e:
+                    logger.error(f"Error processing time series: {e}")
+
+        except Exception as e:
+            logger.error(f"Error parsing XML data: {e}")
+
+
+    @staticmethod
+    def parse_timeseries_metadata(times_series: Dict[str, Any], result_obj: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Helper method to parse metadata for time series data and store it in a dictionary.
+        """
+        try:
+            ## Commented out because not need of the metadata
+            # source_info = times_series.get("sourceInfo", {})
+            # result_obj["siteName"] = source_info.get("siteName", "No Data Provided")
+            # result_obj["siteCode"] = source_info.get("siteCode", {}).get("#text", "No Data Provided")
+            # result_obj["network"] = source_info.get("siteCode", {}).get("@network", "No Data Provided")
+            # result_obj["siteID"] = source_info.get("siteCode", {}).get("@siteID", "No Data Provided")
+            # result_obj["latitude"] = source_info.get("geoLocation", {}).get("geogLocation", {}).get("latitude", "No Data Provided")
+            # result_obj["longitude"] = source_info.get("geoLocation", {}).get("geogLocation", {}).get("longitude", "No Data Provided")
+
+            variable = times_series.get("variable", {})
+            result_obj["unitName"] = variable.get("unit", {}).get("unitName", "No Data Provided")
+            result_obj["unitAbbreviation"] = variable.get("unit", {}).get("unitAbbreviation", "No Data Provided")
+            result_obj["noDataValue"] = variable.get("noDataValue", "No Data Provided")
+
+            ## Commented out because not need of the metadata
+            
+            # result_obj["variableName"] = variable.get("variableName", "No Data Provided")
+            # result_obj["dataType"] = variable.get("dataType", "No Data Provided")
+
+            time_scale = variable.get("timeScale", {})
+            result_obj["timeUnitName"] = time_scale.get("unit", {}).get("unitName", "No Data Provided")
+            result_obj["timeUnitAbbreviation"] = time_scale.get("unit", {}).get("unitAbbreviation", "No Data Provided")
+            # result_obj["timeSupport"] = time_scale.get("timeSupport", "No Data Provided")
+
+        except Exception as e:
+            logger.error(f"Error parsing time series metadata: {e}")
+
+        return result_obj
+
+
+    @staticmethod
+    def parse_timeseries_value(value: Dict[str, Any], result_obj: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Parses individual time series values and adds them to the result object.
+        """
+        try:
+            result_obj["dateTime"] = value.get("@dateTime", "No Date found")
+            result_obj["dataValue"] = float(value.get("#text", 0.0))
+
+            ## Commented out because not need of the metadata
+            # result_obj["dateTimeUTC"] = value.get("@dateTimeUTC", "No Date UTC found")
+            # result_obj["methodID"] = value.get("@methodID", "No Method ID Provided")
+            # result_obj["sampleID"] = value.get("@sampleID", "No Sample ID Provided")
+            # result_obj["sourceCode"] = value.get("@sourceCode", "No Source Code Provided")
+            # result_obj["timeOffset"] = value.get("@timeOffset", "No Time Offset Provided")
+        except Exception as e:
+            logger.error(f"Error parsing time series value: {e}")
+        return result_obj 

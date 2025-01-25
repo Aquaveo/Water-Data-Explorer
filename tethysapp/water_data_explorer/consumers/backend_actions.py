@@ -14,3 +14,4 @@ class BackendActions(StrEnum):
     MESSAGE_AKNOWLEDGE = auto()
     MESSAGE_ERROR = auto()
     GET_SITE_INFO = auto()
+    GET_VALUES = auto()

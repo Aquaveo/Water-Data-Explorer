@@ -68,10 +68,6 @@ const ImportSitesFromCatalogMenu = () => {
 
     setUploadedSites((prevUploadedSites) => {
       const newUploadedCount = prevUploadedSites + data.sites.length;
-      console.log('New uploaded count:', newUploadedCount);
-      console.log('Total sites:', totalSitesRef.current);
-      console.log('Toast ID:', toastIdRef.current);
-
       // Update the toast with progress
       if (toastIdRef.current) {
         toast.update(toastIdRef.current, {

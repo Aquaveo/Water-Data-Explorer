@@ -5,6 +5,7 @@ const useDataStore = create((set, get) => ({
   sites: [],
   filteredSites: [],
   datastreams: [],
+  current_site: null,
 
   addSites: (newSites) =>
     set((state) => ({
@@ -33,6 +34,11 @@ const useDataStore = create((set, get) => ({
       datastreams: newDatastreams,
     }),
 
+  setCurrentSite: (site) =>
+    set({
+      current_site: site,
+    }),
+
   getAllSites: () => {
     return get().sites;
   },
@@ -44,6 +50,12 @@ const useDataStore = create((set, get) => ({
   getAllDatastreams: () => {
     return get().datastreams;
   },
+
+  getCurrentSite: () => {
+    return get().current_site;
+  },
+  
+
 }));
 
 export default useDataStore;

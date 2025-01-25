@@ -21,7 +21,8 @@ class SitesBackendHandler(RBH):
         return {
             BackendActions.GET_SITE: self.get_site,
             BackendActions.GET_SITES: self.handle_get_sites,
-            BackendActions.GET_SITE_INFO: self.get_site_info_handler
+            BackendActions.GET_SITE_INFO: self.get_site_info_handler,
+            BackendActions.GET_VALUES: self.get_values_handler
         }
 
     @RBH.action_handler
@@ -90,5 +91,17 @@ class SitesBackendHandler(RBH):
 
         if site_type == "cuahsi":
            await cuahsi_handler.get_cuahsi_site_info(data)
+        else:
+            pass
+
+    async def get_values_handler(self, event, action, data):
+        """
+        Handler to fetch values of a variable via SOAP and send it to the frontend.
+        """
+        site_type = data.get("type")
+        cuahsi_handler = CuahsiBackendHandler(self.backend_consumer)
+
+        if site_type == "cuahsi":
+           await cuahsi_handler.get_cuahsi_values(data)
         else:
             pass
