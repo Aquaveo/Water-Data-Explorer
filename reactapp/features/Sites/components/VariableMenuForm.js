@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Dropdown, Row, Col } from "react-bootstrap";
 import DatePicker from "react-datepicker";
-
+import "react-datepicker/dist/react-datepicker.css";
 
 const VariableMenuForm = ({ variableList = [], onSubmit }) => {
   const [selectedVariable, setSelectedVariable] = useState("");
+  const [selectedVariableName, setSelectedVariableName] = useState("Select Variable");
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
-  const [timeSupport, setTimeSupport] = useState(60); // default intervals
-  const [timeUnitName, setTimeUnitName] = useState("days"); // default 'days'
+  const [timeSupport, setTimeSupport] = useState(60);
+  const [timeUnitName, setTimeUnitName] = useState("days");
 
   useEffect(() => {
     if (variableList.length > 0) {
       const firstItem = variableList[0];
-      setSelectedVariable(
+      const defaultVariable =
         firstItem.siteCode && firstItem.variableCode
           ? `${firstItem.siteCode}_${firstItem.variableCode}`
-          : ""
-      );
+          : "";
+      setSelectedVariable(defaultVariable);
+      setSelectedVariableName(firstItem.variableName || "Select Variable");
       setStartDate(
         firstItem.beginDateTime ? new Date(firstItem.beginDateTime) : new Date()
       );
@@ -29,12 +31,11 @@ const VariableMenuForm = ({ variableList = [], onSubmit }) => {
         setTimeSupport(parseInt(firstItem.timeSupport, 10) || 60);
       }
       if (firstItem.timeUnitName) {
-        setTimeUnitName(firstItem.timeUnitName.toLowerCase()); 
+        setTimeUnitName(firstItem.timeUnitName.toLowerCase());
       }
     }
   }, [variableList]);
 
-  // minDate and maxDate define the boundaries
   const minDate = startDate;
   const maxDate = endDate;
 
@@ -57,41 +58,47 @@ const VariableMenuForm = ({ variableList = [], onSubmit }) => {
   }
 
   const handleSubmit = (e) => {
-    console.log("Form submitted:", {
-        selectedVariable,
-        startDate,
-        endDate,
-        });
     e.preventDefault();
     onSubmit({
       selectedVariable,
-      startDate:startDate.toISOString(),
-      endDate:  endDate.toISOString(),
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
     });
+  };
+
+  const handleSelectVariable = (value, variableName) => {
+    setSelectedVariable(value);
+    setSelectedVariableName(variableName);
   };
 
   return (
     <Form onSubmit={handleSubmit}>
-      <Form.Group controlId="variableSelect">
-        <Form.Label>Select Variable</Form.Label>
-        <select
-          className="form-control"
-          value={selectedVariable}
-          onChange={(e) => setSelectedVariable(e.target.value)}
-        >
-          {variableList.map((item, index) => {
-            const value = `${item.siteCode}_${item.variableCode}`;
-            return (
-              <option key={index} value={value}>
-                {item.variable_name}
-              </option>
-            );
-          })}
-        </select>
-      </Form.Group>
+      <Row className="align-items-center">
+        
+        <Col md="auto">
+          <Dropdown>
+            <Dropdown.Toggle variant="light" id="dropdown-basic">
+              {selectedVariableName}
+            </Dropdown.Toggle>
 
-      <Form.Group controlId="startDate">
-        <Form.Label>Start Date</Form.Label>
+            <Dropdown.Menu>
+              {variableList.map((item, index) => {
+                const value = `${item.siteCode}_${item.variableCode}`;
+                return (
+                  <Dropdown.Item
+                    key={index}
+                    onClick={() =>
+                      handleSelectVariable(value, item.variableName)
+                    }
+                  >
+                    {`${item.variableName}-${item.dataType ? item.dataType : ""}`}
+                  </Dropdown.Item>
+                );
+              })}
+            </Dropdown.Menu>
+          </Dropdown>
+        </Col>
+        <Col md="auto">
           <DatePicker
             selected={startDate}
             onChange={(date) => date && setStartDate(date)}
@@ -103,11 +110,10 @@ const VariableMenuForm = ({ variableList = [], onSubmit }) => {
             timeIntervals={usedTimeIntervals}
             timeCaption="Time"
             dateFormat={dateFormat}
+            placeholderText="Start Date"
           />
-      </Form.Group>
-
-      <Form.Group controlId="endDate">
-        <Form.Label>End Date</Form.Label>
+        </Col>
+        <Col md="auto">
           <DatePicker
             selected={endDate}
             onChange={(date) => date && setEndDate(date)}
@@ -119,12 +125,15 @@ const VariableMenuForm = ({ variableList = [], onSubmit }) => {
             timeIntervals={usedTimeIntervals}
             timeCaption="Time"
             dateFormat={dateFormat}
+            placeholderText="End Date"
           />
-      </Form.Group>
-
-      <Button variant="primary" type="submit">
-        Submit
-      </Button>
+        </Col>
+        <Col md="auto">
+          <Button variant="primary" type="submit">
+            Submit
+          </Button>
+        </Col>
+      </Row>
     </Form>
   );
 };

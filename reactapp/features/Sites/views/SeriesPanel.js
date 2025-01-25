@@ -6,14 +6,15 @@ import VariableMenuForm from 'features/Sites/components/VariableMenuForm';
 
 
 export const StyledOffcanvas = styled(Offcanvas)`
+  height: 500px !important; 
   .offcanvas-body {
     max-width: 100%;
+
   }
 `;
 
 const handleFormSubmit = (values) => {
   console.log("Form submitted:", values);
-  // values.selectedVariable, values.startDate, values.endDate
 };
 
 
@@ -32,14 +33,14 @@ const SeriesPanel = ({variableList}) => {
       scroll={true}
       backdrop={false}
     >
-           <Offcanvas.Header>
-              <Offcanvas.Title>
-                    Series
-              </Offcanvas.Title>
-          </Offcanvas.Header>
+      <Offcanvas.Header>
+        <Offcanvas.Title>
+          <VariableMenuForm variableList={variableList} onSubmit={handleFormSubmit} />
+        </Offcanvas.Title>
+      </Offcanvas.Header>
           
       <Offcanvas.Body>
-          <VariableMenuForm variableList={variableList} onSubmit={handleFormSubmit} />
+          
       </Offcanvas.Body>
     </StyledOffcanvas>
   );
