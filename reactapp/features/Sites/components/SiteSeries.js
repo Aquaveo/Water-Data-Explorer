@@ -19,8 +19,8 @@ import { RectClipPath } from '@visx/clip-path';
 import useTheme from 'hooks/useTheme';
 
 function SiteSeries({ width, height, data, layout }) {
+  
   const theme = useTheme();
-
   const {
     tooltipData,
     tooltipLeft = 0,
@@ -39,9 +39,6 @@ function SiteSeries({ width, height, data, layout }) {
   // Parse date string to Date object
   const parseDate = timeParse('%Y-%m-%d %H:%M:%S');
 
-  // Flatten data to get all data points for scales
-  const allData = data.flatMap((series) => series.data);
-
   // Data accessors
   const getDate = (d) => parseDate(d.x.trim());
   const getYValue = (d) => d.y;
@@ -49,13 +46,13 @@ function SiteSeries({ width, height, data, layout }) {
   // Define initial scales
   const xScale = scaleTime({
     range: [0, innerWidth],
-    domain: extent(allData, getDate),
+    domain: extent(data, getDate),
     nice: true,
   });
 
   const yScale = scaleLinear({
     range: [innerHeight, 0],
-    domain: extent(allData, getYValue),
+    domain: extent(data, getYValue),
     nice: true,
   });
 

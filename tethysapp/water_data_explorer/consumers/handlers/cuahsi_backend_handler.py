@@ -274,8 +274,16 @@ class CuahsiBackendHandler(RBH):
         )
         try:
             sites_series = [record async for record in self.async_soap_client.get_values(url)]
-
-            await self.send_action(self.SEND_GET_VALUES, sites_series)
+            layout = {
+                "title": "Time Series Data",
+                "xaxis": sites_series[0].get('timeUnitAbbreviation'),
+                "yaxis": sites_series[0].get('unitAbbreviation'),
+            }
+            series_object ={
+                "layout": layout,
+                "series": sites_series
+            }
+            await self.send_action(self.SEND_GET_VALUES, series_object)
 
         except Exception as e:
             logger.error(f"Failed to get site info: {e}")

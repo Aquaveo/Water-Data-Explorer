@@ -597,10 +597,12 @@ class AsyncSOAPClient:
         Parses individual time series values and adds them to the result object.
         """
         try:
-            result_obj["dateTime"] = value.get("@dateTime", "No Date found")
-            result_obj["dataValue"] = float(value.get("#text", 0.0))
+            result_obj["x"] = value.get("@dateTime", "No Date found")
+            result_obj["y"] = float(value.get("#text", 0.0))
 
             ## Commented out because not need of the metadata
+            # result_obj["dateTime"] = value.get("@dateTime", "No Date found")
+            # result_obj["dataValue"] = float(value.get("#text", 0.0))
             # result_obj["dateTimeUTC"] = value.get("@dateTimeUTC", "No Date UTC found")
             # result_obj["methodID"] = value.get("@methodID", "No Method ID Provided")
             # result_obj["sampleID"] = value.get("@sampleID", "No Sample ID Provided")

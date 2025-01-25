@@ -15,28 +15,28 @@ const VariableMenuForm = ({ variableList = [], onSubmit }) => {
   const current_site = useDataStore((state) => state.getCurrentSite());
 
   useEffect(() => {
-    if (variableList.length > 0) {
-      const firstItem = variableList[0];
-      const defaultVariable =
-        firstItem.siteCode && firstItem.variableCode
-          ? `${firstItem.siteCode}_${firstItem.variableCode}`
-          : "";
-      setSelectedVariable(defaultVariable);
-      setSelectedVariableName(firstItem.variableName || "Select Variable");
-      setStartDate(
-        firstItem.beginDateTime ? new Date(firstItem.beginDateTime) : new Date()
-      );
-      setEndDate(
-        firstItem.endDateTime ? new Date(firstItem.endDateTime) : new Date()
-      );
+      if (variableList.length > 0) {
+        const firstItem = variableList[0];
+        const defaultVariable =
+          firstItem.siteCode && firstItem.variableCode
+            ? `${firstItem.siteCode}_${firstItem.variableCode}`
+            : "";
+        setSelectedVariable(defaultVariable);
+        setSelectedVariableName(firstItem.variableName || "Select Variable");
+        setStartDate(
+          firstItem.beginDateTime ? new Date(firstItem.beginDateTime) : new Date()
+        );
+        setEndDate(
+          firstItem.endDateTime ? new Date(firstItem.endDateTime) : new Date()
+        );
 
-      if (firstItem.timeSupport) {
-        setTimeSupport(parseInt(firstItem.timeSupport, 10) || 60);
+        if (firstItem.timeSupport) {
+          setTimeSupport(parseInt(firstItem.timeSupport, 10) || 60);
+        }
+        if (firstItem.timeUnitName) {
+          setTimeUnitName(firstItem.timeUnitName.toLowerCase());
+        }
       }
-      if (firstItem.timeUnitName) {
-        setTimeUnitName(firstItem.timeUnitName.toLowerCase());
-      }
-    }
   }, [variableList]);
 
   const minDate = startDate;
