@@ -55,8 +55,8 @@ const SeriesPanel = ({variableList}) => {
 
            <ParentSize>
            {({ width, height }) => 
-                     seriesData &&
-                     <SiteSeries width={width} height={height} data={seriesData.series} layout={seriesData.layout}/>
+              seriesData &&
+              <SiteSeries width={width} height={height} data={seriesData.series} layout={seriesData.layout}/>
              }
           </ParentSize>
 

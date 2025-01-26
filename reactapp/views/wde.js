@@ -5,7 +5,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { Container } from 'views/styledComponents.js';
 import LoadingAnimation from 'features/react-tethys/components/loader/LoadingAnimation';
 import { ToastContainer } from 'react-toastify';
-
+import useLayoutStore from 'stores/useLayoutStore';
 
 const MapView = lazy(() => import('features/Map/components/Map.js'));
 const SidePanel = lazy(() => import('views/SidePanel.js'));
@@ -15,12 +15,14 @@ const WDEView = () => {
   const { backend } = useContext(AppContext);
   const addSites = useDataStore(useShallow((state) => state.addSites));
   const [siteInfoVariables, setSiteInfoVariables] = useState([]);
-
+  const { showTimeSeriesPanel } = useLayoutStore();
    const addSitesData = (data) => {
     addSites(data);
     
   }
   const setSiteInfoVariableHandler = (data) => {
+    console.log("Site Info", data);
+    showTimeSeriesPanel()
     setSiteInfoVariables(data);
   }
 

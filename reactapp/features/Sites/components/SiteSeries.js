@@ -1,5 +1,4 @@
-// SiteSeries.js
-import React, { useCallback } from 'react';
+import React, { useCallback, Fragment } from 'react';
 import { Zoom, applyMatrixToPoint } from '@visx/zoom';
 import { Group } from '@visx/group';
 import { scaleLinear, scaleTime } from '@visx/scale';
@@ -14,13 +13,12 @@ import {
 } from '@visx/tooltip';
 import { localPoint } from '@visx/event';
 import { GlyphCircle } from '@visx/glyph';
-import { timeParse, timeFormat } from 'd3-time-format';
+// import { timeParse, timeFormat } from 'd3-time-format';
+import { timeFormat } from 'd3-time-format';
 import { RectClipPath } from '@visx/clip-path';
-import useTheme from 'hooks/useTheme';
+import { FaExpandArrowsAlt } from "react-icons/fa";
 
 function SiteSeries({ width, height, data, layout }) {
-
-  const theme = useTheme();
   const {
     tooltipData,
     tooltipLeft = 0,
@@ -36,11 +34,17 @@ function SiteSeries({ width, height, data, layout }) {
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 
-  // Parse date string to Date object
-  const parseDate = timeParse('%Y-%m-%d %H:%M:%S');
+  
 
   // Data accessors
-  const getDate = (d) => parseDate(d.x.trim());
+  const getDate = (d) => new Date(d.x);
+
+
+  // // Parse date string to Date object
+  // const parseDate = timeParse('%Y-%m-%dT%H:%M:%S.%LZ');
+  // const getDate = (d) => {
+  //   parseDate(d.x.trim())
+  // };
   const getYValue = (d) => d.y;
 
   // Define initial scales
@@ -57,20 +61,14 @@ function SiteSeries({ width, height, data, layout }) {
   });
 
   // Colors for each series
-  const colors =
-    theme === 'dark'
-      ? ['#43b284', '#ff8c42', '#a566ff', '#20a4f3', '#ffc107']
-      : ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd'];
+  const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd'];
 
   // Tooltip styles
   const tooltipStyles = {
     ...defaultStyles,
     minWidth: 60,
-    backgroundColor:
-      theme === 'dark'
-        ? 'rgba(44, 62, 80, 0.9)'
-        : 'rgba(255, 255, 255, 0.9)',
-    color: theme === 'dark' ? 'white' : 'black',
+    backgroundColor: 'rgba(44, 62, 80, 0.9)',
+    color: 'white',
     fontSize: 14,
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
   };
@@ -83,25 +81,17 @@ function SiteSeries({ width, height, data, layout }) {
 
   // Function to rescale x-axis based on zoom
   const rescaleXAxis = (scale, transformMatrix) => {
-    const newDomain = scale
-      .range()
-      .map((r) =>
-        scale.invert(
-          (r - transformMatrix.translateX) / transformMatrix.scaleX
-        )
-      );
+    const newDomain = scale.range().map((r) =>
+      scale.invert((r - transformMatrix.translateX) / transformMatrix.scaleX)
+    );
     return scale.copy().domain(newDomain);
   };
 
   // Function to rescale y-axis based on zoom
   const rescaleYAxis = (scale, transformMatrix) => {
-    const newDomain = scale
-      .range()
-      .map((r) =>
-        scale.invert(
-          (r - transformMatrix.translateY) / transformMatrix.scaleY
-        )
-      );
+    const newDomain = scale.range().map((r) =>
+      scale.invert((r - transformMatrix.translateY) / transformMatrix.scaleY)
+    );
     return scale.copy().domain(newDomain);
   };
 
@@ -112,8 +102,6 @@ function SiteSeries({ width, height, data, layout }) {
       const x = point.x - margin.left;
       const x0 = rescaleXAxis(xScale, zoom.transformMatrix).invert(x);
 
-      const tooltipDataArray = [];
-      
       const index = bisectDate(data, x0, 1);
       const d0 = data[index - 1];
       const d1 = data[index];
@@ -123,15 +111,17 @@ function SiteSeries({ width, height, data, layout }) {
         d = x0 - getDate(d0) > getDate(d1) - x0 ? d1 : d0;
       }
 
-      tooltipDataArray.push({
-        dataPoint: d,
-        seriesLabel: 'unit',
-      });
-      
+      // Only one series for now => push single data point
+      const tooltipDataArray = [
+        {
+          dataPoint: d,
+          seriesLabel: layout?.yaxis || 'Series', // Example label
+        },
+      ];
 
       // Calculate the tooltip's y-position
-      const yPositions = tooltipDataArray.map((d) =>
-        rescaleYAxis(yScale, zoom.transformMatrix)(getYValue(d.dataPoint))
+      const yPositions = tooltipDataArray.map((obj) =>
+        rescaleYAxis(yScale, zoom.transformMatrix)(getYValue(obj.dataPoint))
       );
       const tooltipTopPosition = Math.min(...yPositions) + margin.top;
 
@@ -141,17 +131,7 @@ function SiteSeries({ width, height, data, layout }) {
         tooltipTop: tooltipTopPosition,
       });
     },
-    [
-      showTooltip,
-      xScale,
-      yScale,
-      data,
-      getDate,
-      getYValue,
-      bisectDate,
-      margin.left,
-      margin.top,
-    ]
+    [showTooltip, xScale, yScale, data, getDate, getYValue, bisectDate, margin.left, margin.top, layout]
   );
 
   // Updated constrain function
@@ -207,7 +187,7 @@ function SiteSeries({ width, height, data, layout }) {
           const newYScale = rescaleYAxis(yScale, zoom.transformMatrix);
 
           return (
-            <>
+            <Fragment>
               {/* Legend and Controls */}
               <div
                 style={{
@@ -218,45 +198,40 @@ function SiteSeries({ width, height, data, layout }) {
                 }}
               >
                 <div style={{ display: 'flex' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      marginRight: 10,
+                      padding: '2px 6px',
+                      border: '1px solid #ddd',
+                      borderRadius: 4,
+                      backgroundColor: '#2c3e50',
+                    }}
+                  >
                     <div
                       style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        marginRight: 10,
-                        padding: '2px 6px',
-                        border: '1px solid #ddd',
-                        borderRadius: 4,
-                        backgroundColor:
-                          theme === 'dark' ? '#2c3e50' : '#f0f0f0',
+                        backgroundColor: colors[0],
+                        width: 10,
+                        height: 10,
+                        marginRight: 5,
+                      }}
+                    />
+                    <div
+                      style={{
+                        color: '#f0f0f0',
+                        fontSize: 14,
                       }}
                     >
-                      <div
-                        style={{
-                          backgroundColor:
-                            colors[0],
-                          width: 10,
-                          height: 10,
-                          marginRight: 5,
-                        }}
-                      />
-                      <div
-                        style={{
-                          color:
-                            theme === 'dark' ? '#f0f0f0' : '#000000',
-                          fontSize: 14,
-                        }}
-                      >
-                        {layout.yaxis}
-                      </div>
+                      {layout?.yaxis ?? 'Series'}
                     </div>
-                  
+                  </div>
                 </div>
                 <button
                   onClick={zoom.reset}
                   style={{
-                    backgroundColor:
-                      theme === 'dark' ? '#2c3e50' : '#ffffff',
-                    color: theme === 'dark' ? '#ffffff' : '#000000',
+                    backgroundColor: '#2c3e50',
+                    color: '#ffffff',
                     fontWeight: 'bold',
                     border: 'none',
                     borderRadius: 4,
@@ -264,7 +239,8 @@ function SiteSeries({ width, height, data, layout }) {
                     cursor: 'pointer',
                   }}
                 >
-                  Reset Zoom
+                  <FaExpandArrowsAlt />
+
                 </button>
               </div>
 
@@ -282,216 +258,168 @@ function SiteSeries({ width, height, data, layout }) {
                   width={innerWidth}
                   height={innerHeight}
                 />
-                {/* Background */}
-
+                {/* Main Group */}
                 <Group left={margin.left} top={margin.top}>
-                  <GridRows
-                    scale={newYScale}
-                    width={innerWidth}
-                    height={innerHeight}
-                    stroke={
-                      theme === 'dark' ? '#7f8c8d' : '#e0e0e0'
-                    }
-                    strokeOpacity={0.1}
-                    strokeWidth={1}
-                  />
+                  {/* Wrap multiple siblings in a Fragment */}
+                  <Fragment>
+                    <GridRows
+                      scale={newYScale}
+                      width={innerWidth}
+                      height={innerHeight}
+                      stroke="#7f8c8d"
+                      strokeOpacity={0.1}
+                      strokeWidth={1}
+                    />
+                    <GridColumns
+                      scale={newXScale}
+                      width={innerWidth}
+                      height={innerHeight}
+                      stroke="#7f8c8d"
+                      strokeOpacity={0.1}
+                      strokeWidth={1}
+                    />
 
-                  <GridColumns
-                    scale={newXScale}
-                    width={innerWidth}
-                    height={innerHeight}
-                    stroke={
-                      theme === 'dark' ? '#7f8c8d' : '#e0e0e0'
-                    }
-                    strokeOpacity={0.1}
-                    strokeWidth={1}
-                  />
+                    <AxisLeft
+                      scale={newYScale}
+                      stroke="#d1d5db"
+                      tickStroke="#d1d5db"
+                      tickLabelProps={() => ({
+                        fill: '#e0e0e0',
+                        fontWeight: 'bold',
+                        textAnchor: 'end',
+                      })}
+                      label={layout?.yaxis ?? 'Series'}
+                      labelProps={{
+                        fill: '#e0e0e0',
+                        fontSize: 14,
+                        strokeWidth: 0,
+                        paintOrder: 'stroke',
+                        fontFamily: 'sans-serif',
+                      }}
+                    />
+                    <AxisBottom
+                      scale={newXScale}
+                      top={innerHeight}
+                      stroke="#d1d5db"
+                      tickFormat={formatDate}
+                      tickStroke="#d1d5db"
+                      tickLabelProps={() => ({
+                        fill: '#e0e0e0',
+                        fontSize: 12,
+                        fontWeight: 'bold',
+                        textAnchor: 'middle',
+                      })}
+                    />
 
-                  <AxisLeft
-                    scale={newYScale}
-                    stroke={
-                      theme === 'dark' ? '#d1d5db' : '#000000'
-                    }
-                    tickStroke={
-                      theme === 'dark' ? '#d1d5db' : '#000000'
-                    }
-                    tickLabelProps={() => ({
-                      fill:
-                        theme === 'dark' ? '#e0e0e0' : '#000000',
-                      fontSize: 12,
-                      fontWeight: 'bold',
-                      textAnchor: 'end',
-                    })}
-                    label={layout.yaxis}
-                    labelProps={{
-                      fill:
-                        theme === 'dark' ? '#e0e0e0' : '#000000',
-                      fontSize: 14,
-                      strokeWidth: 0,
-                      paintOrder: 'stroke',
-                      fontFamily: 'sans-serif',
-                    }}
-                  />
-                  <AxisBottom
-                    scale={newXScale}
-                    top={innerHeight}
-                    stroke={
-                      theme === 'dark' ? '#d1d5db' : '#000000'
-                    }
-                    tickFormat={formatDate}
-                    tickStroke={
-                      theme === 'dark' ? '#d1d5db' : '#000000'
-                    }
-                    tickLabelProps={() => ({
-                      fill:
-                        theme === 'dark' ? '#e0e0e0' : '#000000',
-                      fontSize: 12,
-                      fontWeight: 'bold',
-                      textAnchor: 'middle',
-                    })}
-                  />
-                  {/* Apply the clip path to the chart elements */}
-                  <Group clipPath="url(#chart-clip)">
-                    
-                    
+                    {/* Chart content clipped */}
+                    <Group clipPath="url(#chart-clip)">
                       <LinePath
-                        
-                        stroke={
-                          colors[0]
-                        }
+                        stroke={colors[0]}
                         strokeWidth={2}
                         data={data}
                         x={(d) => newXScale(getDate(d)) ?? 0}
-                        y={(d) =>
-                          newYScale(getYValue(d)) ?? 0
-                        }
+                        y={(d) => newYScale(getYValue(d)) ?? 0}
                       />
-                    
 
-                    {/* Tooltip components */}
-                    {tooltipData && (
-                      <g>
-                        <Line
-                          from={{
-                            x: tooltipLeft - margin.left,
-                            y: 0,
-                          }}
-                          to={{
-                            x: tooltipLeft - margin.left,
-                            y: innerHeight,
-                          }}
-                          stroke={
-                            theme === 'dark'
-                              ? '#d1d5db'
-                              : '#000000'
-                          }
-                          strokeWidth={1.5}
-                          pointerEvents="none"
-                          strokeDasharray="6,3"
-                        />
-                        {tooltipData.map((d, i) => (
-                          <GlyphCircle
-                            key={`glyph-${i}`}
-                            left={
-                              newXScale(getDate(d.dataPoint)) ??
-                              0
-                            }
-                            top={
-                              newYScale(
-                                getYValue(d.dataPoint)
-                              ) ?? 0
-                            }
-                            size={110}
-                            fill={
-                              colors[0]
-                            }
-                            stroke={
-                              theme === 'dark'
-                                ? 'white'
-                                : 'black'
-                            }
-                            strokeWidth={2}
+                      {/* Tooltip line & glyphs */}
+                      {tooltipData && tooltipData.length > 0 && (
+                        <Group>
+                          <Line
+                            from={{
+                              x: tooltipLeft - margin.left,
+                              y: 0,
+                            }}
+                            to={{
+                              x: tooltipLeft - margin.left,
+                              y: innerHeight,
+                            }}
+                            stroke="#d1d5db"
+                            strokeWidth={1.5}
+                            pointerEvents="none"
+                            strokeDasharray="6,3"
                           />
-                        ))}
-                      </g>
-                    )}
-                  </Group>
-                  {/* Zoom overlay */}
-                  <rect
-                    width={innerWidth}
-                    height={innerHeight}
-                    fill="transparent"
-                    onMouseDown={zoom.dragStart}
-                    onMouseMove={(event) => {
-                      zoom.dragMove(event);
-                      handleTooltip(event, zoom);
-                    }}
-                    onMouseUp={zoom.dragEnd}
-                    onMouseLeave={(event) => {
-                      if (zoom.isDragging) zoom.dragEnd();
-                      hideTooltip();
-                    }}
-                    onTouchStart={zoom.dragStart}
-                    onTouchMove={zoom.dragMove}
-                    onTouchEnd={zoom.dragEnd}
-                    onDoubleClick={(event) => {
-                      const point =
-                        localPoint(event) || { x: 0, y: 0 };
-                      zoom.scale({
-                        scaleX: 1.5,
-                        scaleY: 1.5,
-                        point,
-                      });
-                    }}
-                    onWheel={(event) => {
-                      event.preventDefault();
-                      const point =
-                        localPoint(event) || { x: 0, y: 0 };
-                      const delta = -event.deltaY / 500; // Adjust sensitivity
-                      const scale = 1 + delta;
-                      zoom.scale({
-                        scaleX: scale,
-                        scaleY: scale,
-                        point,
-                      });
-                    }}
-                    style={{
-                      cursor: zoom.isDragging
-                        ? 'grabbing'
-                        : 'grab',
-                    }}
-                  />
+                          {tooltipData.map((d, i) => (
+                            <GlyphCircle
+                              key={`glyph-${i}`}
+                              left={newXScale(getDate(d.dataPoint))}
+                              top={newYScale(getYValue(d.dataPoint))}
+                              size={110}
+                              fill={colors[0]}
+                            />
+                          ))}
+                        </Group>
+                      )}
+                    </Group>
+
+                    {/* Zoom overlay */}
+                    <rect
+                      width={innerWidth}
+                      height={innerHeight}
+                      fill="transparent"
+                      onMouseDown={zoom.dragStart}
+                      onMouseMove={(event) => {
+                        zoom.dragMove(event);
+                        handleTooltip(event, zoom);
+                      }}
+                      onMouseUp={zoom.dragEnd}
+                      onMouseLeave={() => {
+                        if (zoom.isDragging) zoom.dragEnd();
+                        hideTooltip();
+                      }}
+                      onTouchStart={zoom.dragStart}
+                      onTouchMove={zoom.dragMove}
+                      onTouchEnd={zoom.dragEnd}
+                      onDoubleClick={(event) => {
+                        const point = localPoint(event) || { x: 0, y: 0 };
+                        zoom.scale({
+                          scaleX: 1.5,
+                          scaleY: 1.5,
+                          point,
+                        });
+                      }}
+                      onWheel={(event) => {
+                        // no event.preventDefault()
+                        const point = localPoint(event) || { x: 0, y: 0 };
+                        const delta = -event.deltaY / 500; // Adjust sensitivity
+                        const scale = 1 + delta;
+                        zoom.scale({
+                          scaleX: scale,
+                          scaleY: scale,
+                          point,
+                        });
+                      }}
+                      style={{
+                        cursor: zoom.isDragging ? 'grabbing' : 'grab',
+                      }}
+                    />
+                  </Fragment>
                 </Group>
               </svg>
+
               {/* Tooltip */}
-              {tooltipData && (
+              {tooltipData && tooltipData.length > 0 && (
                 <TooltipWithBounds
                   top={tooltipTop}
                   left={tooltipLeft}
                   style={tooltipStyles}
                 >
-                  <div>
-                    <strong>Date: </strong>
-                    {formatDate(
-                      getDate(tooltipData[0].dataPoint)
-                    )}
-                  </div>
-                  {tooltipData.map((d, i) => (
-                    <div key={`tooltip-${i}`}>
-                      <strong
-                        style={{
-                          color:
-                            colors[0],
-                        }}
-                      >
-                        {d.seriesLabel}:{' '}
-                      </strong>
-                      {getYValue(d.dataPoint)}
+                  <Fragment>
+                    <div>
+                      <strong>Date: </strong>
+                      {formatDate(getDate(tooltipData[0].dataPoint))}
                     </div>
-                  ))}
+                    {tooltipData.map((d, i) => (
+                      <div key={`tooltip-${i}`}>
+                        <strong style={{ color: colors[0] }}>
+                          {d.seriesLabel}:
+                        </strong>{' '}
+                        {getYValue(d.dataPoint)}
+                      </div>
+                    ))}
+                  </Fragment>
                 </TooltipWithBounds>
               )}
-            </>
+            </Fragment>
           );
         }}
       </Zoom>

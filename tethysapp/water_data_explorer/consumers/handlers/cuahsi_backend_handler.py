@@ -230,6 +230,7 @@ class CuahsiBackendHandler(RBH):
         site_code = data.get("code")
         params = {"request": "GetSiteInfoObject","site_code": site_code , "format": "WML1"}
         url = f"{base_url}?request={params['request']}&site={params['site_code']}&format={params['format']}"
+        logger.info(f"running CuahsiBackendHandler.get_cuahsi_site_info with url: {url}")
         
         try:
             

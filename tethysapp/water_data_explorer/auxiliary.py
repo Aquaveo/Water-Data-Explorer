@@ -494,22 +494,22 @@ def parse_gldas_data(file):
 # Generate gldas options from the gldas_config.txt file
 
 
-def gen_gldas_dropdown():
-    gldas_options = []
-    gldas_config_file = inspect.getfile(inspect.currentframe()).replace('utilities.py',
-                                                                        'public/data/gldas_config.txt')
+# def gen_gldas_dropdown():
+#     gldas_options = []
+#     gldas_config_file = inspect.getfile(inspect.currentframe()).replace('utilities.py',
+#                                                                         'public/data/gldas_config.txt')
 
-    with open(gldas_config_file, mode='r') as f:
-        f.readline()
-        for line in f:
-            linevals = line.split('|')
-            var_name = linevals[1]
-            var_units = linevals[2]
-            display_str = var_name + " " + var_units
-            value_str = str(line)
-            gldas_options.append([display_str, value_str])
+#     with open(gldas_config_file, mode='r') as f:
+#         f.readline()
+#         for line in f:
+#             linevals = line.split('|')
+#             var_name = linevals[1]
+#             var_units = linevals[2]
+#             display_str = var_name + " " + var_units
+#             value_str = str(line)
+#             gldas_options.append([display_str, value_str])
 
-    return gldas_options
+#     return gldas_options
 
 # Reverse Geocoding the lat and lon to get the name of the location
 
