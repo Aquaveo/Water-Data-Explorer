@@ -2,7 +2,7 @@ import React,{ useContext, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import { Offcanvas } from 'react-bootstrap';
 import useLayoutStore from 'stores/useLayoutStore';
-import VariableMenuForm from 'features/Sites/components/VariableMenuForm';
+import SeriesPanelControl from 'features/Sites/components/SeriesPanelControl';
 import SiteSeries from 'features/Sites/components/SiteSeries';
 import { AppContext } from "features/react-tethys/context/context";
 import ParentSize from '@visx/responsive/lib/components/ParentSize';
@@ -48,7 +48,7 @@ const SeriesPanel = ({variableList}) => {
     >
       <Offcanvas.Header>
         <Offcanvas.Title>
-          <VariableMenuForm variableList={variableList} onSubmit={handleGetValuesSubmit} />
+          <SeriesPanelControl variableList={variableList} onSubmit={handleGetValuesSubmit} />
         </Offcanvas.Title>
       </Offcanvas.Header>
       <Offcanvas.Body>

@@ -7,12 +7,12 @@ import {
   Col,
 } from "react-bootstrap";
 import DatePicker from "react-datepicker";
-import { FaExpandArrowsAlt, FaArrowRight, FaHourglassStart, FaHourglassEnd, FaChartArea } from "react-icons/fa";
+import { FaExpandArrowsAlt, FaArrowRight, FaHourglassStart, FaHourglassEnd, FaChartArea,FaDownload  } from "react-icons/fa";
 import useDataStore from "../hooks/useDataStore";
 
 import "react-datepicker/dist/react-datepicker.css";
 
-const VariableMenuForm = ({ variableList = [], onSubmit }) => {
+const SeriesPanelControl = ({ variableList = [], onSubmit }) => {
   const [selectedVariable, setSelectedVariable] = useState("");
   const [selectedVariableName, setSelectedVariableName] = useState(
     "Select Variable"
@@ -169,7 +169,6 @@ const VariableMenuForm = ({ variableList = [], onSubmit }) => {
               </div>
             </Col>
 
-            {/* Submit Button */}
             <Col md="auto">
               <Button variant="primary" type="submit">
                 <FaArrowRight />
@@ -179,14 +178,24 @@ const VariableMenuForm = ({ variableList = [], onSubmit }) => {
         </Form>
       </Col>
 
-      {/* Expand Button Column */}
       <Col md="auto">
-        <Button variant="primary" onClick={() => console.log("Expand")}>
-          <FaExpandArrowsAlt />
-        </Button>
+        <Row>
+          <Col md="auto">
+            <Button variant="primary" onClick={() => console.log("Expand")}>
+              <FaExpandArrowsAlt />
+            </Button>
+          </Col>
+          <Col md="auto">
+            <Button variant="primary" onClick={() => console.log("Download")}>
+              <FaDownload />
+            </Button>
+          </Col>
+        </Row>
+
+
       </Col>
     </Row>
   );
 };
 
-export default VariableMenuForm;
+export default SeriesPanelControl;
