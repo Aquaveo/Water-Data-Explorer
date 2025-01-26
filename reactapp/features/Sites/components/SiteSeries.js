@@ -19,7 +19,7 @@ import { RectClipPath } from '@visx/clip-path';
 import useTheme from 'hooks/useTheme';
 
 function SiteSeries({ width, height, data, layout }) {
-  
+
   const theme = useTheme();
   const {
     tooltipData,
@@ -113,24 +113,21 @@ function SiteSeries({ width, height, data, layout }) {
       const x0 = rescaleXAxis(xScale, zoom.transformMatrix).invert(x);
 
       const tooltipDataArray = [];
+      
+      const index = bisectDate(data, x0, 1);
+      const d0 = data[index - 1];
+      const d1 = data[index];
+      let d = d0;
 
-      data.forEach((series, seriesIndex) => {
-        const seriesData = series.data;
-        const index = bisectDate(seriesData, x0, 1);
-        const d0 = seriesData[index - 1];
-        const d1 = seriesData[index];
-        let d = d0;
+      if (d1 && getDate(d1)) {
+        d = x0 - getDate(d0) > getDate(d1) - x0 ? d1 : d0;
+      }
 
-        if (d1 && getDate(d1)) {
-          d = x0 - getDate(d0) > getDate(d1) - x0 ? d1 : d0;
-        }
-
-        tooltipDataArray.push({
-          dataPoint: d,
-          seriesIndex,
-          seriesLabel: series.label,
-        });
+      tooltipDataArray.push({
+        dataPoint: d,
+        seriesLabel: 'unit',
       });
+      
 
       // Calculate the tooltip's y-position
       const yPositions = tooltipDataArray.map((d) =>
@@ -221,9 +218,7 @@ function SiteSeries({ width, height, data, layout }) {
                 }}
               >
                 <div style={{ display: 'flex' }}>
-                  {data.map((series, index) => (
                     <div
-                      key={`legend-${index}`}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -238,7 +233,7 @@ function SiteSeries({ width, height, data, layout }) {
                       <div
                         style={{
                           backgroundColor:
-                            colors[index % colors.length],
+                            colors[0],
                           width: 10,
                           height: 10,
                           marginRight: 5,
@@ -251,10 +246,10 @@ function SiteSeries({ width, height, data, layout }) {
                           fontSize: 14,
                         }}
                       >
-                        {series.label}
+                        {layout.yaxis}
                       </div>
                     </div>
-                  ))}
+                  
                 </div>
                 <button
                   onClick={zoom.reset}
@@ -280,7 +275,6 @@ function SiteSeries({ width, height, data, layout }) {
                   cursor: zoom.isDragging ? 'grabbing' : 'grab',
                 }}
               >
-                {/* Define a clip path */}
                 <RectClipPath
                   id="chart-clip"
                   x={0}
@@ -289,14 +283,7 @@ function SiteSeries({ width, height, data, layout }) {
                   height={innerHeight}
                 />
                 {/* Background */}
-                <rect
-                  x={0}
-                  y={0}
-                  width={width}
-                  height={height}
-                  fill={theme === 'dark' ? '#34495e' : '#ffffff'}
-                  rx={14}
-                />
+
                 <Group left={margin.left} top={margin.top}>
                   <GridRows
                     scale={newYScale}
@@ -365,21 +352,22 @@ function SiteSeries({ width, height, data, layout }) {
                   />
                   {/* Apply the clip path to the chart elements */}
                   <Group clipPath="url(#chart-clip)">
-                    {/* Render multiple lines */}
-                    {data.map((series, index) => (
+                    
+                    
                       <LinePath
-                        key={`line-${index}`}
+                        
                         stroke={
-                          colors[index % colors.length]
+                          colors[0]
                         }
                         strokeWidth={2}
-                        data={series.data}
+                        data={data}
                         x={(d) => newXScale(getDate(d)) ?? 0}
                         y={(d) =>
                           newYScale(getYValue(d)) ?? 0
                         }
                       />
-                    ))}
+                    
+
                     {/* Tooltip components */}
                     {tooltipData && (
                       <g>
@@ -415,9 +403,7 @@ function SiteSeries({ width, height, data, layout }) {
                             }
                             size={110}
                             fill={
-                              colors[
-                                d.seriesIndex % colors.length
-                              ]
+                              colors[0]
                             }
                             stroke={
                               theme === 'dark'
@@ -495,9 +481,7 @@ function SiteSeries({ width, height, data, layout }) {
                       <strong
                         style={{
                           color:
-                            colors[
-                              d.seriesIndex % colors.length
-                            ],
+                            colors[0],
                         }}
                       >
                         {d.seriesLabel}:{' '}

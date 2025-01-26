@@ -5,6 +5,7 @@ import useLayoutStore from 'stores/useLayoutStore';
 import VariableMenuForm from 'features/Sites/components/VariableMenuForm';
 import SiteSeries from 'features/Sites/components/SiteSeries';
 import { AppContext } from "features/react-tethys/context/context";
+import ParentSize from '@visx/responsive/lib/components/ParentSize';
 
 
 export const StyledOffcanvas = styled(Offcanvas)`
@@ -51,12 +52,14 @@ const SeriesPanel = ({variableList}) => {
         </Offcanvas.Title>
       </Offcanvas.Header>
       <Offcanvas.Body>
-          {
-            seriesData 
-            && 
-           <SiteSeries data={seriesData.series} layout={seriesData.layout} />
-          }
-          
+
+           <ParentSize>
+           {({ width, height }) => 
+                     seriesData &&
+                     <SiteSeries width={width} height={height} data={seriesData.series} layout={seriesData.layout}/>
+             }
+          </ParentSize>
+
       </Offcanvas.Body>
     </StyledOffcanvas>
   );
