@@ -98,16 +98,16 @@ const SeriesPanelControl = ({ variableList = [], onSubmit }) => {
       <Col md="auto">
         <Form onSubmit={handleSubmit}>
           <Row className="align-items-center">
-            {/* Dropdown Column */}
+            
             <Col md="auto">
               
               <div className="d-flex align-items-center">
                 <FaChartArea  size={30} style={{ marginRight: "5px" }} />
                 <Dropdown>
-                    <Dropdown.Toggle id="dropdown-basic">
+                    <Dropdown.Toggle variant='light' id="dropdown-basic">
                       {selectedVariableName}
                     </Dropdown.Toggle>
-                    <Dropdown.Menu style={{ maxHeight: "200px", overflowY: "auto" }}>
+                    <Dropdown.Menu  style={{ maxHeight: "200px", overflowY: "auto" }}>
                       {variableList.map((item, index) => {
                         const value = `${item.siteCode}_${item.variableCode}`;
                         const label = `${item.variableName}${
