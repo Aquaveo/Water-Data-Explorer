@@ -35,6 +35,13 @@ const SeriesPanel = ({ variableList }) => {
     }
     setSeriesData(data);
   };
+   
+    const controlComponent = (
+      <SeriesPanelControl
+        variableList={variableList}
+        onSubmit={handleGetValuesSubmit}
+      />
+    );
 
   useEffect(() => {
     backend.on(backend.actions.GET_VALUES, handleGetValuesData);
@@ -56,22 +63,22 @@ const SeriesPanel = ({ variableList }) => {
       backdrop={false}
       $hasData={hasData} // pass our boolean here
     >
-      <Offcanvas.Header>
+      {/* <Offcanvas.Header>
         <Offcanvas.Title>
           <SeriesPanelControl variableList={variableList} onSubmit={handleGetValuesSubmit} />
         </Offcanvas.Title>
-      </Offcanvas.Header>
+      </Offcanvas.Header> */}
       <Offcanvas.Body>
         <ParentSize>
           {({ width, height }) =>
-            seriesData && (
+            
               <SiteSeries
                 width={width}
                 height={height}
-                data={seriesData.series}
-                layout={seriesData.layout}
+                series={seriesData}
+                controlComponent={controlComponent}
               />
-            )
+            
           }
         </ParentSize>
       </Offcanvas.Body>

@@ -1,4 +1,4 @@
-import React, { useCallback, Fragment } from 'react';
+import React, { useCallback, Fragment, useEffect, useState } from 'react';
 import { Zoom, applyMatrixToPoint } from '@visx/zoom';
 import { Group } from '@visx/group';
 import { scaleLinear, scaleTime } from '@visx/scale';
@@ -18,7 +18,10 @@ import { timeFormat } from 'd3-time-format';
 import { RectClipPath } from '@visx/clip-path';
 import { FaExpandArrowsAlt } from "react-icons/fa";
 
-function SiteSeries({ width, height, data, layout }) {
+function SiteSeries({ width, height, series, controlComponent }) {
+  const [layout, setLayout] = useState(null);
+  const [data, setData] = useState([]);
+
   const {
     tooltipData,
     tooltipLeft = 0,
@@ -161,6 +164,16 @@ function SiteSeries({ width, height, data, layout }) {
     return transformMatrix;
   };
 
+  useEffect(() => {
+    if (!series) {
+      return;
+    }
+    else{
+      setLayout(series.layout);
+      setData(series.data);
+    }
+  }, [data]);
+
   return (
     <div style={{ position: 'relative' }}>
       <Zoom
@@ -226,6 +239,7 @@ function SiteSeries({ width, height, data, layout }) {
                     </div>
                   </div>
                 </div>
+                {controlComponent}
                 <button
                   onClick={zoom.reset}
                   style={{
