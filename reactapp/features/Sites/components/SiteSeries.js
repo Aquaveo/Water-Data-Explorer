@@ -95,7 +95,6 @@ function SiteSeries({ width, height, data, layout }) {
     return scale.copy().domain(newDomain);
   };
 
-  // Tooltip handler
   const handleTooltip = useCallback(
     (event, zoom) => {
       const point = localPoint(event) || { x: 0, y: 0 };
