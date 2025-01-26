@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Form, Button, Dropdown, Row, Col } from "react-bootstrap";
+import {
+  Form,
+  Button,
+  Dropdown,
+  Row,
+  Col,
+} from "react-bootstrap";
 import DatePicker from "react-datepicker";
-import useDataStore from '../hooks/useDataStore';
-import { FaExpandArrowsAlt, FaArrowRight, FaWater, FaCalendar  } from "react-icons/fa";
+import { FaExpandArrowsAlt, FaArrowRight, FaHourglassStart, FaHourglassEnd, FaChartArea } from "react-icons/fa";
+import useDataStore from "../hooks/useDataStore";
 
 import "react-datepicker/dist/react-datepicker.css";
 
 const VariableMenuForm = ({ variableList = [], onSubmit }) => {
   const [selectedVariable, setSelectedVariable] = useState("");
-  const [selectedVariableName, setSelectedVariableName] = useState("Select Variable");
+  const [selectedVariableName, setSelectedVariableName] = useState(
+    "Select Variable"
+  );
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [timeSupport, setTimeSupport] = useState(60);
@@ -23,7 +31,12 @@ const VariableMenuForm = ({ variableList = [], onSubmit }) => {
           ? `${firstItem.siteCode}_${firstItem.variableCode}`
           : "";
       setSelectedVariable(defaultVariable);
-      setSelectedVariableName(firstItem.variableName || "Select Variable");
+      // Make the dropdown toggle text match the full item label
+      const firstItemLabel = `${firstItem.variableName}${
+        firstItem.dataType ? ` - ${firstItem.dataType}` : ""
+      }`;
+      setSelectedVariableName(firstItemLabel || "Select Variable");
+
       setStartDate(
         firstItem.beginDateTime ? new Date(firstItem.beginDateTime) : new Date()
       );
@@ -67,94 +80,109 @@ const VariableMenuForm = ({ variableList = [], onSubmit }) => {
       variable_code: selectedVariable.split("_")[1],
       start_date: startDate.toISOString(),
       end_date: endDate.toISOString(),
-      type: current_site.type,
-      service_url: current_site.service_url
+      type: current_site?.type,
+      service_url: current_site?.service_url,
     });
   };
 
-  const handleSelectVariable = (value, variableName) => {
+  const handleSelectVariable = (value, item) => {
     setSelectedVariable(value);
-    setSelectedVariableName(variableName);
+    // Construct the same text used in the dropdown option:
+    const label = `${item.variableName}${item.dataType ? ` - ${item.dataType}` : ""}`;
+    setSelectedVariableName(label);
   };
 
   return (
-    <Row className="align-items-center"> 
+    <Row className="align-items-center">
+      {/* Main Form */}
       <Col md="auto">
         <Form onSubmit={handleSubmit}>
-          <Row className="align-items-center"> 
+          <Row className="align-items-center">
+            {/* Dropdown Column */}
             <Col md="auto">
-              <Dropdown>
-                <Dropdown.Toggle id="dropdown-basic">
-                  <span>
-                    <FaWater />
-                  </span>
-                  {selectedVariableName}
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  {variableList.map((item, index) => {
-                    const value = `${item.siteCode}_${item.variableCode}`;
-                    return (
-                      <Dropdown.Item
-                        key={index}
-                        onClick={() =>
-                          handleSelectVariable(value, item.variableName)
-                        }
-                      >
-                        <span>
-                          <FaWater />
-                        </span>
-                        {`${item.variableName}-${item.dataType ? item.dataType : ""}`}
-                      </Dropdown.Item>
-                    );
-                  })}
-                </Dropdown.Menu>
-              </Dropdown>
+              
+              <div className="d-flex align-items-center">
+                <FaChartArea  size={30} style={{ marginRight: "5px" }} />
+                <Dropdown>
+                    <Dropdown.Toggle id="dropdown-basic">
+                      {selectedVariableName}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu style={{ maxHeight: "200px", overflowY: "auto" }}>
+                      {variableList.map((item, index) => {
+                        const value = `${item.siteCode}_${item.variableCode}`;
+                        const label = `${item.variableName}${
+                          item.dataType ? ` - ${item.dataType}` : ""
+                        }`;
+                        return (
+                          <Dropdown.Item
+                            key={index}
+                            onClick={() => handleSelectVariable(value, item)}
+                          >
+                            {label}
+                          </Dropdown.Item>
+                        );
+                      })}
+                    </Dropdown.Menu>
+                  </Dropdown>
+              </div>
             </Col>
+
+            {/* Start Date Column */}
             <Col md="auto">
-              <DatePicker
-                showIcon
-                icon={<FaCalendar />}
-                selected={startDate}
-                onChange={(date) => date && setStartDate(date)}
-                minDate={minDate}
-                maxDate={maxDate}
-                showTimeSelect={showTimeSelect}
-                showYearPicker={showYearPicker}
-                timeFormat="HH:mm"
-                timeIntervals={usedTimeIntervals}
-                timeCaption="Time"
-                dateFormat={dateFormat}
-                placeholderText="Start Date"
-              />
+              <div className="d-flex align-items-center">
+                <FaHourglassStart style={{ marginRight: "5px" }} />
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => date && setStartDate(date)}
+                  minDate={minDate}
+                  maxDate={maxDate}
+                  showTimeSelect={showTimeSelect}
+                  showYearPicker={showYearPicker}
+                  timeFormat="HH:mm"
+                  timeIntervals={usedTimeIntervals}
+                  timeCaption="Time"
+                  dateFormat={dateFormat}
+                  placeholderText="Start Date"
+                  className="form-control"
+                />
+              </div>
             </Col>
+
+            {/* End Date Column */}
             <Col md="auto">
-              <DatePicker
-                showIcon
-                icon={<FaCalendar />}
-                selected={endDate}
-                onChange={(date) => date && setEndDate(date)}
-                minDate={minDate}
-                maxDate={maxDate}
-                showTimeSelect={showTimeSelect}
-                showYearPicker={showYearPicker}
-                timeFormat="HH:mm"
-                timeIntervals={usedTimeIntervals}
-                timeCaption="Time"
-                dateFormat={dateFormat}
-                placeholderText="End Date"
-              />
+              <div className="d-flex align-items-center">
+                <FaHourglassEnd style={{ marginRight: "5px" }} />
+                <DatePicker
+                  selected={endDate}
+                  onChange={(date) => date && setEndDate(date)}
+                  minDate={minDate}
+                  maxDate={maxDate}
+                  showTimeSelect={showTimeSelect}
+                  showYearPicker={showYearPicker}
+                  timeFormat="HH:mm"
+                  timeIntervals={usedTimeIntervals}
+                  timeCaption="Time"
+                  dateFormat={dateFormat}
+                  placeholderText="End Date"
+                  className="form-control"
+                />
+              </div>
             </Col>
+
+            {/* Submit Button */}
             <Col md="auto">
               <Button variant="primary" type="submit">
-                <FaArrowRight  /> 
+                <FaArrowRight />
               </Button>
             </Col>
           </Row>
         </Form>
       </Col>
+
+      {/* Expand Button Column */}
       <Col md="auto">
         <Button variant="primary" onClick={() => console.log("Expand")}>
-         <FaExpandArrowsAlt />
+          <FaExpandArrowsAlt />
         </Button>
       </Col>
     </Row>

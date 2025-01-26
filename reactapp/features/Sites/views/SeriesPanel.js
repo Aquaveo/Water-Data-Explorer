@@ -9,7 +9,7 @@ import ParentSize from '@visx/responsive/lib/components/ParentSize';
 
 
 export const StyledOffcanvas = styled(Offcanvas)`
-  height: 500px !important;
+  height: 100px !important;
 `;
 
 
