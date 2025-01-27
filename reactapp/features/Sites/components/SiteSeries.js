@@ -20,9 +20,9 @@ import PlotLegend from './PlotLegend';
 import PlotControlMenu from './PlotControlMenu';
 import VariablesControlMenu from './VariablesControlMenu';
 
-function SiteSeries({ width, height, series}) {
-  const [layout, setLayout] = useState(null);
-  const [data, setData] = useState([]);
+function SiteSeries({ width, height, data}) {
+  const layout = data?.layout;
+  const series = data?.series || [];
 
   const {
     tooltipData,
@@ -48,13 +48,13 @@ function SiteSeries({ width, height, series}) {
   // Define initial scales
   const xScale = scaleTime({
     range: [0, innerWidth],
-    domain: extent(data, getDate),
+    domain: extent(series, getDate),
     nice: true,
   });
 
   const yScale = scaleLinear({
     range: [innerHeight, 0],
-    domain: extent(data, getYValue),
+    domain: extent(series, getYValue),
     nice: true,
   });
 
@@ -99,9 +99,9 @@ function SiteSeries({ width, height, series}) {
       const x = point.x - margin.left;
       const x0 = rescaleXAxis(xScale, zoom.transformMatrix).invert(x);
 
-      const index = bisectDate(data, x0, 1);
-      const d0 = data[index - 1];
-      const d1 = data[index];
+      const index = bisectDate(series, x0, 1);
+      const d0 = series[index - 1];
+      const d1 = series[index];
       let d = d0;
 
       if (d1 && getDate(d1)) {
@@ -128,7 +128,7 @@ function SiteSeries({ width, height, series}) {
         tooltipTop: tooltipTopPosition,
       });
     },
-    [showTooltip, xScale, yScale, data, getDate, getYValue, bisectDate, margin.left, margin.top, layout]
+    [showTooltip, xScale, yScale, series, getDate, getYValue, bisectDate, margin.left, margin.top, layout]
   );
 
   // Updated constrain function
@@ -159,17 +159,6 @@ function SiteSeries({ width, height, series}) {
     return transformMatrix;
   };
 
-  useEffect(() => {
-    console.log("Series", series);
-    if (!series) {
-      return;
-    }
-    else{
-      setLayout(series.layout);
-      setData(series.series);
-    }
-  }, [series]);
-
   return (
     <div style={{ position: 'relative' }}>
         <div
@@ -182,7 +171,7 @@ function SiteSeries({ width, height, series}) {
         >
           <VariablesControlMenu />
       </div>
-      {data.length > 0 ? (
+      {series.length > 0 ? (
       <Zoom
         width={innerWidth}
         height={innerHeight}
@@ -284,7 +273,7 @@ function SiteSeries({ width, height, series}) {
                       <LinePath
                         stroke={colors[0]}
                         strokeWidth={2}
-                        data={data}
+                        data={series}
                         x={(d) => newXScale(getDate(d)) ?? 0}
                         y={(d) => newYScale(getYValue(d)) ?? 0}
                       />
