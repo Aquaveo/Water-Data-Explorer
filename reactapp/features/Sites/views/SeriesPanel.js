@@ -18,6 +18,7 @@ const SeriesPanel = ({showLoadingToast, updateToSuccessToast}) => {
   const handleGetValuesData = (data) => {
     if (data.error) {
       console.error(data.error);
+      updateToSuccessToast();
       return;
     } else {
       setData({ ...data });
