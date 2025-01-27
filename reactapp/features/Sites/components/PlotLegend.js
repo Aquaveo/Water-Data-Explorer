@@ -1,7 +1,7 @@
 import React from "react";
 
 
-const PlotLegend = ({label}) => {
+const PlotLegend = ({label, margin}) => {
   return (
     <div
         style={{

@@ -5,13 +5,14 @@ import {
   Dropdown,
   Row,
   Col,
+  Container
 } from "react-bootstrap";
 import DatePicker from "react-datepicker";
-import { FaArrowRight, FaHourglassStart, FaHourglassEnd, FaChartArea } from "react-icons/fa";
+import { FaHourglassStart, FaHourglassEnd, FaChartArea } from "react-icons/fa";
 import useDataStore from "../hooks/useDataStore";
 import { AppContext } from "features/react-tethys/context/context";
 import { useShallow } from 'zustand/react/shallow'
-
+import { toast } from "react-toastify";
 import "react-datepicker/dist/react-datepicker.css";
 
 const VariablesControlMenu = () => {
@@ -22,7 +23,6 @@ const VariablesControlMenu = () => {
   const [timeSupport, setTimeSupport] = useState(60);
   const [timeUnitName, setTimeUnitName] = useState("days");
   const currentDatastreams = useDataStore(useShallow((state) => state.current_datastreams));
-
   const current_site = useDataStore((state) => state.getCurrentSite());
   const { backend } = useContext(AppContext);
 
@@ -96,19 +96,19 @@ const VariablesControlMenu = () => {
   };
 
   return (
-    
+    <Container style={{ display: "flex", justifyContent: "center" }}>
       <Row className="align-items-center">
         {/* Main Form */}
         <Col md="auto">
           <Form onSubmit={handleSubmit}>
             <Row className="align-items-center">
-              
               <Col md="auto">
-                
-                <div className="d-flex align-items-center">
-                  <FaChartArea  size={30} style={{ marginRight: "5px" }} />
                   <Dropdown>
-                      <Dropdown.Toggle variant='light' id="dropdown-basic">
+                      <Dropdown.Toggle 
+                        variant='light' 
+                        id="dropdown-basic"
+                        size="sm"
+                      >
                         {selectedVariableName}
                       </Dropdown.Toggle>
                       <Dropdown.Menu  style={{ maxHeight: "200px", overflowY: "auto" }}>
@@ -128,10 +128,7 @@ const VariablesControlMenu = () => {
                         })}
                       </Dropdown.Menu>
                     </Dropdown>
-                </div>
               </Col>
-
-              {/* Start Date Column */}
               <Col md="auto">
                 <div className="d-flex align-items-center">
                   <FaHourglassStart style={{ marginRight: "5px" }} />
@@ -147,12 +144,13 @@ const VariablesControlMenu = () => {
                     timeCaption="Time"
                     dateFormat={dateFormat}
                     placeholderText="Start Date"
-                    className="form-control"
+                    className="form-control form-control-sm"
+                    popperPlacement="top-end"
+                    withPortal
+                    
                   />
                 </div>
               </Col>
-
-              {/* End Date Column */}
               <Col md="auto">
                 <div className="d-flex align-items-center">
                   <FaHourglassEnd style={{ marginRight: "5px" }} />
@@ -168,20 +166,24 @@ const VariablesControlMenu = () => {
                     timeCaption="Time"
                     dateFormat={dateFormat}
                     placeholderText="End Date"
-                    className="form-control"
+                    className="form-control form-control-sm"
+                    popperPlacement="top-end"
+                    withPortal
                   />
                 </div>
               </Col>
 
               <Col md="auto">
-                <Button variant="primary" type="submit">
-                  <FaArrowRight />
+                <Button variant="primary" size="sm" type="submit">
+                  <FaChartArea />
                 </Button>
               </Col>
             </Row>
           </Form>
         </Col>
       </Row>
+    </Container>
+
     
   );
 };

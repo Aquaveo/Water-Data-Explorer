@@ -232,13 +232,13 @@ function SiteSeries({ width, height, data}) {
                       stroke="#8f99a7"
                       tickStroke="#8f99a7"
                       tickLabelProps={() => ({
-                        fill: '#e0e0e0',
+                        fill: '#8f99a7',
                         fontWeight: 'bold',
                         textAnchor: 'end',
                       })}
                       label={layout?.yaxis ?? 'Series'}
                       labelProps={{
-                        fill: '#e0e0e0',
+                        fill: '#8f99a7',
                         fontSize: 12,
                         strokeWidth: 0,
                         paintOrder: 'stroke',
@@ -252,7 +252,7 @@ function SiteSeries({ width, height, data}) {
                       tickFormat={formatDate}
                       tickStroke="#8f99a7"
                       tickLabelProps={() => ({
-                        fill: '#e0e0e0',
+                        fill: '#8f99a7',
                         fontSize: 12,
                         fontWeight: 'bold',
                         textAnchor: 'middle',
@@ -344,7 +344,7 @@ function SiteSeries({ width, height, data}) {
                 </Group>
               </svg>
   
-              <PlotLegend label={layout} />
+              <PlotLegend label={layout} margin={margin} />
               {/* Tooltip */}
               {tooltipData && tooltipData.length > 0 && (
                 <TooltipWithBounds

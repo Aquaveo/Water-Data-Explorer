@@ -7,7 +7,7 @@ import { AppContext } from "features/react-tethys/context/context";
 import ParentSize from "@visx/responsive/lib/components/ParentSize";
 
 export const StyledOffcanvas = styled(Offcanvas)`
-  height: ${(props) => (props.$hasData ? "500px" : "100px")} !important;
+  height: ${(props) => (props.$hasData ? "550px" : "fit-content")} !important;
 `;
 
 const SeriesPanel = () => {
