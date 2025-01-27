@@ -1,4 +1,4 @@
-import React, {lazy, Suspense,useContext,useEffect, useState } from 'react';
+import React, {lazy, Suspense,useContext,useEffect } from 'react';
 import { AppContext } from "features/react-tethys/context/context";
 import useDataStore from 'features/Sites/hooks/useDataStore';
 import { useShallow } from 'zustand/react/shallow'
@@ -14,7 +14,8 @@ const SeriesPanel = lazy(() => import('features/Sites/views/SeriesPanel'));
 const WDEView = () => {
   const { backend } = useContext(AppContext);
   const addSites = useDataStore(useShallow((state) => state.addSites));
-  const [siteInfoVariables, setSiteInfoVariables] = useState([]);
+  const setCurrentDatastreams = useDataStore(useShallow((state) => state.setCurrentDatastreams));
+  // const [siteInfoVariables, setSiteInfoVariables] = useState([]);
   const { showTimeSeriesPanel } = useLayoutStore();
    const addSitesData = (data) => {
     addSites(data);
@@ -23,7 +24,7 @@ const WDEView = () => {
   const setSiteInfoVariableHandler = (data) => {
     console.log("Site Info", data);
     showTimeSeriesPanel()
-    setSiteInfoVariables(data);
+    setCurrentDatastreams(data);
   }
 
   useEffect(() => {
@@ -46,7 +47,7 @@ const WDEView = () => {
 
         <SidePanel />
         <MapView />
-        <SeriesPanel variableList={siteInfoVariables} />
+        <SeriesPanel />
         <ToastContainer />
       </Suspense>
   </Container>

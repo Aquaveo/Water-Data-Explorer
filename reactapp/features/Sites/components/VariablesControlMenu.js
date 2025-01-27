@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Form,
   Button,
@@ -7,25 +7,28 @@ import {
   Col,
 } from "react-bootstrap";
 import DatePicker from "react-datepicker";
-import { FaExpandArrowsAlt, FaArrowRight, FaHourglassStart, FaHourglassEnd, FaChartArea,FaDownload  } from "react-icons/fa";
+import { FaArrowRight, FaHourglassStart, FaHourglassEnd, FaChartArea } from "react-icons/fa";
 import useDataStore from "../hooks/useDataStore";
+import { AppContext } from "features/react-tethys/context/context";
+import { useShallow } from 'zustand/react/shallow'
 
 import "react-datepicker/dist/react-datepicker.css";
 
-const SeriesPanelControl = ({ variableList = [], onSubmit }) => {
+const VariablesControlMenu = () => {
   const [selectedVariable, setSelectedVariable] = useState("");
-  const [selectedVariableName, setSelectedVariableName] = useState(
-    "Select Variable"
-  );
+  const [selectedVariableName, setSelectedVariableName] = useState("Select Variable");
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [timeSupport, setTimeSupport] = useState(60);
   const [timeUnitName, setTimeUnitName] = useState("days");
+  const currentDatastreams = useDataStore(useShallow((state) => state.current_datastreams));
+
   const current_site = useDataStore((state) => state.getCurrentSite());
+  const { backend } = useContext(AppContext);
 
   useEffect(() => {
-    if (variableList.length > 0) {
-      const firstItem = variableList[0];
+    if (currentDatastreams.length > 0) {
+      const firstItem = currentDatastreams[0];
       const defaultVariable =
         firstItem.siteCode && firstItem.variableCode
           ? `${firstItem.siteCode}_${firstItem.variableCode}`
@@ -51,7 +54,7 @@ const SeriesPanelControl = ({ variableList = [], onSubmit }) => {
         setTimeUnitName(firstItem.timeUnitName.toLowerCase());
       }
     }
-  }, [variableList]);
+  }, [currentDatastreams]);
 
   const minDate = startDate;
   const maxDate = endDate;
@@ -75,7 +78,7 @@ const SeriesPanelControl = ({ variableList = [], onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({
+    backend.do(backend.actions.GET_VALUES,{
       site_code: selectedVariable.split("_")[0],
       variable_code: selectedVariable.split("_")[1],
       start_date: startDate.toISOString(),
@@ -108,7 +111,7 @@ const SeriesPanelControl = ({ variableList = [], onSubmit }) => {
                       {selectedVariableName}
                     </Dropdown.Toggle>
                     <Dropdown.Menu  style={{ maxHeight: "200px", overflowY: "auto" }}>
-                      {variableList.map((item, index) => {
+                      {currentDatastreams.map((item, index) => {
                         const value = `${item.siteCode}_${item.variableCode}`;
                         const label = `${item.variableName}${
                           item.dataType ? ` - ${item.dataType}` : ""
@@ -177,25 +180,8 @@ const SeriesPanelControl = ({ variableList = [], onSubmit }) => {
           </Row>
         </Form>
       </Col>
-
-      <Col md="auto">
-        <Row>
-          <Col md="auto">
-            <Button variant="primary" onClick={() => console.log("Expand")}>
-              <FaExpandArrowsAlt />
-            </Button>
-          </Col>
-          <Col md="auto">
-            <Button variant="primary" onClick={() => console.log("Download")}>
-              <FaDownload />
-            </Button>
-          </Col>
-        </Row>
-
-
-      </Col>
     </Row>
   );
 };
 
-export default SeriesPanelControl;
+export default VariablesControlMenu;

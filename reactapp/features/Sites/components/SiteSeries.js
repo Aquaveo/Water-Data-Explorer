@@ -16,9 +16,11 @@ import { GlyphCircle } from '@visx/glyph';
 // import { timeParse, timeFormat } from 'd3-time-format';
 import { timeFormat } from 'd3-time-format';
 import { RectClipPath } from '@visx/clip-path';
-import { FaExpandArrowsAlt } from "react-icons/fa";
+import PlotLegend from './PlotLegend';
+import PlotControlMenu from './PlotControlMenu';
+import VariablesControlMenu from './VariablesControlMenu';
 
-function SiteSeries({ width, height, series, controlComponent }) {
+function SiteSeries({ width, height, series}) {
   const [layout, setLayout] = useState(null);
   const [data, setData] = useState([]);
 
@@ -41,13 +43,6 @@ function SiteSeries({ width, height, series, controlComponent }) {
 
   // Data accessors
   const getDate = (d) => new Date(d.x);
-
-
-  // // Parse date string to Date object
-  // const parseDate = timeParse('%Y-%m-%dT%H:%M:%S.%LZ');
-  // const getDate = (d) => {
-  //   parseDate(d.x.trim())
-  // };
   const getYValue = (d) => d.y;
 
   // Define initial scales
@@ -176,6 +171,17 @@ function SiteSeries({ width, height, series, controlComponent }) {
 
   return (
     <div style={{ position: 'relative' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginTop: 10,
+            position: 'relative',
+          }}
+        >
+          <VariablesControlMenu />
+      </div>
+      {data.length > 0 ? (
       <Zoom
         width={innerWidth}
         height={innerHeight}
@@ -200,63 +206,11 @@ function SiteSeries({ width, height, series, controlComponent }) {
 
           return (
             <Fragment>
-              {/* Legend and Controls */}
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  marginTop: 10,
-                  position: 'relative',
-                }}
-              >
-                <div style={{ display: 'flex' }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      marginRight: 10,
-                      padding: '2px 6px',
-                      border: '1px solid #ddd',
-                      borderRadius: 4,
-                      backgroundColor: '#2c3e50',
-                    }}
-                  >
-                    <div
-                      style={{
-                        backgroundColor: colors[0],
-                        width: 10,
-                        height: 10,
-                        marginRight: 5,
-                      }}
-                    />
-                    <div
-                      style={{
-                        color: '#f0f0f0',
-                        fontSize: 14,
-                      }}
-                    >
-                      {layout?.yaxis ?? 'Series'}
-                    </div>
-                  </div>
-                </div>
-                {controlComponent}
-                <button
-                  onClick={zoom.reset}
-                  style={{
-                    backgroundColor: '#2c3e50',
-                    color: '#ffffff',
-                    fontWeight: 'bold',
-                    border: 'none',
-                    borderRadius: 4,
-                    padding: '4px 8px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <FaExpandArrowsAlt />
-
-                </button>
-              </div>
-
+              <PlotControlMenu 
+                onZoomReset={zoom.reset}
+                onDownload={() => console.log('Download')}
+                OnScaleChange={() => console.log('Scale Change')}
+              />
               <svg
                 width={width}
                 height={height}
@@ -408,6 +362,20 @@ function SiteSeries({ width, height, series, controlComponent }) {
                   </Fragment>
                 </Group>
               </svg>
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: margin.top + 10,
+                    right: margin.right + 10,
+                    backgroundColor: 'rgba(0,0,0,0.2)',
+                    padding: '6px 10px',
+                    borderRadius: 4,
+                  }}
+                >
+                  <PlotLegend label={layout} />
+              </div>
+
+
 
               {/* Tooltip */}
               {tooltipData && tooltipData.length > 0 && (
@@ -436,6 +404,9 @@ function SiteSeries({ width, height, series, controlComponent }) {
           );
         }}
       </Zoom>
+       ) : (
+        null
+      )}
     </div>
   );
 }

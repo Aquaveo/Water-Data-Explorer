@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { Offcanvas } from "react-bootstrap";
 import useLayoutStore from "stores/useLayoutStore";
-import SeriesPanelControl from "features/Sites/components/SeriesPanelControl";
+// import SeriesPanelControl from "features/Sites/components/VariablesControlMenu";
 import SiteSeries from "features/Sites/components/SiteSeries";
 import { AppContext } from "features/react-tethys/context/context";
 import ParentSize from "@visx/responsive/lib/components/ParentSize";
@@ -11,15 +11,15 @@ export const StyledOffcanvas = styled(Offcanvas)`
   height: ${(props) => (props.$hasData ? "500px" : "100px")} !important;
 `;
 
-const SeriesPanel = ({ variableList }) => {
+const SeriesPanel = () => {
   const { isTimeSeriesPanelVisible, toggleTimeSeriesPanelVisibility } =
     useLayoutStore();
   const { backend } = useContext(AppContext);
   const [seriesData, setSeriesData] = useState(null);
 
-  const handleGetValuesSubmit = (data) => {
-    backend.do(backend.actions.GET_VALUES, { ...data });
-  };
+  // const handleGetValuesSubmit = (data) => {
+  //   backend.do(backend.actions.GET_VALUES, { ...data });
+  // };
 
   const handleGetValuesData = (data) => {
     if (data.error) {
@@ -36,12 +36,6 @@ const SeriesPanel = ({ variableList }) => {
     setSeriesData(data);
   };
    
-    const controlComponent = (
-      <SeriesPanelControl
-        variableList={variableList}
-        onSubmit={handleGetValuesSubmit}
-      />
-    );
 
   useEffect(() => {
     backend.on(backend.actions.GET_VALUES, handleGetValuesData);
@@ -63,11 +57,6 @@ const SeriesPanel = ({ variableList }) => {
       backdrop={false}
       $hasData={hasData} // pass our boolean here
     >
-      {/* <Offcanvas.Header>
-        <Offcanvas.Title>
-          <SeriesPanelControl variableList={variableList} onSubmit={handleGetValuesSubmit} />
-        </Offcanvas.Title>
-      </Offcanvas.Header> */}
       <Offcanvas.Body>
         <ParentSize>
           {({ width, height }) =>
@@ -76,7 +65,6 @@ const SeriesPanel = ({ variableList }) => {
                 width={width}
                 height={height}
                 series={seriesData}
-                controlComponent={controlComponent}
               />
             
           }
