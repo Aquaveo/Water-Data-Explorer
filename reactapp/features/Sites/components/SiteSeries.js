@@ -161,16 +161,7 @@ function SiteSeries({ width, height, data}) {
 
   return (
     <div style={{ position: 'relative' }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginTop: 10,
-            position: 'relative',
-          }}
-        >
-          <VariablesControlMenu />
-      </div>
+      <VariablesControlMenu />
       {series.length > 0 ? (
       <Zoom
         width={innerWidth}
@@ -238,8 +229,8 @@ function SiteSeries({ width, height, data}) {
 
                     <AxisLeft
                       scale={newYScale}
-                      stroke="#d1d5db"
-                      tickStroke="#d1d5db"
+                      stroke="#8f99a7"
+                      tickStroke="#8f99a7"
                       tickLabelProps={() => ({
                         fill: '#e0e0e0',
                         fontWeight: 'bold',
@@ -248,7 +239,7 @@ function SiteSeries({ width, height, data}) {
                       label={layout?.yaxis ?? 'Series'}
                       labelProps={{
                         fill: '#e0e0e0',
-                        fontSize: 14,
+                        fontSize: 12,
                         strokeWidth: 0,
                         paintOrder: 'stroke',
                         fontFamily: 'sans-serif',
@@ -257,9 +248,9 @@ function SiteSeries({ width, height, data}) {
                     <AxisBottom
                       scale={newXScale}
                       top={innerHeight}
-                      stroke="#d1d5db"
+                      stroke="#8f99a7"
                       tickFormat={formatDate}
-                      tickStroke="#d1d5db"
+                      tickStroke="#8f99a7"
                       tickLabelProps={() => ({
                         fill: '#e0e0e0',
                         fontSize: 12,
@@ -290,7 +281,7 @@ function SiteSeries({ width, height, data}) {
                               x: tooltipLeft - margin.left,
                               y: innerHeight,
                             }}
-                            stroke="#d1d5db"
+                            stroke="#8f99a7"
                             strokeWidth={1.5}
                             pointerEvents="none"
                             strokeDasharray="6,3"
@@ -352,21 +343,8 @@ function SiteSeries({ width, height, data}) {
                   </Fragment>
                 </Group>
               </svg>
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: margin.top + 10,
-                    right: margin.right + 10,
-                    backgroundColor: 'rgba(0,0,0,0.2)',
-                    padding: '6px 10px',
-                    borderRadius: 4,
-                  }}
-                >
-                  <PlotLegend label={layout} />
-              </div>
-
-
-
+  
+              <PlotLegend label={layout} />
               {/* Tooltip */}
               {tooltipData && tooltipData.length > 0 && (
                 <TooltipWithBounds

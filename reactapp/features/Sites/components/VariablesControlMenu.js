@@ -96,91 +96,93 @@ const VariablesControlMenu = () => {
   };
 
   return (
-    <Row className="align-items-center">
-      {/* Main Form */}
-      <Col md="auto">
-        <Form onSubmit={handleSubmit}>
-          <Row className="align-items-center">
-            
-            <Col md="auto">
+    
+      <Row className="align-items-center">
+        {/* Main Form */}
+        <Col md="auto">
+          <Form onSubmit={handleSubmit}>
+            <Row className="align-items-center">
               
-              <div className="d-flex align-items-center">
-                <FaChartArea  size={30} style={{ marginRight: "5px" }} />
-                <Dropdown>
-                    <Dropdown.Toggle variant='light' id="dropdown-basic">
-                      {selectedVariableName}
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu  style={{ maxHeight: "200px", overflowY: "auto" }}>
-                      {currentDatastreams.map((item, index) => {
-                        const value = `${item.siteCode}_${item.variableCode}`;
-                        const label = `${item.variableName}${
-                          item.dataType ? ` - ${item.dataType}` : ""
-                        }`;
-                        return (
-                          <Dropdown.Item
-                            key={index}
-                            onClick={() => handleSelectVariable(value, item)}
-                          >
-                            {label}
-                          </Dropdown.Item>
-                        );
-                      })}
-                    </Dropdown.Menu>
-                  </Dropdown>
-              </div>
-            </Col>
+              <Col md="auto">
+                
+                <div className="d-flex align-items-center">
+                  <FaChartArea  size={30} style={{ marginRight: "5px" }} />
+                  <Dropdown>
+                      <Dropdown.Toggle variant='light' id="dropdown-basic">
+                        {selectedVariableName}
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu  style={{ maxHeight: "200px", overflowY: "auto" }}>
+                        {currentDatastreams.map((item, index) => {
+                          const value = `${item.siteCode}_${item.variableCode}`;
+                          const label = `${item.variableName}${
+                            item.dataType ? ` - ${item.dataType}` : ""
+                          }`;
+                          return (
+                            <Dropdown.Item
+                              key={index}
+                              onClick={() => handleSelectVariable(value, item)}
+                            >
+                              {label}
+                            </Dropdown.Item>
+                          );
+                        })}
+                      </Dropdown.Menu>
+                    </Dropdown>
+                </div>
+              </Col>
 
-            {/* Start Date Column */}
-            <Col md="auto">
-              <div className="d-flex align-items-center">
-                <FaHourglassStart style={{ marginRight: "5px" }} />
-                <DatePicker
-                  selected={startDate}
-                  onChange={(date) => date && setStartDate(date)}
-                  minDate={minDate}
-                  maxDate={maxDate}
-                  showTimeSelect={showTimeSelect}
-                  showYearPicker={showYearPicker}
-                  timeFormat="HH:mm"
-                  timeIntervals={usedTimeIntervals}
-                  timeCaption="Time"
-                  dateFormat={dateFormat}
-                  placeholderText="Start Date"
-                  className="form-control"
-                />
-              </div>
-            </Col>
+              {/* Start Date Column */}
+              <Col md="auto">
+                <div className="d-flex align-items-center">
+                  <FaHourglassStart style={{ marginRight: "5px" }} />
+                  <DatePicker
+                    selected={startDate}
+                    onChange={(date) => date && setStartDate(date)}
+                    minDate={minDate}
+                    maxDate={maxDate}
+                    showTimeSelect={showTimeSelect}
+                    showYearPicker={showYearPicker}
+                    timeFormat="HH:mm"
+                    timeIntervals={usedTimeIntervals}
+                    timeCaption="Time"
+                    dateFormat={dateFormat}
+                    placeholderText="Start Date"
+                    className="form-control"
+                  />
+                </div>
+              </Col>
 
-            {/* End Date Column */}
-            <Col md="auto">
-              <div className="d-flex align-items-center">
-                <FaHourglassEnd style={{ marginRight: "5px" }} />
-                <DatePicker
-                  selected={endDate}
-                  onChange={(date) => date && setEndDate(date)}
-                  minDate={minDate}
-                  maxDate={maxDate}
-                  showTimeSelect={showTimeSelect}
-                  showYearPicker={showYearPicker}
-                  timeFormat="HH:mm"
-                  timeIntervals={usedTimeIntervals}
-                  timeCaption="Time"
-                  dateFormat={dateFormat}
-                  placeholderText="End Date"
-                  className="form-control"
-                />
-              </div>
-            </Col>
+              {/* End Date Column */}
+              <Col md="auto">
+                <div className="d-flex align-items-center">
+                  <FaHourglassEnd style={{ marginRight: "5px" }} />
+                  <DatePicker
+                    selected={endDate}
+                    onChange={(date) => date && setEndDate(date)}
+                    minDate={minDate}
+                    maxDate={maxDate}
+                    showTimeSelect={showTimeSelect}
+                    showYearPicker={showYearPicker}
+                    timeFormat="HH:mm"
+                    timeIntervals={usedTimeIntervals}
+                    timeCaption="Time"
+                    dateFormat={dateFormat}
+                    placeholderText="End Date"
+                    className="form-control"
+                  />
+                </div>
+              </Col>
 
-            <Col md="auto">
-              <Button variant="primary" type="submit">
-                <FaArrowRight />
-              </Button>
-            </Col>
-          </Row>
-        </Form>
-      </Col>
-    </Row>
+              <Col md="auto">
+                <Button variant="primary" type="submit">
+                  <FaArrowRight />
+                </Button>
+              </Col>
+            </Row>
+          </Form>
+        </Col>
+      </Row>
+    
   );
 };
 

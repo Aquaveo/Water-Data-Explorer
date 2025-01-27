@@ -15,18 +15,14 @@ const PlotControlMenu = ({
   return (
     <Row className="align-items-center">
       <Col md="auto">
-        <Button variant="primary" onClick={onZoomReset}>
-            <MdOpenInFull  />
+        <Button variant="outline-primary" size="sm" onClick={onZoomReset}>
+            <MdOpenInFull size={10}  />
         </Button>
-      </Col>
-      <Col md="auto">
-        <Button variant="primary" onClick={onDownload}>
-            <MdDownload   />
+        <Button variant="outline-primary" size="sm" onClick={onDownload}>
+            <MdDownload size={10}  />
         </Button>
-      </Col>
-      <Col md="auto">
-        <Button variant="primary" onClick={OnScaleChange}>
-            <MdSsidChart   />
+        <Button variant="outline-primary" size="sm" onClick={OnScaleChange}>
+            <MdSsidChart size={10}  />
         </Button>
       </Col>
     </Row>
