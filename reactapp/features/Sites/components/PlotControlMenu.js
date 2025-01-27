@@ -3,6 +3,7 @@ import {
   Button,
   Row,
   Col,
+
 } from "react-bootstrap";
 
 import { MdOpenInFull, MdSsidChart, MdDownload  } from "react-icons/md";
@@ -13,7 +14,7 @@ const PlotControlMenu = ({
     OnScaleChange 
 }) => {
   return (
-    <Row className="align-items-center">
+    <Row className="align-items-center justify-content-end">
       <Col md="auto">
         <Button variant="outline-primary" size="sm" onClick={onZoomReset}>
             <MdOpenInFull size={10}  />

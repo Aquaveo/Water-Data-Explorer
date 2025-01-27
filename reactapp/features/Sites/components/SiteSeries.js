@@ -344,7 +344,7 @@ function SiteSeries({ width, height, data, showLoadingToast}) {
                 </Group>
               </svg>
   
-              <PlotLegend label={layout} margin={margin} />
+              {/* <PlotLegend label={layout} margin={margin} /> */}
               {/* Tooltip */}
               {tooltipData && tooltipData.length > 0 && (
                 <TooltipWithBounds
