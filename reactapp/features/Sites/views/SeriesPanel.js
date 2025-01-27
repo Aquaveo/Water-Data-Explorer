@@ -10,7 +10,7 @@ export const StyledOffcanvas = styled(Offcanvas)`
   height: ${(props) => (props.$hasData ? "550px" : "fit-content")} !important;
 `;
 
-const SeriesPanel = () => {
+const SeriesPanel = ({showLoadingToast, updateToSuccessToast}) => {
   const { isTimeSeriesPanelVisible, toggleTimeSeriesPanelVisibility } = useLayoutStore();
   const { backend } = useContext(AppContext);
   const [data, setData] = useState(null);
@@ -21,6 +21,7 @@ const SeriesPanel = () => {
       return;
     } else {
       setData({ ...data });
+      updateToSuccessToast();
     }
   };
    
@@ -51,6 +52,7 @@ const SeriesPanel = () => {
               width={width}
               height={height}
               data={data}
+              showLoadingToast={showLoadingToast}
             />
           }
         </ParentSize>

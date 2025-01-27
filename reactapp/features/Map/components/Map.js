@@ -20,7 +20,7 @@ import { toast } from 'react-toastify';
 
 import { AppContext } from "features/react-tethys/context/context";
 
-const MapComponent = () => {
+const MapComponent = ({showLoadingToast}) => {
   const { backend } = useContext(AppContext);
   const theme = useTheme();
   const { toggleSidePanelVisibility, showSiteList, isSidePanelVisible, showTimeSeriesPanel } = useLayoutStore();
@@ -96,7 +96,8 @@ const MapComponent = () => {
           });
           
           backend.do(backend.actions.GET_SITE_INFO, { ...properties });
-          showTimeSeriesPanel();
+          // showTimeSeriesPanel();
+          showLoadingToast();
           setCurrentSite(properties);
           return;
         } else if (layerId === "clusters") {

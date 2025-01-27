@@ -20,7 +20,7 @@ import PlotLegend from './PlotLegend';
 import PlotControlMenu from './PlotControlMenu';
 import VariablesControlMenu from './VariablesControlMenu';
 
-function SiteSeries({ width, height, data}) {
+function SiteSeries({ width, height, data, showLoadingToast}) {
   const layout = data?.layout;
   const series = data?.series || [];
 
@@ -161,7 +161,7 @@ function SiteSeries({ width, height, data}) {
 
   return (
     <div style={{ position: 'relative' }}>
-      <VariablesControlMenu />
+      <VariablesControlMenu showLoadingToast={showLoadingToast}/>
       {series.length > 0 ? (
       <Zoom
         width={innerWidth}

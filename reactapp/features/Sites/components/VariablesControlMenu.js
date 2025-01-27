@@ -12,10 +12,9 @@ import { FaHourglassStart, FaHourglassEnd, FaChartArea } from "react-icons/fa";
 import useDataStore from "../hooks/useDataStore";
 import { AppContext } from "features/react-tethys/context/context";
 import { useShallow } from 'zustand/react/shallow'
-import { toast } from "react-toastify";
 import "react-datepicker/dist/react-datepicker.css";
 
-const VariablesControlMenu = () => {
+const VariablesControlMenu = ({showLoadingToast}) => {
   const [selectedVariable, setSelectedVariable] = useState("");
   const [selectedVariableName, setSelectedVariableName] = useState("Select Variable");
   const [startDate, setStartDate] = useState(new Date());
@@ -78,6 +77,7 @@ const VariablesControlMenu = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    showLoadingToast()
     backend.do(backend.actions.GET_VALUES,{
       site_code: selectedVariable.split("_")[0],
       variable_code: selectedVariable.split("_")[1],
