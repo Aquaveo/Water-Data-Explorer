@@ -60,13 +60,11 @@ const SeriesPanel = () => {
       <Offcanvas.Body>
         <ParentSize>
           {({ width, height }) =>
-            
-              <SiteSeries
-                width={width}
-                height={height}
-                series={seriesData}
-              />
-            
+            <SiteSeries
+              width={width}
+              height={height}
+              series={seriesData}
+            />
           }
         </ParentSize>
       </Offcanvas.Body>

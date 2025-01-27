@@ -160,14 +160,15 @@ function SiteSeries({ width, height, series}) {
   };
 
   useEffect(() => {
+    console.log("Series", series);
     if (!series) {
       return;
     }
     else{
       setLayout(series.layout);
-      setData(series.data);
+      setData(series.series);
     }
-  }, [data]);
+  }, [series]);
 
   return (
     <div style={{ position: 'relative' }}>
@@ -404,9 +405,7 @@ function SiteSeries({ width, height, series}) {
           );
         }}
       </Zoom>
-       ) : (
-        null
-      )}
+       ) : null }
     </div>
   );
 }
