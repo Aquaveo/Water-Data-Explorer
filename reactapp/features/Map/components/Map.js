@@ -9,21 +9,16 @@ import bbox from "@turf/bbox";
 import useTheme from "hooks/useTheme";
 import useLayoutStore from "stores/useLayoutStore";
 import useDataStore from "features/Sites/hooks/useDataStore";
-import { FaDatabase } from "react-icons/fa";
-
-import { ControlButton, StyledMapContainer } from "./styledComponents";
-import AddMenuButton from "./MenuButton";
-
+import { StyledMapContainer } from "./styledComponents";
 import { clusterLayer, clusterCountLayer, unclusteredPointLayer,bufferLayer, onMapLoad } from "../lib/layers";
 import { Tooltip } from "../lib/tooltip";
-import { toast } from 'react-toastify';
-
 import { AppContext } from "features/react-tethys/context/context";
+import ButtomMapMenu from "./ButtomMenu";
 
 const MapComponent = ({showLoadingToast}) => {
   const { backend } = useContext(AppContext);
   const theme = useTheme();
-  const { toggleSidePanelVisibility, showSiteList, isSidePanelVisible, showTimeSeriesPanel } = useLayoutStore();
+  const { toggleSidePanelVisibility, showSiteList, isSidePanelVisible, showTimeSeriesPane, showImportCatalogMenu } = useLayoutStore();
   const filteredSites = useDataStore((state) => state.getFilteredSites());
   const setCurrentSite = useDataStore((state) => state.setCurrentSite);
 
@@ -163,10 +158,12 @@ const MapComponent = ({showLoadingToast}) => {
           </Tooltip>
         )}
       </Map>
-      <AddMenuButton />
-      <ControlButton onClick={handleShowSiteList}>
-        <FaDatabase size={20} />
-      </ControlButton>
+      <ButtomMapMenu 
+        handleShowSiteList={handleShowSiteList} 
+        showImportCatalogMenu={showImportCatalogMenu} 
+      />
+
+
     </StyledMapContainer>
   );
 };

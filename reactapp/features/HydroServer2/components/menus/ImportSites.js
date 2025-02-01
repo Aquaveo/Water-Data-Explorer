@@ -2,13 +2,13 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { AppContext } from "features/react-tethys/context/context";
-import ViewTable from 'features/Cuahsi/components/tables/ViewTable';
+import SiteTable from 'features/Sites/components/SiteTable';
 import { MdClear } from "react-icons/md";
 import styled from 'styled-components';
 import useTagInput from 'components/tags/useTag';
 import { TagField } from 'components/tags/tagField';
 import useDataStore from '../../../Sites/hooks/useDataStore';
-import LoadingServices from '../LoadingServices';
+import LoadingItems from '../LoadingItems';
 import { useShallow } from 'zustand/react/shallow'
 import { toast } from 'react-toastify'; // Import toast library
 import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
@@ -44,25 +44,25 @@ const FilterWrapper = styled.div`
 const MAX_TAGS = 5;
 
 
-const ImportSitesFromCatalogMenu = () => {
+const ImportSitesFromHydroServer2Menu = () => {
   const { backend } = useContext(AppContext);
   const [endpoint, setEndpoint] = useState('');
-  const [services, setServices] = useState([]);
+  const [stations, setStations] = useState([]);
   const [uploadedSites, setUploadedSites] = useState(0);
   const [endpointError, setEndpointError] = useState('');
   const { tags, handleAddTag, handleRemoveTag, cleanTags } = useTagInput(MAX_TAGS);
   const addSites = useDataStore(useShallow((state) => state.addSites));
-  const [isServicesLoading, setIsServicesLoading] = useState(false);
-  const [selectedViews, setSelectedViews] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedStations, setSelectedStations] = useState([]);
   const totalSitesRef = useRef(0);
   const toastIdRef = useRef(null);
 
   const handleSelectedRows = (state) => {
-    setSelectedViews(state.selectedRows);
+    setSelectedStations(state.selectedRows);
   };
   
 
-  const handleImportSitesFromCatalog = (data) => {
+  const handleImportSites = (data) => {
     console.log('Imported sites:', data);
     addSites(data.sites);
 
@@ -92,38 +92,38 @@ const ImportSitesFromCatalogMenu = () => {
     });
   };
   
-  const handleGetServices = (data) =>{
-    setIsServicesLoading(false);
-    setServices(data);
+  const handleGetStations = (data) =>{
+    setIsLoading(false);
+    setStations(data);
   }
 
 
   useEffect(() => {
-    backend.on(backend.actions.GET_LIST_SERVICES, handleGetServices);
-    backend.on(backend.actions.GET_IMPORTED_CUAHSI_SITES, handleImportSitesFromCatalog);
+    backend.on(backend.actions.GET_LIST_HYDOSERVER_STATIONS, handleGetStations);
+    backend.on(backend.actions.GET_IMPORTED_HYDOSERVER_SITES, handleImportSites);
     // Cleanup on unmount
     return () => {
-      backend.off(backend.actions.GET_LIST_SERVICES);
-      backend.off(backend.actions.IMPORT_SITES_FROM_CATALOG);
+      backend.off(backend.actions.GET_LIST_HYDOSERVER_STATIONS);
+      backend.off(backend.actions.GET_IMPORTED_HYDOSERVER_SITES);
     };
   }, []);
 
   const handleEndpointChange = (e) => {
-    setIsServicesLoading(true);
+    setIsLoading(true);
     const value = e.target.value;
-    backend.do(backend.actions.GET_LIST_SERVICES, { endpoint: value });
+    backend.do(backend.actions.GET_LIST_HYDOSERVER_STATIONS, { endpoint: value });
     setEndpoint(value);
   };
 
   const handleImport = () => {
-    console.log('Importing Sites from catalog:', {tags, selectedViews });
-    const totalSiteCount = selectedViews.reduce((acc, view) => acc + (view.sitecount || 0), 0);
+    console.log('Importing Sites:', {tags, selectedStations });
+    const totalSiteCount = selectedStations.reduce((acc, view) => acc + (view.sitecount || 0), 0);
     totalSitesRef.current = totalSiteCount; // Set the totalSites in ref
     setUploadedSites(0); // Reset uploadedSites
     if (!endpointError && endpoint.trim()) {
       const id = toast.loading(`Uploading sites 0/${totalSiteCount}`);
       toastIdRef.current = id; // Set the toastId in ref
-      backend.do(backend.actions.IMPORT_SITES_FROM_CATALOG, {tags, services: selectedViews });
+      backend.do(backend.actions.IMPORT_SITES_FROM_HYDROSERVER2, {tags, stations: selectedStations });
     }
   };
 
@@ -132,8 +132,8 @@ const ImportSitesFromCatalogMenu = () => {
       setName('');
       setEndpoint('');
       cleanTags();
-      setServices([]);
-      setSelectedViews([]); // Clear selected views
+      setStations([]);
+      setSelectedStations([]); // Clear selected views
       setEndpointError('');
     }
   };
@@ -142,13 +142,13 @@ const ImportSitesFromCatalogMenu = () => {
     <>
       <Form>
 
-        <Form.Group className="mb-3" controlId="catalogEndpoint">
+        <Form.Group className="mb-3" controlId="endpoint">
           <Form.Label>Endpoint</Form.Label>
           <FilterWrapper>
             <Form.Control
               id="search"
               type="text"
-              placeholder="Enter endpoint URL"
+              placeholder="Enter HydroServer 2 URL"
               aria-label="Search Input"
               value={endpoint}
               onChange={handleEndpointChange}
@@ -160,7 +160,7 @@ const ImportSitesFromCatalogMenu = () => {
           {endpointError && <Form.Text className="text-danger">{endpointError}</Form.Text>}
         </Form.Group>
 
-        <Form.Group className="mb-3" controlId="catalogDescription">
+        <Form.Group className="mb-3" controlId="tags">
           <Form.Label>Tags</Form.Label>
             <TagField
               tags={tags}
@@ -171,15 +171,15 @@ const ImportSitesFromCatalogMenu = () => {
         </Form.Group>
       </Form>
         {
-         isServicesLoading ? (
-          <LoadingServices />
+         isLoading ? (
+          <LoadingItems />
           ) : null
         }
 
-      {services && services.length > 0 && (
-        <ViewTable 
-          data={services} 
-          onSelectedRowsChange={handleSelectedRows} // Pass the handler
+      {stations && stations.length > 0 && (
+        <SiteTable 
+          data={stations} 
+          onSelectedRowsChange={handleSelectedRows}
         />
       )}
 
@@ -194,7 +194,7 @@ const ImportSitesFromCatalogMenu = () => {
       <Button 
         variant="primary" 
         onClick={handleImport} 
-        disabled={!endpoint.trim() || selectedViews.length === 0}
+        disabled={!endpoint.trim() || selectedStations.length === 0}
       >
         Import Sites
       </Button>
@@ -202,4 +202,4 @@ const ImportSitesFromCatalogMenu = () => {
   );
 };
 
-export default ImportSitesFromCatalogMenu;
+export default ImportSitesFromHydroServer2Menu;

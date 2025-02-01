@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Offcanvas } from 'react-bootstrap';
 import useLayoutStore from 'stores/useLayoutStore';
 import SitesList from '../features/Sites/components/SitesList';
-import ImportSitesFromCatalogMenu from 'features/Cuahsi/components/menus/ImportSitesFromCatalogMenu';
+import ImportSitesFromCatalogMenu from 'features/Cuahsi/components/menus/ImportSites';
 import { BsArrowLeft } from 'react-icons/bs';
 
 

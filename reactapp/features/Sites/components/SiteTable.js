@@ -9,11 +9,16 @@ import useDataStore from "features/Sites/hooks/useDataStore";
 const onSiteRowClick = (row) => {
   console.log("Row clicked:", row);
 };
+const onSiteRowChange = (row) => {
+  console.log("onSiteRowChange:", row);
+};
 
 const SiteTable = ({
   data,
   columns = SitesTableColumns,
   styles = SitesTableStyles,
+  onRowClicked = onSiteRowClick,
+  onSelectedRowsChange = onSiteRowChange
 }) => {
   const [filterText, setFilterText] = React.useState("");
   const [resetPaginationToggle, setResetPaginationToggle] = React.useState(false);
@@ -65,12 +70,13 @@ const SiteTable = ({
       pagination
       selectableRows
       selectableRowsHighlight
-      onRowClicked={onSiteRowClick}
+      onRowClicked={onRowClicked}
       subHeader
       subHeaderComponent={subHeaderComponent}
       paginationResetDefaultPage={resetPaginationToggle}
       expandableRows
       expandableRowsComponent={DetailedSiteRow}
+      onSelectedRowsChange={onSelectedRowsChange}
     />
   );
 };

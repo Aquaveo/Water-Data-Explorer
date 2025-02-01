@@ -8,7 +8,7 @@ const CenteredDiv = styled.div`
     align-items: center;
 `;
 
-function LoadingServices() {
+function LoadingItems() {
     return (
         
         <CenteredDiv>
@@ -25,4 +25,4 @@ function LoadingServices() {
 }
 
 
-export default LoadingServices;
+export default LoadingItems;
