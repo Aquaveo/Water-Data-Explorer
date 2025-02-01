@@ -15,7 +15,6 @@ const useLayoutStore = create((set) => ({
 
   showImportCatalogMenu: () => set({
     currentOffCanvasView: 'importCatalogMenu',
-    isSidePanelVisible: true
   }),
 
   showTimeSeriesPanel: () => set({

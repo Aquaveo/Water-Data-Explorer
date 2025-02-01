@@ -31,8 +31,17 @@ function CircularButton({
         background: imageUrl ? '#fff' : 'transparent',
         border: '1px solid #ccc',
         cursor: 'pointer',
-        ...(imageUrl ? { overflow: 'hidden' } : {}), // Ensure images don’t overflow.
+        transition: 'background-color 0.3s, transform 0.3s', 
+        ...(imageUrl ? { overflow: 'hidden' } : {}),
         ...style,
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = '#f0f0f0';
+        e.currentTarget.style.transform = 'scale(1.1)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = imageUrl ? '#fff' : '#fff';
+        e.currentTarget.style.transform = 'scale(1)';
       }}
     >
       {imageUrl ? (

@@ -7,7 +7,7 @@ import buffer from "@turf/buffer";
 import bbox from "@turf/bbox";
 
 import useTheme from "hooks/useTheme";
-import useLayoutStore from "stores/useLayoutStore";
+
 import useDataStore from "features/Sites/hooks/useDataStore";
 import { StyledMapContainer } from "./styledComponents";
 import { clusterLayer, clusterCountLayer, unclusteredPointLayer,bufferLayer, onMapLoad } from "../lib/layers";
@@ -18,7 +18,7 @@ import ButtomMapMenu from "./ButtomMenu";
 const MapComponent = ({showLoadingToast}) => {
   const { backend } = useContext(AppContext);
   const theme = useTheme();
-  const { toggleSidePanelVisibility, showSiteList, isSidePanelVisible, showTimeSeriesPane, showImportCatalogMenu } = useLayoutStore();
+  
   const filteredSites = useDataStore((state) => state.getFilteredSites());
   const setCurrentSite = useDataStore((state) => state.setCurrentSite);
 
@@ -58,13 +58,6 @@ const MapComponent = ({showLoadingToast}) => {
       setPopupInfo(null);
     }
   }, []);
-
-  const handleShowSiteList = () => {
-    showSiteList();
-    if (!isSidePanelVisible) {
-      toggleSidePanelVisibility();
-    }
-  };
 
   const handleMapClick = (event) => {
     const map = mapRef.current.getMap(); // Get the raw Mapbox GL map instance
@@ -158,10 +151,7 @@ const MapComponent = ({showLoadingToast}) => {
           </Tooltip>
         )}
       </Map>
-      <ButtomMapMenu 
-        handleShowSiteList={handleShowSiteList} 
-        showImportCatalogMenu={showImportCatalogMenu} 
-      />
+      <ButtomMapMenu />
 
 
     </StyledMapContainer>

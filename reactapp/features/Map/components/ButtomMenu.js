@@ -3,9 +3,21 @@ import CircularButton from "components/buttons/CustomButton";
 import { TbMapPinSearch } from 'react-icons/tb';
 import { MdOutlineWater } from 'react-icons/md';
 import hs_light from 'assets/hs2_light.png';
+import useLayoutStore from "stores/useLayoutStore";
 
 
-const ButtomMapMenu = ({ handleShowSiteList, showImportCatalogMenu }) => {
+const ButtomMapMenu = ( ) => {
+  const { toggleSidePanelVisibility, showSiteList, showImportCatalogMenu } = useLayoutStore();
+
+  const handleShowSiteList = () => {
+    showSiteList();
+    toggleSidePanelVisibility();
+  };
+
+  const handleImportCatalog = () => {
+    showImportCatalogMenu();
+    toggleSidePanelVisibility();
+    };
     return (
         <Fragment>
             <CircularButton
@@ -13,7 +25,7 @@ const ButtomMapMenu = ({ handleShowSiteList, showImportCatalogMenu }) => {
                 onClick={handleShowSiteList}
                 tooltipText="Show Site List"
                 style={{
-                    background: '#f0f0f0',
+                    background: '#f2f2f2',
                     border: '2px solid #aaa',
                     top: '150px',
                     right: '10px',
@@ -21,10 +33,10 @@ const ButtomMapMenu = ({ handleShowSiteList, showImportCatalogMenu }) => {
             />
             <CircularButton
                 icon={<MdOutlineWater size={25} color="#333" />}
-                onClick={showImportCatalogMenu}
+                onClick={handleImportCatalog}
                 tooltipText="Import Sites From Catalog"
                 style={{
-                    background: '#f0f0f0',
+                    background: '#f2f2f2',
                     border: '2px solid #aaa',
                     top: '250px',
                     right: '10px',
@@ -37,7 +49,7 @@ const ButtomMapMenu = ({ handleShowSiteList, showImportCatalogMenu }) => {
                 tooltipText="Import Sites from HydroServer2"
                 style={{
                     backgroundColor: '#f2f2f2',
-                    border: '2px solid #888',
+                    border: '2px solid #aaa',
                     top: '300px',
                     right: '10px',
                 }}
