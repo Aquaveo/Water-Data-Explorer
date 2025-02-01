@@ -4,6 +4,7 @@ import { Offcanvas } from 'react-bootstrap';
 import useLayoutStore from 'stores/useLayoutStore';
 import SitesList from '../features/Sites/components/SitesList';
 import ImportSitesFromCatalogMenu from 'features/Cuahsi/components/menus/ImportSites';
+import ImportSitesFromHydroServer2Menu from 'features/HydroServer2/components/menus/ImportSites';
 import { BsArrowLeft } from 'react-icons/bs';
 
 
@@ -25,10 +26,18 @@ const SidePanel = () => {
 
 
   let content;
-  if (currentOffCanvasView === 'siteList') {
-    content = <SitesList />;
-  } else if (currentOffCanvasView === 'importCatalogMenu') {
-    content = <ImportSitesFromCatalogMenu />;
+  switch (currentOffCanvasView) {
+    case 'siteList':
+      content = <SitesList />;
+      break;
+    case 'importCatalogMenu':
+      content = <ImportSitesFromCatalogMenu />;
+      break;
+    case 'importHydroServerMenu':
+      content = <ImportSitesFromHydroServer2Menu />;
+      break;
+    default:
+      content = null;
   }
 
   return (
@@ -50,9 +59,7 @@ const SidePanel = () => {
                   {currentOffCanvasView != 'siteList' ?
                     <div>
                       <div style={{display: 'inline-block'}}>Import Sites</div>
-                      <div style={{display: 'inline-block', marginLeft: '10px', fontSize: '12px', color: 'gray'}}>from Catalog</div>
-                    </div>
-                    
+                    </div>                    
                   :
                     <div>
                       <div style={{display: 'inline-block'}}>Sites</div>

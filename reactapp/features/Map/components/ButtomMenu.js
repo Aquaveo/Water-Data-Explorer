@@ -7,7 +7,7 @@ import useLayoutStore from "stores/useLayoutStore";
 
 
 const ButtomMapMenu = ( ) => {
-  const { toggleSidePanelVisibility, showSiteList, showImportCatalogMenu } = useLayoutStore();
+  const { toggleSidePanelVisibility, showSiteList, showImportCatalogMenu,showImportHydroServerMenu } = useLayoutStore();
 
   const handleShowSiteList = () => {
     showSiteList();
@@ -18,6 +18,11 @@ const ButtomMapMenu = ( ) => {
     showImportCatalogMenu();
     toggleSidePanelVisibility();
     };
+  const handleImportHydroServerSites = () => {
+    showImportHydroServerMenu();
+    toggleSidePanelVisibility();
+  };
+
     return (
         <Fragment>
             <CircularButton
@@ -45,7 +50,7 @@ const ButtomMapMenu = ( ) => {
             <CircularButton
                 imageUrl={hs_light}
                 altText="Import Sites from HydroServer2"
-                onClick={() => alert('Image button clicked!')}
+                onClick={handleImportHydroServerSites}
                 tooltipText="Import Sites from HydroServer2"
                 style={{
                     backgroundColor: '#f2f2f2',

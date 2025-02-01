@@ -16,6 +16,9 @@ const useLayoutStore = create((set) => ({
   showImportCatalogMenu: () => set({
     currentOffCanvasView: 'importCatalogMenu',
   }),
+  showImportHydroServerMenu: () => set({
+    currentOffCanvasView: 'importHydroServerMenu',
+  }),
 
   showTimeSeriesPanel: () => set({
     isTimeSeriesPanelVisible: true

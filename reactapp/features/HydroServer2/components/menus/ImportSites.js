@@ -1,4 +1,4 @@
-// ImportCatalogMenu.js
+// ImportSitesFromHydroServer2Menu.js
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { AppContext } from "features/react-tethys/context/context";
@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import useTagInput from 'components/tags/useTag';
 import { TagField } from 'components/tags/tagField';
 import useDataStore from '../../../Sites/hooks/useDataStore';
-import LoadingItems from '../LoadingItems';
+import LoadingItems from 'components/LoadingItems';
 import { useShallow } from 'zustand/react/shallow'
 import { toast } from 'react-toastify'; // Import toast library
 import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
