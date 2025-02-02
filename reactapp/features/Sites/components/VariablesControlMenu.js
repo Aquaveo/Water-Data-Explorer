@@ -7,8 +7,9 @@ import {
   Col,
   Container
 } from "react-bootstrap";
+import useLayoutStore from "stores/useLayoutStore";
 import DatePicker from "react-datepicker";
-import { FaHourglassStart, FaHourglassEnd, FaChartArea } from "react-icons/fa";
+import { FaHourglassStart, FaHourglassEnd, FaChartArea,FaTimes } from "react-icons/fa";
 import useDataStore from "../hooks/useDataStore";
 import { AppContext } from "features/react-tethys/context/context";
 import { useShallow } from 'zustand/react/shallow'
@@ -21,6 +22,7 @@ const VariablesControlMenu = ({showLoadingToast}) => {
   const [endDate, setEndDate] = useState(new Date());
   const [timeSupport, setTimeSupport] = useState(60);
   const [timeUnitName, setTimeUnitName] = useState("days");
+  const toggleTimeSeriesPanelVisibility = useLayoutStore((state) => state.toggleTimeSeriesPanelVisibility);
   const currentDatastreams = useDataStore(useShallow((state) => state.current_datastreams));
   const current_site = useDataStore((state) => state.getCurrentSite());
   const { backend } = useContext(AppContext);
@@ -98,7 +100,13 @@ const VariablesControlMenu = ({showLoadingToast}) => {
   return (
     <Container style={{ display: "flex", justifyContent: "center" }}>
       <Row className="align-items-center">
-        {/* Main Form */}
+        <Col md="auto">
+          <FaTimes 
+              size={24} 
+              style={{ cursor: 'pointer', marginRight: '10px' }} 
+              onClick={toggleTimeSeriesPanelVisibility} 
+          />
+        </Col>
         <Col md="auto">
           <Form onSubmit={handleSubmit}>
             <Row className="align-items-center">
@@ -172,7 +180,6 @@ const VariablesControlMenu = ({showLoadingToast}) => {
                   />
                 </div>
               </Col>
-
               <Col md="auto">
                 <Button variant="primary" size="sm" type="submit">
                   <FaChartArea />

@@ -2,12 +2,14 @@ import React,{Fragment} from 'react';
 import CircularButton from "components/buttons/CustomButton";
 import { TbMapPinSearch } from 'react-icons/tb';
 import { MdOutlineWater } from 'react-icons/md';
+import { FaChartLine } from "react-icons/fa6";
+
 import hs_light from 'assets/hs2_light.png';
 import useLayoutStore from "stores/useLayoutStore";
 
 
 const ButtomMapMenu = ( ) => {
-  const { toggleSidePanelVisibility, showSiteList, showImportCatalogMenu,showImportHydroServerMenu } = useLayoutStore();
+  const { toggleSidePanelVisibility, showSiteList, showImportCatalogMenu, showImportHydroServerMenu,toggleTimeSeriesPanelVisibility } = useLayoutStore();
 
   const handleShowSiteList = () => {
     showSiteList();
@@ -37,13 +39,25 @@ const ButtomMapMenu = ( ) => {
                 }}
             />
             <CircularButton
+                icon={<FaChartLine  size={25} color="#333" />}
+                onClick={toggleTimeSeriesPanelVisibility}
+                tooltipText="Show Time Series Panel"
+                style={{
+                    backgroundColor: '#f2f2f2',
+                    border: '2px solid #aaa',
+                    top: '200px',
+                    right: '10px',
+                }}
+            />
+
+            <CircularButton
                 icon={<MdOutlineWater size={25} color="#333" />}
                 onClick={handleImportCatalog}
                 tooltipText="Import Sites From Catalog"
                 style={{
                     background: '#f2f2f2',
                     border: '2px solid #aaa',
-                    top: '250px',
+                    top: '300px',
                     right: '10px',
                 }}
             />
@@ -55,10 +69,11 @@ const ButtomMapMenu = ( ) => {
                 style={{
                     backgroundColor: '#f2f2f2',
                     border: '2px solid #aaa',
-                    top: '300px',
+                    top: '350px',
                     right: '10px',
                 }}
             />
+
         </Fragment>
     );
 };
