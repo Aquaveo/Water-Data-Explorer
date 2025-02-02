@@ -17,7 +17,7 @@ const SiteTable = ({
   data,
   columns = SitesTableColumns,
   styles = SitesTableStyles,
-  onRowClicked = onSiteRowClick,
+  onRowClicked,
   onSelectedRowsChange = onSiteRowChange
 }) => {
   const [filterText, setFilterText] = React.useState("");

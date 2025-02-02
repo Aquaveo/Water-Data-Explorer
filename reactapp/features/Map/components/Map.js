@@ -1,26 +1,26 @@
-import React, { useRef, useCallback, useState, useContext } from "react";
+import React, { useRef, useCallback, useState, useContext, useEffect } from "react";
 import Map, { Source, Layer } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import maplibregl from "maplibre-gl";
 import { point as turfPoint } from "@turf/helpers";
 import buffer from "@turf/buffer";
 import bbox from "@turf/bbox";
-
 import useTheme from "hooks/useTheme";
-
 import useDataStore from "features/Sites/hooks/useDataStore";
 import { StyledMapContainer } from "./styledComponents";
-import { clusterLayer, clusterCountLayer, unclusteredPointLayer,bufferLayer, onMapLoad } from "../lib/layers";
+import { clusterLayer, clusterCountLayer, unclusteredPointLayer, bufferLayer, onMapLoad } from "../lib/layers";
 import { Tooltip } from "../lib/tooltip";
 import { AppContext } from "features/react-tethys/context/context";
 import ButtomMapMenu from "./ButtomMenu";
 
-const MapComponent = ({showLoadingToast}) => {
+const MapComponent = ({ showLoadingToast }) => {
   const { backend } = useContext(AppContext);
   const theme = useTheme();
   
   const filteredSites = useDataStore((state) => state.filteredSites);
   const setCurrentSite = useDataStore((state) => state.setCurrentSite);
+  // Subscribe to the current site:
+  const currentSite = useDataStore((state) => state.current_site);
 
   const [popupInfo, setPopupInfo] = useState(null);
   const [bufferData, setBufferData] = useState(null); // State for buffer GeoJSON
@@ -39,7 +39,6 @@ const MapComponent = ({showLoadingToast}) => {
         properties: site,
       })),
   };
-
 
   const onHover = useCallback((event) => {
     const { features } = event;
@@ -60,7 +59,7 @@ const MapComponent = ({showLoadingToast}) => {
   }, []);
 
   const handleMapClick = (event) => {
-    const map = mapRef.current.getMap(); // Get the raw Mapbox GL map instance
+    const map = mapRef.current.getMap();
     const features = map.queryRenderedFeatures(event.point, {
       layers: ["unclustered-point", "clusters"],
     });
@@ -72,7 +71,7 @@ const MapComponent = ({showLoadingToast}) => {
           const { geometry, properties } = feature;  
           const center = turfPoint(geometry.coordinates);
           const radius = 0.5; // Radius in kilometers
-          const options = { units: "kilometers" }; // Specify units for the buffer
+          const options = { units: "kilometers" };
           const circle = buffer(center, radius, options);
   
           setBufferData(circle);
@@ -84,17 +83,13 @@ const MapComponent = ({showLoadingToast}) => {
           });
           
           backend.do(backend.actions.GET_SITE_INFO, { ...properties });
-          // showTimeSeriesPanel();
           showLoadingToast();
           setCurrentSite(properties);
           return;
         } else if (layerId === "clusters") {
           const clusterId = feature.properties.cluster_id;
           map.getSource("sites").getClusterExpansionZoom(clusterId, (err, zoom) => {
-            if (err) {
-              return;
-            }
-  
+            if (err) return;
             map.easeTo({
               center: feature.geometry.coordinates,
               zoom,
@@ -106,6 +101,23 @@ const MapComponent = ({showLoadingToast}) => {
       }
     }
   };
+
+  // New: Zoom to the clicked site when currentSite changes.
+  useEffect(() => {
+    if (
+      currentSite &&
+      currentSite.latitude != null &&
+      currentSite.longitude != null &&
+      mapRef.current
+    ) {
+      const map = mapRef.current.getMap();
+      map.easeTo({
+        center: [currentSite.longitude, currentSite.latitude],
+        zoom: 12, // Adjust this zoom level as desired.
+        duration: 5000,
+      });
+    }
+  }, [currentSite]);
 
   return (
     <StyledMapContainer theme={theme}>
@@ -136,13 +148,11 @@ const MapComponent = ({showLoadingToast}) => {
           <Layer {...clusterCountLayer} />
           <Layer {...unclusteredPointLayer} />
         </Source>
-
         {bufferData && (
           <Source id="buffer" type="geojson" data={bufferData}>
             <Layer {...bufferLayer} />
           </Source>
         )}
-
         {popupInfo && (
           <Tooltip left={`${popupInfo.x}px`} top={`${popupInfo.y}px`}>
             <div>Site: {popupInfo.feature.properties.name}</div>
@@ -152,8 +162,6 @@ const MapComponent = ({showLoadingToast}) => {
         )}
       </Map>
       <ButtomMapMenu />
-
-
     </StyledMapContainer>
   );
 };
