@@ -45,7 +45,7 @@ const ButtomMapMenu = ( ) => {
                 style={{
                     backgroundColor: '#f2f2f2',
                     border: '2px solid #aaa',
-                    top: '200px',
+                    top: '205px',
                     right: '10px',
                 }}
             />
@@ -57,7 +57,7 @@ const ButtomMapMenu = ( ) => {
                 style={{
                     background: '#f2f2f2',
                     border: '2px solid #aaa',
-                    top: '300px',
+                    top: '305px',
                     right: '10px',
                 }}
             />
@@ -69,7 +69,7 @@ const ButtomMapMenu = ( ) => {
                 style={{
                     backgroundColor: '#f2f2f2',
                     border: '2px solid #aaa',
-                    top: '350px',
+                    top: '355px',
                     right: '10px',
                 }}
             />
