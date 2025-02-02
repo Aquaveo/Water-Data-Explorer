@@ -43,23 +43,30 @@ class CuahsiBackendHandler(RBH):
         """
         
         url = data.get("endpoint")
-        async_soap_client = AsyncSOAPClient()
-        
-        try:
-            # Fetch services as an asynchronous generator
-            services_generator = await async_soap_client.get_catalog_services(url)
-            
-            # Collect services into a list using async for
-            services_json = [service async for service in services_generator]
-        except Exception as e:
-            # Handle exceptions gracefully
-            error_payload = {"error": str(e)}
+        type_cuahsi = self.async_soap_client.endpoint_checker(url)
+        if type_cuahsi == "catalog":
+            try:
+                # Fetch services as an asynchronous generator
+                services_generator = await self.async_soap_client.get_catalog_services(url)
+                
+                # Collect services into a list using async for
+                services_json = [service async for service in services_generator]
+            except Exception as e:
+                # Handle exceptions gracefully
+                error_payload = {"error": str(e)}
+                await self.send_action(self.SEND_LIST_SERVICES_ACTION, error_payload)
+                return
+            # Send the collected services
+            await self.send_action(self.SEND_LIST_SERVICES_ACTION, services_json)
+        if type_cuahsi == "service":
+            info_payload = {"info": "The endpoint is a service"}
+            await self.send_action(self.SEND_LIST_SERVICES_ACTION, info_payload)
+            return
+        else:
+            error_payload = {"error": "The endpoint is not a valid catalog or service"}
             await self.send_action(self.SEND_LIST_SERVICES_ACTION, error_payload)
             return
-
-        # Send the collected services
-        await self.send_action(self.SEND_LIST_SERVICES_ACTION, services_json)
-
+        
     async def create_sites_bulk(
         self,
         db: AsyncSession,
@@ -139,8 +146,6 @@ class CuahsiBackendHandler(RBH):
         """
         Each import task gets its own session to avoid conflicts.
         """
-        # async with self.sessionmaker() as session:
-        #     # Reuse the create_cuahsi_sites method with a dedicated session
         await self.create_cuahsi_sites(event, action, data, session)
 
 
@@ -158,11 +163,11 @@ class CuahsiBackendHandler(RBH):
         params = {"request": "GetSitesObject", "format": "WML1"}
         url = f"{base_url}?request={params['request']}&format={params['format']}"
 
-        async_soap_client = AsyncSOAPClient()
+        
 
         try:
             # yields batches of site dicts
-            sites_gen = async_soap_client.get_sites_from_endpoint(url, site_count)
+            sites_gen = self.async_soap_client.get_sites_from_endpoint(url, site_count)
         except Exception as e:
             logger.error(f"Failed to initiate site fetching: {e}")
             error_payload = {

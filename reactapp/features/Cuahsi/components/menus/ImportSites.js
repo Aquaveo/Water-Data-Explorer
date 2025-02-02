@@ -46,7 +46,7 @@ const MAX_TAGS = 5;
 
 const ImportSitesFromCatalogMenu = () => {
   const { backend } = useContext(AppContext);
-  const [endpoint, setEndpoint] = useState('');
+  // const [endpoint, setEndpoint] = useState('');
   const [services, setServices] = useState([]);
   const [uploadedSites, setUploadedSites] = useState(0);
   const [endpointError, setEndpointError] = useState('');
@@ -54,6 +54,8 @@ const ImportSitesFromCatalogMenu = () => {
   const addSites = useDataStore(useShallow((state) => state.addSites));
   const [isServicesLoading, setIsServicesLoading] = useState(false);
   const [selectedViews, setSelectedViews] = useState([]);
+  const endpoint = useRef('');
+
   const totalSitesRef = useRef(0);
   const toastIdRef = useRef(null);
 
@@ -93,8 +95,33 @@ const ImportSitesFromCatalogMenu = () => {
   };
   
   const handleGetServices = (data) =>{
+    console.log('Services:', data);
+    if (data.error) {
+      setEndpointError(data.error);
+      
+    }
+    else if(data.info=="The endpoint is a service"){
+      setEndpointError('');
+      setServices([]);
+      const singleService = {
+        servURL: endpoint.current,
+        sitecount: 0,
+        title: '',
+        variablecount: 0,
+        valuecount: 0,
+      };
+      console.log('Single Service:', singleService);
+      
+      setSelectedViews(prev => [...prev, singleService]);
+
+      console.log('The endpoint is a service');
+    }
+    else{
+      setEndpointError('');
+      setServices(data);
+    }
     setIsServicesLoading(false);
-    setServices(data);
+
   }
 
 
@@ -112,7 +139,8 @@ const ImportSitesFromCatalogMenu = () => {
     setIsServicesLoading(true);
     const value = e.target.value;
     backend.do(backend.actions.GET_LIST_SERVICES, { endpoint: value });
-    setEndpoint(value);
+    endpoint.current = value;
+    // setEndpoint(value);
   };
 
   const handleImport = () => {
@@ -120,7 +148,7 @@ const ImportSitesFromCatalogMenu = () => {
     const totalSiteCount = selectedViews.reduce((acc, view) => acc + (view.sitecount || 0), 0);
     totalSitesRef.current = totalSiteCount; // Set the totalSites in ref
     setUploadedSites(0); // Reset uploadedSites
-    if (!endpointError && endpoint.trim()) {
+    if (!endpointError && endpoint.current.trim()) {
       const id = toast.loading(`Uploading sites 0/${totalSiteCount}`);
       toastIdRef.current = id; // Set the toastId in ref
       backend.do(backend.actions.IMPORT_SITES_FROM_CATALOG, {tags, services: selectedViews });
@@ -128,12 +156,12 @@ const ImportSitesFromCatalogMenu = () => {
   };
 
   const handleClear = () => {
-    if (endpoint || name || tags) {
-      setName('');
-      setEndpoint('');
+    if (endpoint || tags) {
+      endpoint.current = '';
+      // setEndpoint('');
       cleanTags();
       setServices([]);
-      setSelectedViews([]); // Clear selected views
+      setSelectedViews([]);
       setEndpointError('');
     }
   };
@@ -149,7 +177,7 @@ const ImportSitesFromCatalogMenu = () => {
               type="text"
               placeholder="Enter endpoint URL"
               aria-label="Search Input"
-              value={endpoint}
+              value={endpoint.current}
               onChange={handleEndpointChange}
             />
             <ClearButton type="button" onClick={handleClear}>
@@ -182,18 +210,11 @@ const ImportSitesFromCatalogMenu = () => {
         />
       )}
 
-      {/* Show error alert if there's an endpoint error */}
-      {endpointError && (
-        <Alert variant="danger">
-          {endpointError}
-        </Alert>
-      )}
-
       {/* Import button below the table */}
       <Button 
         variant="primary" 
         onClick={handleImport} 
-        disabled={!endpoint.trim() || selectedViews.length === 0}
+        disabled={!endpoint.current.trim() || selectedViews.length === 0}
       >
         Import Sites
       </Button>
@@ -202,3 +223,4 @@ const ImportSitesFromCatalogMenu = () => {
 };
 
 export default ImportSitesFromCatalogMenu;
+// https://whos.geodab.eu/gs-service/services/essi/token/whos-60f68787-6a92-4d4e-95e2-08aee08cb239/view/gs-view-and(whos,gs-view-source(aral-sea-basin))/cuahsi_1_1.asmx

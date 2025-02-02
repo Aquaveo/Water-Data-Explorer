@@ -29,6 +29,14 @@ class AsyncSOAPClient:
         ]
         self.MAX_BATCH_SIZE = 1000000  # Cap to prevent oversized batches
     
+    def endpoint_checker(self, url: str) -> str:
+        if url.endswith('hiscentral.asmx'):
+            return "catalog"
+        elif url.endswith('cuahsi_1_1.asmx'):
+            return "service"
+        else:
+            return None
+        
     def get_sites_batch_size(self, sites_count: int) -> int:
         """
         Determines the optimal batch size based on the number of sites.
@@ -289,7 +297,6 @@ class AsyncSOAPClient:
                 "variablecount": variablecount_text
             }
 
-
     async def get_site_info(self, url: str) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Fetch XML from the given `url` using an HTTP GET request,
@@ -341,7 +348,6 @@ class AsyncSOAPClient:
             # Unexpected structure => yield nothing
             return
 
-
     def _transform_site_info(self, record: Dict[str, Any]) -> Dict[str, Any]:
         """
         Take the full record from _parse_site_info and return only:
@@ -366,7 +372,6 @@ class AsyncSOAPClient:
             "timeUnitName": record.get("timeUnitName", "No Data was Provided"),
             "timeSupport": record.get("timeSupport", "No Data was Provided"),
         }
-
 
     def _parse_site_info(self, object_siteInfo: Dict[str, Any], object_methods: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -497,8 +502,6 @@ class AsyncSOAPClient:
 
         return return_obj
 
-
-
     async def get_values(
         self,
         url: str,
@@ -554,7 +557,6 @@ class AsyncSOAPClient:
         except Exception as e:
             logger.error(f"Error parsing XML data: {e}")
 
-
     @staticmethod
     def parse_timeseries_metadata(times_series: Dict[str, Any], result_obj: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -589,7 +591,6 @@ class AsyncSOAPClient:
             logger.error(f"Error parsing time series metadata: {e}")
 
         return result_obj
-
 
     @staticmethod
     def parse_timeseries_value(value: Dict[str, Any], result_obj: Dict[str, Any]) -> Dict[str, Any]:
