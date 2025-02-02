@@ -47,7 +47,7 @@ Layout.propTypes = {
       eventKey: PropTypes.string,
     })
   ),
-  routes: PropTypes.arrayOf(PropTypes.node),
+  routes: PropTypes.any,
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.element),
     PropTypes.element,

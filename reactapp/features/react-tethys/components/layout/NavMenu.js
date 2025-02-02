@@ -20,10 +20,7 @@ const NavMenu = ({children, navTitle, onNavChange, navVisible, ...props}) => {
 };
 
 NavMenu.propTypes = {
-  children: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.element),
-    PropTypes.element,
-  ]),
+  children: PropTypes.any,
   navTitle: PropTypes.string,
   onNavChange: PropTypes.func,
   navVisible: PropTypes.bool,

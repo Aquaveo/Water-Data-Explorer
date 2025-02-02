@@ -21,10 +21,7 @@ function Loader({ children }) {
 }
 
 Loader.propTypes = {
-  children: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.element),
-    PropTypes.element,
-  ]),
+  children: PropTypes.any,
 };
 
 export default Loader;
