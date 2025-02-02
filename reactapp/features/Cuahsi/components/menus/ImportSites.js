@@ -146,7 +146,6 @@ const ImportSitesFromCatalogMenu = () => {
           <Form.Label>Endpoint</Form.Label>
           <FilterWrapper>
             <Form.Control
-              id="search"
               type="text"
               placeholder="Enter endpoint URL"
               aria-label="Search Input"

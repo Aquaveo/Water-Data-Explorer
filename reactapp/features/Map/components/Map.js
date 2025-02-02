@@ -19,7 +19,7 @@ const MapComponent = ({showLoadingToast}) => {
   const { backend } = useContext(AppContext);
   const theme = useTheme();
   
-  const filteredSites = useDataStore((state) => state.getFilteredSites());
+  const filteredSites = useDataStore((state) => state.filteredSites);
   const setCurrentSite = useDataStore((state) => state.setCurrentSite);
 
   const [popupInfo, setPopupInfo] = useState(null);

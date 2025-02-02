@@ -38,9 +38,16 @@ const SiteTable = ({
       return nameMatch || countryMatch || typeMatch || tagsMatch;
     });
 
-    setFilteredSites(filtered); // Update the filtered sites in the store
+    // setFilteredSites(filtered); // Update the filtered sites in the store
     return filtered;
-  }, [data, filterText, setFilteredSites]);
+  // }, [data, filterText, setFilteredSites]);
+  }, [data, filterText]);
+
+  // Update the filtered sites in the store after render.
+  React.useEffect(() => {
+    setFilteredSites(filteredItems);
+  }, [filteredItems, setFilteredSites]);
+
 
   // Filter component with enhanced functionality
   const subHeaderComponent = React.useMemo(() => {

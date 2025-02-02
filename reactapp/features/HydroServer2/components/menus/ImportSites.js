@@ -146,7 +146,6 @@ const ImportSitesFromHydroServer2Menu = () => {
           <Form.Label>Endpoint</Form.Label>
           <FilterWrapper>
             <Form.Control
-              id="search"
               type="text"
               placeholder="Enter HydroServer 2 URL"
               aria-label="Search Input"

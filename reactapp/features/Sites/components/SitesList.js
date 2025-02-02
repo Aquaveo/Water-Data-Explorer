@@ -5,7 +5,7 @@ import useDataStore from 'features/Sites/hooks/useDataStore';
 
 
 function SitesList() {
-  const sites = useDataStore(useShallow((state) => state.getAllSites()));
+  const sites = useDataStore(useShallow((state) => state.sites));
   return (
     <SiteTable data={sites}  />
   );

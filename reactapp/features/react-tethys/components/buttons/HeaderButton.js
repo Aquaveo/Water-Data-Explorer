@@ -28,7 +28,7 @@ const HeaderButton = ({children, tooltipPlacement, tooltipText, href, ...props})
 }
 
 HeaderButton.propTypes = {
-  children: PropTypes.element,
+  children: PropTypes.node, // Changed from PropTypes.element
   tooltipPlacement: PropTypes.oneOf(['top', 'bottom', 'left', 'right']),
   tooltipText: PropTypes.string,
   href: PropTypes.string,
