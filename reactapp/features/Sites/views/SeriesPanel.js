@@ -47,16 +47,18 @@ const SeriesPanel = ({showLoadingToast, updateToSuccessToast}) => {
       $hasData={hasData} // pass our boolean here
     >
       <Offcanvas.Body>
-        <ParentSize>
-          {({ width, height }) =>
-            <SiteSeries
-              width={width}
-              height={height}
-              data={data}
-              showLoadingToast={showLoadingToast}
-            />
-          }
-        </ParentSize>
+      <div style={{ flex: '1 1 0', height: '90%', position: 'relative' }}>
+          <ParentSize>
+            {({ width, height }) =>
+              <SiteSeries
+                width={width}
+                height={height}
+                data={data}
+                showLoadingToast={showLoadingToast}
+              />
+            }
+          </ParentSize>
+        </div>
       </Offcanvas.Body>
     </StyledOffcanvas>
   );
