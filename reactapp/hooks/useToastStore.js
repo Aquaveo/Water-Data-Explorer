@@ -22,7 +22,19 @@ const useToastStore = create((set, get) => ({
       set({ loadingToastId: null });
     }
   },
-  
+  updateToErrorToast: (msg = 'Something went wrong!') => {
+    const { loadingToastId } = get();
+    if (loadingToastId) {
+      toast.update(loadingToastId, {
+        render: msg,
+        type: 'error',
+        autoClose: 5000,
+      });
+      // reset the loadingToastId
+      set({ loadingToastId: null });
+    }
+  },
+
 }));
 
 export default useToastStore;
