@@ -226,7 +226,7 @@ function SiteSeries({ width, height, data, showLoadingToast }) {
   return (
     <div style={{ position: 'relative' }}>
       {/* Existing UI controls */}
-      <VariablesControlMenu showLoadingToast={showLoadingToast} />
+      <VariablesControlMenu/>
 
       {/* Plot only if we have data */}
       {series.length > 0 ? (

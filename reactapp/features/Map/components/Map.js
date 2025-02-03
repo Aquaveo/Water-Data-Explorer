@@ -7,14 +7,17 @@ import buffer from "@turf/buffer";
 import bbox from "@turf/bbox";
 import useTheme from "hooks/useTheme";
 import useDataStore from "features/Sites/hooks/useDataStore";
+import useToastStore from "hooks/useToastStore";
 import { StyledMapContainer } from "./styledComponents";
 import { clusterLayer, clusterCountLayer, unclusteredPointLayer, bufferLayer, onMapLoad } from "../lib/layers";
 import { Tooltip } from "../lib/tooltip";
 import { AppContext } from "features/react-tethys/context/context";
 import ButtomMapMenu from "./ButtomMenu";
 
-const MapComponent = ({ showLoadingToast }) => {
+const MapComponent = () => {
   const { backend } = useContext(AppContext);
+  const { showLoadingToast } = useToastStore();
+
   const theme = useTheme();
   
   const filteredSites = useDataStore((state) => state.filteredSites);

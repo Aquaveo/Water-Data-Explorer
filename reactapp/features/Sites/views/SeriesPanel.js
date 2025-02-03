@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { Offcanvas } from "react-bootstrap";
 import useLayoutStore from "stores/useLayoutStore";
+import useToastStore from "hooks/useToastStore";
 import SiteSeries from "features/Sites/components/SiteSeries";
 import { AppContext } from "features/react-tethys/context/context";
 import ParentSize from "@visx/responsive/lib/components/ParentSize";
@@ -10,8 +11,9 @@ export const StyledOffcanvas = styled(Offcanvas)`
   height: ${(props) => (props.$hasData ? "550px" : "fit-content")} !important;
 `;
 
-const SeriesPanel = ({showLoadingToast, updateToSuccessToast}) => {
+const SeriesPanel = () => {
   const { isTimeSeriesPanelVisible, toggleTimeSeriesPanelVisibility } = useLayoutStore();
+  const { updateToSuccessToast } = useToastStore();
   const { backend } = useContext(AppContext);
   const [data, setData] = useState(null);
 
@@ -54,7 +56,6 @@ const SeriesPanel = ({showLoadingToast, updateToSuccessToast}) => {
                 width={width}
                 height={height}
                 data={data}
-                showLoadingToast={showLoadingToast}
               />
             }
           </ParentSize>

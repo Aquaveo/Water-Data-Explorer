@@ -67,10 +67,6 @@ const SidePanel = () => {
                   }
               </Offcanvas.Title>
           </Offcanvas.Header>
-          
-          
-
-
       <Offcanvas.Body>
         {content}
       </Offcanvas.Body>

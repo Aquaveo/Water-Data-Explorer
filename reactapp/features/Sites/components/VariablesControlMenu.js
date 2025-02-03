@@ -11,11 +11,13 @@ import useLayoutStore from "stores/useLayoutStore";
 import DatePicker from "react-datepicker";
 import { FaHourglassStart, FaHourglassEnd, FaChartArea,FaChevronDown } from "react-icons/fa";
 import useDataStore from "../hooks/useDataStore";
+import useToastStore from "hooks/useToastStore";
 import { AppContext } from "features/react-tethys/context/context";
 import { useShallow } from 'zustand/react/shallow'
+
 import "react-datepicker/dist/react-datepicker.css";
 
-const VariablesControlMenu = ({showLoadingToast}) => {
+const VariablesControlMenu = () => {
   const [selectedVariable, setSelectedVariable] = useState("");
   const [selectedVariableName, setSelectedVariableName] = useState("Select Variable");
   const [startDate, setStartDate] = useState(new Date());
@@ -25,6 +27,7 @@ const VariablesControlMenu = ({showLoadingToast}) => {
   const toggleTimeSeriesPanelVisibility = useLayoutStore((state) => state.toggleTimeSeriesPanelVisibility);
   const currentDatastreams = useDataStore(useShallow((state) => state.current_datastreams));
   const current_site = useDataStore((state) => state.getCurrentSite());
+  const { showLoadingToast, updateToSuccessToast } = useToastStore();
   const { backend } = useContext(AppContext);
 
   useEffect(() => {
@@ -92,7 +95,6 @@ const VariablesControlMenu = ({showLoadingToast}) => {
 
   const handleSelectVariable = (value, item) => {
     setSelectedVariable(value);
-    // Construct the same text used in the dropdown option:
     const label = `${item.variableName}${item.dataType ? ` - ${item.dataType}` : ""}`;
     setSelectedVariableName(label);
   };
