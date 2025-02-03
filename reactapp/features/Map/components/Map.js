@@ -102,7 +102,23 @@ const MapComponent = ({ showLoadingToast }) => {
     }
   };
 
-  // New: Zoom to the clicked site when currentSite changes.
+  useEffect(() => {
+    if (!mapRef.current) return;
+    if (!geojsonData.features.length) return;
+
+    const map = mapRef.current.getMap();
+
+    const [minX, minY, maxX, maxY] = bbox(geojsonData);
+    map.fitBounds(
+      [
+        [minX, minY],
+        [maxX, maxY],
+      ],
+      { padding: 50, duration: 1000 }
+    );
+  }, [geojsonData]);
+
+  
   useEffect(() => {
     if (
       currentSite &&
