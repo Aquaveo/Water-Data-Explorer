@@ -6,9 +6,6 @@ import { DetailedSiteRow } from "features/Sites/components/DetailedSiteRow";
 import useDataStore from "features/Sites/hooks/useDataStore";
 
 
-const onSiteRowClick = (row) => {
-  console.log("Row clicked:", row);
-};
 const onSiteRowChange = (row) => {
   console.log("onSiteRowChange:", row);
 };

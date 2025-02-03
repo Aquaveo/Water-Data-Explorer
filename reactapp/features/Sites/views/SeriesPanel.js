@@ -46,8 +46,8 @@ const SeriesPanel = ({showLoadingToast, updateToSuccessToast}) => {
       backdrop={false}
       $hasData={hasData}
     >
-      <Offcanvas.Body style={{ overflow: "visible" }}>
-      <div style={{ flex: '1 1 0', height: '90%', position: 'relative' }}>
+      <Offcanvas.Body>
+        <div style={{ flex: '1 1 0', height: '90%', position: 'relative'}}>
           <ParentSize>
             {({ width, height }) =>
               <SiteSeries

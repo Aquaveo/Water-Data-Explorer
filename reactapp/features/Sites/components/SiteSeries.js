@@ -1,7 +1,7 @@
 import React, { useCallback, Fragment, useEffect, useState } from 'react';
 import { Zoom, applyMatrixToPoint } from '@visx/zoom';
 import { Group } from '@visx/group';
-import { scaleLinear, scaleTime } from '@visx/scale';
+import { scaleLinear, scaleTime, scaleLog } from '@visx/scale'; // ← import scaleLog
 import { AxisLeft, AxisBottom } from '@visx/axis';
 import { LinePath, Line } from '@visx/shape';
 import { extent, bisector } from 'd3-array';
@@ -13,17 +13,56 @@ import {
 } from '@visx/tooltip';
 import { localPoint } from '@visx/event';
 import { GlyphCircle } from '@visx/glyph';
-// import { timeParse, timeFormat } from 'd3-time-format';
 import { timeFormat } from 'd3-time-format';
 import { RectClipPath } from '@visx/clip-path';
 import PlotLegend from './PlotLegend';
 import PlotControlMenu from './PlotControlMenu';
 import VariablesControlMenu from './VariablesControlMenu';
 
-function SiteSeries({ width, height, data, showLoadingToast}) {
+function SiteSeries({ width, height, data, showLoadingToast }) {
   const layout = data?.layout;
   const series = data?.series || [];
 
+  // State to track the current scale type for y-axis.
+  const [yScaleType, setYScaleType] = useState('linear');
+
+  // A function we’ll pass to <PlotControlMenu> that sets the y-axis scale to log.
+  // You could also make this a toggle (log vs. linear), or use a dropdown, etc.
+  const handleScaleChange = useCallback(() => {
+    setYScaleType((prev) => (prev === 'linear' ? 'log' : 'linear'));
+  }, []);
+
+  // 2. Convert series to CSV and trigger a download
+  const handleDownloadCSV = useCallback(() => {
+    if (!series.length) return;
+
+    // CSV header
+    let csv = 'Date,Value\n';
+    // Convert each data point
+    series.forEach((pt) => {
+      // Example: 2023-02-15T12:00:00Z, 123.45
+      // If needed, format your date string more nicely
+      csv += `${pt.x},${pt.y}\n`;
+    });
+
+    // Convert to a Blob or create a data URI
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    // Create a temporary <a> to download the CSV
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'timeseries.csv');
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [series]);
+
+
+  // Tooltip-related
   const {
     tooltipData,
     tooltipLeft = 0,
@@ -34,34 +73,50 @@ function SiteSeries({ width, height, data, showLoadingToast}) {
 
   // Define margins
   const margin = { top: 40, right: 40, bottom: 40, left: 60 };
-
-  // Inner dimensions
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
-
-  
 
   // Data accessors
   const getDate = (d) => new Date(d.x);
   const getYValue = (d) => d.y;
 
-  // Define initial scales
+  // xScale is always time-based in this example
   const xScale = scaleTime({
     range: [0, innerWidth],
     domain: extent(series, getDate),
     nice: true,
   });
 
-  const yScale = scaleLinear({
-    range: [innerHeight, 0],
-    domain: extent(series, getYValue),
-    nice: true,
-  });
+  /**
+   * 2. Conditionally build the yScale based on the scale type.
+   *    scaleLog requires strictly positive values,
+   *    so you may need to handle zero/negative data.
+   */
+  const yScale = React.useMemo(() => {
+    const [min, max] = extent(series, getYValue);
 
-  // Colors for each series
-  const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd'];
+    if (yScaleType === 'log') {
+      // Ensure domain is strictly positive
+      const safeMin = min > 0 ? min : 1e-6; 
+      const safeMax = max > 0 ? max : 1;
+      return scaleLog({
+        range: [innerHeight, 0],
+        domain: [safeMin, safeMax],
+        clamp: true,     // or nice: false if you prefer
+      });
+    }
+    // Default: linear
+    return scaleLinear({
+      range: [innerHeight, 0],
+      domain: extent(series, getYValue),
+      nice: true,
+    });
+  }, [yScaleType, series, getYValue, innerHeight]);
 
-  // Tooltip styles
+  // Colors
+  const colors = ['#1f77b4'];
+
+  // Tooltip styling
   const tooltipStyles = {
     ...defaultStyles,
     minWidth: 60,
@@ -71,21 +126,17 @@ function SiteSeries({ width, height, data, showLoadingToast}) {
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
   };
 
-  // Date formatter
+  // Format for date axis
   const formatDate = timeFormat('%Y-%m-%d');
-
-  // Bisector for finding closest data point
   const bisectDate = bisector((d) => getDate(d)).left;
 
-  // Function to rescale x-axis based on zoom
+  // Rescale for zooming
   const rescaleXAxis = (scale, transformMatrix) => {
     const newDomain = scale.range().map((r) =>
       scale.invert((r - transformMatrix.translateX) / transformMatrix.scaleX)
     );
     return scale.copy().domain(newDomain);
   };
-
-  // Function to rescale y-axis based on zoom
   const rescaleYAxis = (scale, transformMatrix) => {
     const newDomain = scale.range().map((r) =>
       scale.invert((r - transformMatrix.translateY) / transformMatrix.scaleY)
@@ -93,32 +144,36 @@ function SiteSeries({ width, height, data, showLoadingToast}) {
     return scale.copy().domain(newDomain);
   };
 
+  // Tooltip logic
   const handleTooltip = useCallback(
     (event, zoom) => {
       const point = localPoint(event) || { x: 0, y: 0 };
       const x = point.x - margin.left;
-      const x0 = rescaleXAxis(xScale, zoom.transformMatrix).invert(x);
+
+      // Rescale the x-axis based on the zoom transform
+      const newXScale = rescaleXAxis(xScale, zoom.transformMatrix);
+      const x0 = newXScale.invert(x);
 
       const index = bisectDate(series, x0, 1);
       const d0 = series[index - 1];
       const d1 = series[index];
       let d = d0;
-
       if (d1 && getDate(d1)) {
         d = x0 - getDate(d0) > getDate(d1) - x0 ? d1 : d0;
       }
 
-      // Only one series for now => push single data point
+      // For simplicity, we only show one line, but you can expand to multiple.
       const tooltipDataArray = [
         {
           dataPoint: d,
-          seriesLabel: layout?.yaxis || 'Series', // Example label
+          seriesLabel: layout?.yaxis || 'Series',
         },
       ];
 
-      // Calculate the tooltip's y-position
+      // Calculate the y-position for the tooltip
+      const newYScale = rescaleYAxis(yScale, zoom.transformMatrix);
       const yPositions = tooltipDataArray.map((obj) =>
-        rescaleYAxis(yScale, zoom.transformMatrix)(getYValue(obj.dataPoint))
+        newYScale(getYValue(obj.dataPoint))
       );
       const tooltipTopPosition = Math.min(...yPositions) + margin.top;
 
@@ -128,22 +183,33 @@ function SiteSeries({ width, height, data, showLoadingToast}) {
         tooltipTop: tooltipTopPosition,
       });
     },
-    [showTooltip, xScale, yScale, series, getDate, getYValue, bisectDate, margin.left, margin.top, layout]
+    [
+      showTooltip,
+      xScale,
+      yScale,
+      series,
+      getDate,
+      getYValue,
+      bisectDate,
+      margin.left,
+      margin.top,
+      layout,
+    ]
   );
 
-  // Updated constrain function
+  // Zoom constraints
   const constrain = (transformMatrix) => {
     const { scaleX, scaleY, translateX, translateY } = transformMatrix;
 
-    // Fix constrain scale
+    // Prevent zooming out beyond 1x
     if (scaleX < 1) transformMatrix.scaleX = 1;
     if (scaleY < 1) transformMatrix.scaleY = 1;
 
-    // Fix constrain translate [left, top] position
+    // Prevent panning beyond the left/top
     if (translateX > 0) transformMatrix.translateX = 0;
     if (translateY > 0) transformMatrix.translateY = 0;
 
-    // Fix constrain translate [right, bottom] position
+    // Prevent panning beyond the right/bottom
     const max = applyMatrixToPoint(transformMatrix, {
       x: innerWidth,
       y: innerHeight,
@@ -154,62 +220,60 @@ function SiteSeries({ width, height, data, showLoadingToast}) {
     if (max.y < innerHeight) {
       transformMatrix.translateY += innerHeight - max.y;
     }
-
-    // Return the constrained transform matrix
     return transformMatrix;
   };
 
   return (
     <div style={{ position: 'relative' }}>
-      <VariablesControlMenu showLoadingToast={showLoadingToast}/>
-      {series.length > 0 ? (
-      <Zoom
-        width={innerWidth}
-        height={innerHeight}
-        scaleXMin={1}
-        scaleXMax={10}
-        scaleYMin={1}
-        scaleYMax={10}
-        initialTransformMatrix={{
-          scaleX: 1,
-          scaleY: 1,
-          translateX: 0,
-          translateY: 0,
-          skewX: 0,
-          skewY: 0,
-        }}
-        constrain={constrain}
-      >
-        {(zoom) => {
-          // Apply zoom transformations to scales
-          const newXScale = rescaleXAxis(xScale, zoom.transformMatrix);
-          const newYScale = rescaleYAxis(yScale, zoom.transformMatrix);
+      {/* Existing UI controls */}
+      <VariablesControlMenu showLoadingToast={showLoadingToast} />
 
-          return (
-            <Fragment>
-              <PlotControlMenu 
-                onZoomReset={zoom.reset}
-                onDownload={() => console.log('Download')}
-                OnScaleChange={() => console.log('Scale Change')}
-              />
-              <svg
-                width={width}
-                height={height}
-                style={{
-                  cursor: zoom.isDragging ? 'grabbing' : 'grab',
-                }}
-              >
-                <RectClipPath
-                  id="chart-clip"
-                  x={0}
-                  y={0}
-                  width={innerWidth}
-                  height={innerHeight}
+      {/* Plot only if we have data */}
+      {series.length > 0 ? (
+        <Zoom
+          width={innerWidth}
+          height={innerHeight}
+          scaleXMin={1}
+          scaleXMax={10}
+          scaleYMin={1}
+          scaleYMax={10}
+          initialTransformMatrix={{
+            scaleX: 1,
+            scaleY: 1,
+            translateX: 0,
+            translateY: 0,
+            skewX: 0,
+            skewY: 0,
+          }}
+          constrain={constrain}
+        >
+          {(zoom) => {
+            // Apply zoom to xScale & yScale
+            const newXScale = rescaleXAxis(xScale, zoom.transformMatrix);
+            const newYScale = rescaleYAxis(yScale, zoom.transformMatrix);
+
+            return (
+              <Fragment>
+                <PlotControlMenu 
+                  onZoomReset={zoom.reset}
+                  onDownload={handleDownloadCSV}
+                  OnScaleChange={handleScaleChange}
                 />
-                {/* Main Group */}
-                <Group left={margin.left} top={margin.top}>
-                  {/* Wrap multiple siblings in a Fragment */}
-                  <Fragment>
+                <svg
+                  width={width}
+                  height={height}
+                  style={{
+                    cursor: zoom.isDragging ? 'grabbing' : 'grab',
+                  }}
+                >
+                  <RectClipPath
+                    id="chart-clip"
+                    x={0}
+                    y={0}
+                    width={innerWidth}
+                    height={innerHeight}
+                  />
+                  <Group left={margin.left} top={margin.top}>
                     <GridRows
                       scale={newYScale}
                       width={innerWidth}
@@ -226,7 +290,6 @@ function SiteSeries({ width, height, data, showLoadingToast}) {
                       strokeOpacity={0.1}
                       strokeWidth={1}
                     />
-
                     <AxisLeft
                       scale={newYScale}
                       stroke="#8f99a7"
@@ -299,7 +362,7 @@ function SiteSeries({ width, height, data, showLoadingToast}) {
                       )}
                     </Group>
 
-                    {/* Zoom overlay */}
+                    {/* Zoom overlay for panning & tooltips */}
                     <rect
                       width={innerWidth}
                       height={innerHeight}
@@ -326,9 +389,8 @@ function SiteSeries({ width, height, data, showLoadingToast}) {
                         });
                       }}
                       onWheel={(event) => {
-                        // no event.preventDefault()
                         const point = localPoint(event) || { x: 0, y: 0 };
-                        const delta = -event.deltaY / 500; // Adjust sensitivity
+                        const delta = -event.deltaY / 500;
                         const scale = 1 + delta;
                         zoom.scale({
                           scaleX: scale,
@@ -340,39 +402,37 @@ function SiteSeries({ width, height, data, showLoadingToast}) {
                         cursor: zoom.isDragging ? 'grabbing' : 'grab',
                       }}
                     />
-                  </Fragment>
-                </Group>
-              </svg>
-  
-              {/* <PlotLegend label={layout} margin={margin} /> */}
-              {/* Tooltip */}
-              {tooltipData && tooltipData.length > 0 && (
-                <TooltipWithBounds
-                  top={tooltipTop}
-                  left={tooltipLeft}
-                  style={tooltipStyles}
-                >
-                  <Fragment>
-                    <div>
-                      <strong>Date: </strong>
-                      {formatDate(getDate(tooltipData[0].dataPoint))}
-                    </div>
-                    {tooltipData.map((d, i) => (
-                      <div key={`tooltip-${i}`}>
-                        <strong style={{ color: colors[0] }}>
-                          {d.seriesLabel}:
-                        </strong>{' '}
-                        {getYValue(d.dataPoint)}
+                  </Group>
+                </svg>
+
+                {/* Tooltip display */}
+                {tooltipData && tooltipData.length > 0 && (
+                  <TooltipWithBounds
+                    top={tooltipTop}
+                    left={tooltipLeft}
+                    style={tooltipStyles}
+                  >
+                    <Fragment>
+                      <div>
+                        <strong>Date: </strong>
+                        {formatDate(getDate(tooltipData[0].dataPoint))}
                       </div>
-                    ))}
-                  </Fragment>
-                </TooltipWithBounds>
-              )}
-            </Fragment>
-          );
-        }}
-      </Zoom>
-       ) : null }
+                      {tooltipData.map((d, i) => (
+                        <div key={`tooltip-${i}`}>
+                          <strong style={{ color: colors[0] }}>
+                            {d.seriesLabel}:
+                          </strong>{' '}
+                          {getYValue(d.dataPoint)}
+                        </div>
+                      ))}
+                    </Fragment>
+                  </TooltipWithBounds>
+                )}
+              </Fragment>
+            );
+          }}
+        </Zoom>
+      ) : null}
     </div>
   );
 }
