@@ -18,17 +18,23 @@ const WDEView = () => {
   const addSites = useDataStore(useShallow((state) => state.addSites));
   const setCurrentDatastreams = useDataStore(useShallow((state) => state.setCurrentDatastreams));
   const { showTimeSeriesPanel } = useLayoutStore();
-  const { showLoadingToast, updateToSuccessToast } = useToastStore();
+  const { updateToSuccessToast, updateToErrorToast } = useToastStore();
 
   const addSitesData = (data) => {
     addSites(data);
   };
 
   const setSiteInfoVariableHandler = (data) => {
-    console.log("Site Info", data);
-    showTimeSeriesPanel();
-    setCurrentDatastreams(data);
-    updateToSuccessToast();
+    if (data.error) {
+      console.error(data.error);
+      updateToErrorToast(data.error);
+    }
+    else{
+      showTimeSeriesPanel();
+      setCurrentDatastreams(data);
+      updateToSuccessToast();
+    }
+    return;
   };
 
   useEffect(() => {

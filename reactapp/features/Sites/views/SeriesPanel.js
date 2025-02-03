@@ -13,14 +13,14 @@ export const StyledOffcanvas = styled(Offcanvas)`
 
 const SeriesPanel = () => {
   const { isTimeSeriesPanelVisible, toggleTimeSeriesPanelVisibility } = useLayoutStore();
-  const { updateToSuccessToast } = useToastStore();
+  const { updateToSuccessToast, updateToErrorToast } = useToastStore();
   const { backend } = useContext(AppContext);
   const [data, setData] = useState(null);
 
   const handleGetValuesData = (data) => {
     if (data.error) {
       console.error(data.error);
-      updateToSuccessToast();
+      updateToErrorToast(data.error);
       return;
     } else {
       setData({ ...data });
