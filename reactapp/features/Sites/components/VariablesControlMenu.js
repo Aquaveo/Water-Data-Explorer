@@ -27,7 +27,7 @@ const VariablesControlMenu = () => {
   const toggleTimeSeriesPanelVisibility = useLayoutStore((state) => state.toggleTimeSeriesPanelVisibility);
   const currentDatastreams = useDataStore(useShallow((state) => state.current_datastreams));
   const current_site = useDataStore((state) => state.getCurrentSite());
-  const { showLoadingToast, updateToSuccessToast } = useToastStore();
+  const { showLoadingToast } = useToastStore();
   const { backend } = useContext(AppContext);
 
   useEffect(() => {

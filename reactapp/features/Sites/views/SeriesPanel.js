@@ -49,7 +49,7 @@ const SeriesPanel = () => {
       $hasData={hasData}
     >
       <Offcanvas.Body>
-        <div style={{ flex: '1 1 0', height: '90%', position: 'relative'}}>
+        <div style={{ flex: '1 1 0', height: '90%', width:'100%', position: 'relative'}}>
           <ParentSize>
             {({ width, height }) =>
               <SiteSeries

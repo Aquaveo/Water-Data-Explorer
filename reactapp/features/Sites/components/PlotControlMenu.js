@@ -2,11 +2,14 @@ import React from "react";
 import {
   Button,
   Row,
-  Col,
-
+  Col
 } from "react-bootstrap";
 
-import { MdOpenInFull, MdSsidChart, MdDownload  } from "react-icons/md";
+import { MdOpenInFull, MdDownload  } from "react-icons/md";
+import { FaExchangeAlt } from "react-icons/fa";
+
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 const PlotControlMenu = ({ 
     onZoomReset, 
@@ -16,15 +19,43 @@ const PlotControlMenu = ({
   return (
     <Row className="align-items-center justify-content-end">
       <Col md="auto">
-        <Button variant="outline-primary" size="sm" onClick={onZoomReset}>
-            <MdOpenInFull size={10}  />
-        </Button>
-        <Button variant="outline-primary" size="sm" onClick={onDownload}>
-            <MdDownload size={10}  />
-        </Button>
-        <Button variant="outline-primary" size="sm" onClick={OnScaleChange}>
-            <MdSsidChart size={10}  />
-        </Button>
+        <OverlayTrigger
+            placement="top"
+            overlay={
+              <Tooltip>
+                Reset Zoom.
+              </Tooltip>
+            }
+          >
+            <Button variant="outline-primary" onClick={onZoomReset}>
+                <MdOpenInFull size={20}  />
+            </Button>
+        </OverlayTrigger>
+        <OverlayTrigger
+            placement="top"
+            overlay={
+              <Tooltip>
+                Download to csv.
+              </Tooltip>
+            }
+          >
+            <Button variant="outline-primary" onClick={onDownload}>
+                <MdDownload size={20}  />
+            </Button>
+        </OverlayTrigger>
+
+        <OverlayTrigger
+            placement="top"
+            overlay={
+              <Tooltip>
+                Change scale log/linear.
+              </Tooltip>
+            }
+          >
+          <Button variant="outline-primary" onClick={OnScaleChange}>
+              <FaExchangeAlt   size={20}  />
+          </Button>
+        </OverlayTrigger>
       </Col>
     </Row>
   );
