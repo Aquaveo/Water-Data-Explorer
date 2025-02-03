@@ -9,11 +9,15 @@ import {
 } from "react-bootstrap";
 import useLayoutStore from "stores/useLayoutStore";
 import DatePicker from "react-datepicker";
-import { FaHourglassStart, FaHourglassEnd, FaChartArea,FaChevronDown } from "react-icons/fa";
+import { FaHourglassStart, FaHourglassEnd,FaChevronDown,FaArrowCircleRight  } from "react-icons/fa";
 import useDataStore from "../hooks/useDataStore";
 import useToastStore from "hooks/useToastStore";
 import { AppContext } from "features/react-tethys/context/context";
 import { useShallow } from 'zustand/react/shallow'
+
+
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -183,9 +187,19 @@ const VariablesControlMenu = () => {
                 </div>
               </Col>
               <Col md="auto">
-                <Button variant="primary" size="sm" type="submit">
-                  <FaChartArea />
-                </Button>
+                <OverlayTrigger
+                    placement="top"
+                    overlay={
+                      <Tooltip>
+                        Plot Time Series
+                      </Tooltip>
+                    }
+                  >
+                  <Button variant="light" size="sm" type="submit">
+                    <FaArrowCircleRight size={20} />
+                  </Button>
+                </OverlayTrigger>
+
               </Col>
             </Row>
           </Form>
