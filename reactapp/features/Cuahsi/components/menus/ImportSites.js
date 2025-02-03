@@ -46,16 +46,15 @@ const MAX_TAGS = 5;
 
 const ImportSitesFromCatalogMenu = () => {
   const { backend } = useContext(AppContext);
-  // const [endpoint, setEndpoint] = useState('');
   const [services, setServices] = useState([]);
   const [uploadedSites, setUploadedSites] = useState(0);
-  const [endpointError, setEndpointError] = useState('');
   const { tags, handleAddTag, handleRemoveTag, cleanTags } = useTagInput(MAX_TAGS);
   const addSites = useDataStore(useShallow((state) => state.addSites));
   const [isServicesLoading, setIsServicesLoading] = useState(false);
   const [selectedViews, setSelectedViews] = useState([]);
+  
   const endpoint = useRef('');
-
+  const endpointError = useRef('');
   const totalSitesRef = useRef(0);
   const toastIdRef = useRef(null);
 
@@ -97,11 +96,10 @@ const ImportSitesFromCatalogMenu = () => {
   const handleGetServices = (data) =>{
     console.log('Services:', data);
     if (data.error) {
-      setEndpointError(data.error);
-      
+      endpointError.current = data.error;
     }
     else if(data.info=="The endpoint is a service"){
-      setEndpointError('');
+      
       setServices([]);
       const singleService = {
         servURL: endpoint.current,
@@ -110,16 +108,12 @@ const ImportSitesFromCatalogMenu = () => {
         variablecount: 0,
         valuecount: 0,
       };
-      console.log('Single Service:', singleService);
-      
       setSelectedViews(prev => [...prev, singleService]);
-
-      console.log('The endpoint is a service');
     }
     else{
-      setEndpointError('');
       setServices(data);
     }
+    endpointError.current ='';
     setIsServicesLoading(false);
 
   }
@@ -140,7 +134,7 @@ const ImportSitesFromCatalogMenu = () => {
     const value = e.target.value;
     backend.do(backend.actions.GET_LIST_SERVICES, { endpoint: value });
     endpoint.current = value;
-    // setEndpoint(value);
+    endpointError.current = '';
   };
 
   const handleImport = () => {
@@ -148,7 +142,8 @@ const ImportSitesFromCatalogMenu = () => {
     const totalSiteCount = selectedViews.reduce((acc, view) => acc + (view.sitecount || 0), 0);
     totalSitesRef.current = totalSiteCount; // Set the totalSites in ref
     setUploadedSites(0); // Reset uploadedSites
-    if (!endpointError && endpoint.current.trim()) {
+    console.log('Total site count:', totalSiteCount);
+    if (!endpointError.current && endpoint.current.trim()) {
       const id = toast.loading(`Uploading sites 0/${totalSiteCount}`);
       toastIdRef.current = id; // Set the toastId in ref
       backend.do(backend.actions.IMPORT_SITES_FROM_CATALOG, {tags, services: selectedViews });
@@ -162,7 +157,7 @@ const ImportSitesFromCatalogMenu = () => {
       cleanTags();
       setServices([]);
       setSelectedViews([]);
-      setEndpointError('');
+      endpointError.current = '';
     }
   };
 
@@ -184,7 +179,7 @@ const ImportSitesFromCatalogMenu = () => {
               <MdClear size={20}/>
             </ClearButton>
           </FilterWrapper>
-          {endpointError && <Form.Text className="text-danger">{endpointError}</Form.Text>}
+          {endpointError.current && <Form.Text className="text-danger">{endpointError.current}</Form.Text>}
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="catalogDescription">
