@@ -296,6 +296,7 @@ function SiteSeries({ width, height, data, showLoadingToast }) {
                       tickStroke="#8f99a7"
                       tickLabelProps={() => ({
                         fill: '#8f99a7',
+                        fontSize: 12,
                         fontWeight: 'bold',
                         textAnchor: 'end',
                       })}
