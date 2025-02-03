@@ -25,6 +25,7 @@ const MapComponent = ({ showLoadingToast }) => {
   const [popupInfo, setPopupInfo] = useState(null);
   const [bufferData, setBufferData] = useState(null); // State for buffer GeoJSON
   const mapRef = useRef(null);
+  const didFitRef = useRef(false);
 
   const geojsonData = {
     type: "FeatureCollection",
@@ -105,7 +106,7 @@ const MapComponent = ({ showLoadingToast }) => {
   useEffect(() => {
     if (!mapRef.current) return;
     if (!geojsonData.features.length) return;
-
+    if (didFitRef.current) return;
     const map = mapRef.current.getMap();
 
     const [minX, minY, maxX, maxY] = bbox(geojsonData);
@@ -116,6 +117,7 @@ const MapComponent = ({ showLoadingToast }) => {
       ],
       { padding: 50, duration: 1000 }
     );
+    didFitRef.current = true; 
   }, [geojsonData]);
 
   
