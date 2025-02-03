@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import { Badge, Button } from "react-bootstrap";
+import { Button } from "react-bootstrap";
+import { GrMap, GrCode ,GrCloudDownload,GrHelpBook } from "react-icons/gr";
+
 
 const DetailedSiteRowContainer = styled.div`
   padding: 10px;
@@ -12,7 +14,7 @@ const StyledTable = styled.table`
   border-collapse: collapse;
 
   th {
-    text-align: center; /* Center-align the table headers */
+    text-align: center;
     border-bottom: 1px solid #ddd;
     padding: 5px;
   }
@@ -23,50 +25,55 @@ const StyledTable = styled.table`
   }
 `;
 
-const badgeVariants = ["primary", "secondary", "info", "warning", "danger"]; // Bootstrap badge variants
-
 export const DetailedSiteRow = React.memo(({ data }) => {
   if (!data) return null;
+
+  const { code, description, latitude, longitude, service_url } = data;
 
   return (
     <DetailedSiteRowContainer>
       <StyledTable>
-        <thead>
-          <tr>
-            <th>Attribute</th>
-            <th>Value</th>
-          </tr>
-        </thead>
+
         <tbody>
-          {Object.entries(data).map(([key, value]) => (
-            <tr key={key}>
-              <td>{key.replace("_", " ")}</td>
-              <td>
-                {key === "tags" && Array.isArray(value) ? (
-                  value.map((tag, index) => (
-                    <Badge
-                      key={index}
-                      bg={badgeVariants[index % badgeVariants.length]} // Bootstrap badge variant
-                      className="me-1"
-                    >
-                      {tag}
-                    </Badge>
-                  ))
-                ) : key === "service_url" ? (
-                  <Button
-                    variant="outline-primary"
-                    href={`${value}?wsdl`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Visit
-                  </Button>
-                ) : (
-                  Array.isArray(value) ? value.join(", ") : value?.toString() || "N/A"
-                )}
-              </td>
-            </tr>
-          ))}
+          {/* Code */}
+          <tr>
+            <td><GrCode size={20} style={{ marginRight: "6px" }} /> Code</td>
+            <td>{code || "N/A"}</td>
+          </tr>
+          {/* Description */}
+          <tr>
+            <td><GrHelpBook size={20} style={{ marginRight: "6px" }} /> Description</td>
+            <td>{description || "N/A"}</td>
+          </tr>
+          {/* Latitude/Longitude (combined) */}
+          <tr>
+            <td><GrMap size={20} style={{ marginRight: "6px" }} /> Coordinates </td>
+            <td>
+              
+              {latitude != null && longitude != null
+                ? `${latitude}, ${longitude}`
+                : "N/A"}
+            </td>
+          </tr>
+          {/* Service URL with a "Visit" button */}
+          <tr>
+            <td><GrCloudDownload size={20} style={{ marginRight: "6px" }} /> Service </td>
+            <td>
+              {service_url ? (
+                <Button
+                  variant="outline-primary"
+                  size="sm"
+                  href={`${service_url}?wsdl`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Visit
+                </Button>
+              ) : (
+                "N/A"
+              )}
+            </td>
+          </tr>
         </tbody>
       </StyledTable>
     </DetailedSiteRowContainer>
