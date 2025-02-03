@@ -9,7 +9,7 @@ import {
 } from "react-bootstrap";
 import useLayoutStore from "stores/useLayoutStore";
 import DatePicker from "react-datepicker";
-import { FaHourglassStart, FaHourglassEnd, FaChartArea,FaTimes } from "react-icons/fa";
+import { FaHourglassStart, FaHourglassEnd, FaChartArea,FaChevronDown } from "react-icons/fa";
 import useDataStore from "../hooks/useDataStore";
 import { AppContext } from "features/react-tethys/context/context";
 import { useShallow } from 'zustand/react/shallow'
@@ -101,7 +101,7 @@ const VariablesControlMenu = ({showLoadingToast}) => {
     <Container style={{ display: "flex", justifyContent: "center" }}>
       <Row className="align-items-center">
         <Col md="auto">
-          <FaTimes 
+          <FaChevronDown  
               size={24} 
               style={{ cursor: 'pointer', marginRight: '10px' }} 
               onClick={toggleTimeSeriesPanelVisibility} 
@@ -111,7 +111,7 @@ const VariablesControlMenu = ({showLoadingToast}) => {
           <Form onSubmit={handleSubmit}>
             <Row className="align-items-center">
               <Col md="auto">
-                  <Dropdown>
+                  <Dropdown drop="up">
                       <Dropdown.Toggle 
                         variant='light' 
                         id="dropdown-basic"

@@ -44,9 +44,9 @@ const SeriesPanel = ({showLoadingToast, updateToSuccessToast}) => {
       placement="bottom"
       scroll
       backdrop={false}
-      $hasData={hasData} // pass our boolean here
+      $hasData={hasData}
     >
-      <Offcanvas.Body>
+      <Offcanvas.Body style={{ overflow: "visible" }}>
       <div style={{ flex: '1 1 0', height: '90%', position: 'relative' }}>
           <ParentSize>
             {({ width, height }) =>
