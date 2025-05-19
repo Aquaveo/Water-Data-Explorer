@@ -2146,7 +2146,7 @@ hydroserver_information = function(){
                 } else {
                   option_begin = `<option value=${i}> ${result1['siteInfo'][i]['name']} </option>`;
                   site_select.append(option_begin);
-                  var siteCode = result1.siteInfo[i].samplingFeatureCode.trim();
+                  var siteCode = result1.siteInfo[i].sampling_feature_code.trim();
                   HSTableHtml += 
                   `<tr>` + 
                     `<td> <p id="titleSite">${i+1}.- ${result1['siteInfo'][i]['name']}
@@ -2199,7 +2199,7 @@ hydroserver_information = function(){
                 if (result1["server_type"] == "hydroserver1") {
                   $(`#${result1['siteInfo'][i]['sitecode'].trim()}_modal`).click(zoomToSelectedSite);
                 } else {
-                  $(`#${result1['siteInfo'][i]['samplingFeatureCode'].trim()}_modal`).click(zoomToSelectedSite);
+                  $(`#${result1['siteInfo'][i]['sampling_feature_code'].trim()}_modal`).click(zoomToSelectedSite);
                 }
               }
               

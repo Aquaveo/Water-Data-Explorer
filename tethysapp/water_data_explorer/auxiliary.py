@@ -18,15 +18,20 @@ import geojson
 import pyproj
 import shapely.geometry
 import shapely.ops
+import logging
 
 from suds.client import Client
 from suds.sudsobject import asdict
 from datetime import datetime, timedelta
 
+from hydroserverpy import HydroServer
+
 from .app import WaterDataExplorer as app
 
 import requests
 
+hs_email = app.get_custom_setting('hydroserver_email')
+hs_password = app.get_custom_setting('hydroserver_password')
 
 extract_base_path = '/tmp'
 
@@ -46,25 +51,51 @@ def GetSites_WHOS(url):
             sites_json = json.loads(sites_json_object)
 
         sites_object = parseJSON(sites_json)
+        return sites_object
 
     except Exception as e:
         
         print(f"Except details: {e}")
-        sites_object = {}
 
         #Try for hydroserver 2
         
-        api_url = url.split("?WSDL")[0] + "/api/data/things"
-        headers = {"Content-Type": "application/json"}
+        if not url.startswith("http"):
+            url = "https://" + url
 
-        response = requests.get(api_url, headers=headers)
-        if response.status_code == 200:
-            sites_object = response.json()
-        else:
-            #error here
+        api_url = url.split("?WSDL")[0]
+        try:
+            if hs_email and hs_password:
+                try:
+                    hs_api = HydroServer(api_url, hs_email, hs_password)
+                    
+                except (requests.exceptions.HTTPError, requests.exceptions.RequestException) as e:
+                    logging.warning(f"Authentication failed or server error: {e}")
+                    hs_api = HydroServer(api_url)
+            else:
+                hs_api = HydroServer(api_url)
+
+            
+            sites = hs_api.things.list()
+            return_obj = []
+            for site in sites:
+                site_dict = site.dict()
+
+                cleaned_site = {key: value for key, value in site_dict.items() if key != "uid"}
+                cleaned_site["id"] = str(site.uid)
+                return_obj.append(cleaned_site)
+                
+            return return_obj
+            
+        except requests.exceptions.ConnectionError:
+            logging.error("Could not connect to host (invalid domain or network error)")
+            return "invalid url"
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Request error: {e}")
+            return "invalid url"
+        except Exception as e:
+            logging.error(f"Unexpected error: {e}")
             return "invalid url"
 
-    return sites_object
 
 
 def checkCentral(centralUrl):

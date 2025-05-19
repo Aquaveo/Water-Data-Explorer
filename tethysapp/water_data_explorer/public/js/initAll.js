@@ -163,11 +163,7 @@ var water_data_explorer_PACKAGE = (function() {
         var url_UN = "https://geoservices.un.org/arcgis/rest/services/ClearMap_WebTopo/MapServer";
         
         var layers = [
-          new ol.layer.Tile({
-            title: 'Open Street Map',
-            source: new ol.source.OSM(),
-            type: 'base'
-          }),
+          
 
           // new ol.layer.Tile({
           //   title: 'United Nations Map', 
@@ -178,6 +174,14 @@ var water_data_explorer_PACKAGE = (function() {
           //   type: 'base'
           // }),
           new ol.layer.Tile({
+            title: 'ArcGIS World Imaginary Map',
+            type:'base',
+            source: new ol.source.XYZ({
+              attributions:'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' + 'rest/services/World_Imagery/MapServer">ArcGIS</a>',
+              url:'https://server.arcgisonline.com/ArcGIS/rest/services/' + 'World_Imagery/MapServer/tile/{z}/{y}/{x}'
+            }),
+          }),
+          new ol.layer.Tile({
             title: 'ArcGIS World Topographic Map',
             type:'base',
             source: new ol.source.XYZ({
@@ -186,13 +190,10 @@ var water_data_explorer_PACKAGE = (function() {
             }),
           }),
           new ol.layer.Tile({
-            title: 'ArcGIS World Imaginary Map',
-            type:'base',
-            source: new ol.source.XYZ({
-              attributions:'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' + 'rest/services/World_Imagery/MapServer">ArcGIS</a>',
-              url:'https://server.arcgisonline.com/ArcGIS/rest/services/' + 'World_Imagery/MapServer/tile/{z}/{y}/{x}'
-            }),
-          })
+            title: 'Open Street Map',
+            source: new ol.source.OSM(),
+            type: 'base'
+          }),
 
         ]
 

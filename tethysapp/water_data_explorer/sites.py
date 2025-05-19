@@ -13,46 +13,68 @@ from tethys_sdk.routing import controller
 from suds.client import Client  # For parsing WaterML/XML
 from django.http import JsonResponse
 
+from hydroserverpy import HydroServer
+
+from .app import WaterDataExplorer as App
+
 Persistent_Store_Name = 'catalog_db'
 
+hs_email = App.get_custom_setting('hydroserver_email')
+hs_password = App.get_custom_setting('hydroserver_password')
+
 @controller(name='get-datastream-values', url='get-datastream-values')
-def get_datastream_values_hydroserver_2(request):
+def get_datastream_values_hydroserver_2(request): 
     url = request.POST.get("url")
     datastream_id = request.POST.get("datastream_id")
-    
     observed_values = {}
-    headers = {'accept':'application/json'}
+    
     try:
-        #original url - stop at 1000 values
-        #url_observed_values = f"{data['url']}/api/sensorthings/v1.1/Datastreams('{data['datastream_id']}')/Observations?$resultFormat=dataArray&$top=1000"
-        url_observed_values = f"{url}/api/sensorthings/v1.1/Datastreams('{datastream_id}')/Observations?$resultFormat=dataArray&$top=5000"
-        url_datastream_info = f"{url}/api/sensorthings/v1.1/Datastreams('{datastream_id}')"
+        if hs_email and hs_password:
+            try:
+                hs_api = HydroServer(url, hs_email, hs_password)
+                
+            except (requests.exceptions.HTTPError, requests.exceptions.RequestException) as e:
+                logging.warning(f"Authentication failed or server error: {e}")
+                hs_api = HydroServer(url)
+        else:
+            hs_api = HydroServer(url)
 
-        # start_datetime = datetime.fromisoformat(data["start_time"])
-        # end_datetime = datetime.fromisoformat(data["end_time"])
-        info_response = requests.get(url_datastream_info, headers=headers)
-        values_response = requests.get(url_observed_values,headers=headers)
-
-        if info_response.status_code == 200:
-            observed_values["unit_abbreviation"] = info_response.json().get("unitOfMeasurement").get("symbol")
-
-        if values_response.status_code == 200:
-            observed_values['observed_values'] = values_response.json().get('value')[0].get('dataArray',[])
+        try:
+            datastream = hs_api.datastreams.get(uid=datastream_id)
+            if not datastream:
+                logging.warning(f"Datastream with ID {datastream_id} not found.")
+                return JsonResponse({"error": f"Datastream '{datastream_id}' not found."}, status=404)
             
-            timestamps = [observed_value[0] for observed_value in observed_values["observed_values"]]
-            dates = [datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ").strftime('%m-%d-%Y') for timestamp in timestamps]
             
-            minimum_timestamp = min(dates)
-            maximum_timestamp = max(dates)
+            observed_values['datastream_id'] = str(datastream.uid)
+            observed_values['unit_abbreviation'] = str(datastream.unit.symbol)            
 
-            observed_values["minimum_time"] = minimum_timestamp
-            observed_values["maximum_time"] = maximum_timestamp
-
+            data = datastream.get_observations()
+            if data.empty:
+                observed_values['observed_values'] = []
+                return JsonResponse(observed_values, status=204)
+                
+            data["timestamp"] = data["timestamp"].dt.strftime("%Y-%m-%d")            
+                
+            observed_values["observed_values"] = data.to_dict(orient="records")
+            observed_values["minimum_time"] = data["timestamp"].min()
+            observed_values["maximum_time"] = data["timestamp"].max()
+                    
+            return JsonResponse(observed_values)
+        
+        except Exception as e:
+            logging.warning(f"Failed to retrieve observed values: {e}")
+            return JsonResponse({"error": "Failed to retrieve observed values."}, status=500)
+    
+    except requests.exceptions.ConnectionError:
+        logging.error("Could not connect to host (invalid domain or network error)")
+        return JsonResponse({"error": "Connection error. Invalid host or network issue."}, status=500)
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Request error: {e}")
+        return JsonResponse({"error": str(e)}, status=500)
     except Exception as e:
-        print(e)
-
-    return JsonResponse(observed_values)
-
+        logging.error(f"Unexpected error: {e}")
+        return JsonResponse({"error": "Internal server error"}, status=500)
 
 @controller(name='get-values-hs', url='get-values-hs/')
 def get_values_hs(request):
@@ -87,8 +109,6 @@ def get_values_hs(request):
             - timeUnitName: array containing time units used for the time series.
             - timeSupport: array containing booleans that indicates if the variables support time.
     """
-   
-    
     return_obj = {}
     hs_url = request.POST.get('hs_url')
     # print(hs_url)
@@ -140,67 +160,50 @@ def get_values_hs(request):
         except Exception:
             return JsonResponse(return_obj)
     else: # Hydroserver2
-        
-        return_obj["datastreams"] = []
-        
-        
-        site_info_response = requests.get(f"{hs_url}/api/data/things/{site_code}")
-        if site_info_response.status_code == 200: 
-            site_info = site_info_response.json()
-            organization_name = None
-            for owner in site_info["owners"]:
-                if owner["isPrimaryOwner"]:
-                    if owner["organizationName"] is not None:
-                        organization_name = owner["organizationName"]
+        sites = []
+        try:
+            if hs_email and hs_password:
+                try:
+                    hs_api = HydroServer(hs_url, hs_email, hs_password)
+                except (requests.exceptions.HTTPError, requests.exceptions.RequestException) as e:
+                    logging.warning(f"Authentication failed or server error: {e}")
+                    hs_api = HydroServer(hs_url)
+            else:
+                hs_api = HydroServer(hs_url)
 
-           
-            return_obj["country"] = site_info["country"]
-            return_obj["organization"] = organization_name
+            thing = hs_api.things.get(uid=site_code)
+            # TODO - organization name isn't currently provided by HydroServer2
+            organization_name = "No data was provided"
+
+            return_obj["datastreams"] = []
             
-        datastreams_response = requests.get(f"{hs_url}/api/data/things/{site_code}/datastreams")
-        if datastreams_response.status_code == 200:
-            metadata_response = requests.get(f"{hs_url}/api/data/things/{site_code}/metadata")
-            if metadata_response.status_code == 200:
-                datastreams = datastreams_response.json()
-                metadata = metadata_response.json()
+            return_obj["country"] = thing.country # TODO - this seems to be buggy with the new HydroServer2 API
+            return_obj["organization"] = organization_name
 
-                for datastream_dict in datastreams:
-                    
-                    datastream_id = datastream_dict["id"]
-                    observed_property_id = datastream_dict["observedPropertyId"]
-                    unit_id = datastream_dict["unitId"]
+            datastreams = hs_api.datastreams.list(thing=thing)
+            for datastream in datastreams:
+                return_obj["datastreams"].append({
+                    "datastream_id": str(datastream.uid),
+                    "observed_property_id": str(datastream.observed_property.uid),
+                    "observed_property_name": str(datastream.observed_property.name),
+                    "observed_property_code": str(datastream.observed_property.code),
+                    "unit_id": str(datastream.unit.uid),
+                    "unit_name": str(datastream.unit.name),
+                    "unit_abbreviation": str(datastream.unit.symbol)
+                })
 
-                    for metadata_dict in metadata["observedProperties"]:
-                        if metadata_dict["id"] == observed_property_id:
-                            observed_property_name = metadata_dict["name"]
-                            observed_property_code = metadata_dict["code"]
-                            break
+            return_obj["datastreams"] = sorted(return_obj["datastreams"], key=lambda x: x["observed_property_name"])
 
-                    for unit_dict in metadata["units"]:
-                        if unit_dict["id"] == unit_id:
-                            unit_name = unit_dict["name"]
-                            unit_abbreviation = unit_dict["symbol"]
-                            break
-
-                    return_obj["datastreams"].append({"datastream_id": datastream_id, 
-                                                      "observed_property_id": observed_property_id, 
-                                                      "observed_property_name": observed_property_name,
-                                                      "observed_property_code":observed_property_code,
-                                                      "unit_id": unit_id,
-                                                      "unit_name": unit_name,
-                                                      "unit_abbreviation": unit_abbreviation})
-
-                    
-                return_obj["datastreams"] = sorted(return_obj["datastreams"], key=lambda x: x["observed_property_name"])
-
-
-
-
+        except requests.exceptions.ConnectionError:
+            logging.error("Could not connect to host (invalid domain or network error)")
+            return JsonResponse({"error": "Connection error. Invalid host or network issue."}, status=500)
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Request error: {e}")
+            return JsonResponse({"error": str(e)}, status=500)
+        except Exception as e:
+            logging.error(f"Unexpected error: {e}")
+            return JsonResponse({"error": "Internal server error"}, status=500)
         
-
-        
-        
-    
     return JsonResponse(return_obj)
     
 

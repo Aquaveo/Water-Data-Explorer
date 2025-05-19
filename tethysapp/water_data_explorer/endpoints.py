@@ -18,7 +18,13 @@ from tethys_sdk.routing import controller
 
 from .auxiliary import GetSites_WHOS
 from django.http import JsonResponse
+
+from hydroserverpy import HydroServer
+
 from .app import WaterDataExplorer as app
+
+hs_email = app.get_custom_setting('hydroserver_email')
+hs_password = app.get_custom_setting('hydroserver_password')
 
 Persistent_Store_Name = "catalog_db"
 logging.getLogger("pywaterml.waterML").setLevel(logging.CRITICAL)
@@ -637,39 +643,51 @@ def available_variables_2(url):
             hydroserver_variable_code_list.append(hs_variable["variableCode"])
 
         hydroserver_type = 1
+        return variables_list, hydroserver_type
 
     # Use hydroserver 2 API
     except Exception as e:
-        headers = {"accept": "application/json"}
+        logging.warning(f"HydroServer 1 API failed: {e}")
 
-        url = url.split("?WSDL")[0]
-        datastreams_url = f"{url}/api/data/datastreams"
-        properties_url = (
-            f"{url}/api/sensorthings/v1.1/ObservedProperties?%24count=false&%24skip=0"
-        )
+    api_url = url.split("?WSDL")[0]
+    try:
+        if hs_email and hs_password:
+            try:
+                hs_api = HydroServer(api_url, hs_email, hs_password)
+                
+            except (requests.exceptions.HTTPError, requests.exceptions.RequestException) as e:
+                logging.warning(f"Authentication failed or server error: {e}")
+                hs_api = HydroServer(api_url)
+        else:
+            hs_api = HydroServer(api_url)
 
-        datastreams_response = requests.get(datastreams_url, headers=headers)
-        properties_response = requests.get(properties_url, headers=headers)
+        try:
+            datastreams = hs_api.datastreams.list()
+            
+            for datastream in datastreams:
+                property = datastream.observed_property
+                hydroserver_variable_list.append(property.name)
+                hydroserver_variable_code_list.append(str(property.uid))
 
-        datastreams = datastreams_response.json()
-        properties = properties_response.json()
+            hydroserver_type = 2
+            variables_list["variables"] = hydroserver_variable_list
+            variables_list["variables_codes"] = hydroserver_variable_code_list
+            return variables_list, hydroserver_type
 
-        for datastream in datastreams:
-            property_id = datastream["observedPropertyId"]
+        except Exception as e:
+            logging.warning(f"Failed to retrieve sites: {e}")
+    
+    except requests.exceptions.ConnectionError:
+        logging.error("Could not connect to host (invalid domain or network error)")
 
-            for entry in properties["value"]:
-                if property_id == entry["@iot.id"]:
-                    property_name = entry["name"]
-                    break
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Request error: {e}")
 
-            hydroserver_variable_list.append(property_name)
-            hydroserver_variable_code_list.append(property_id)
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
 
-        hydroserver_type = 2
+    return [], None
 
-    variables_list["variables"] = hydroserver_variable_list
-    variables_list["variables_codes"] = hydroserver_variable_code_list
-    return variables_list, hydroserver_type
 
 
 # #####*****************************************************************************************################
@@ -792,8 +810,6 @@ def soap_group(request, app_workspace):
                         request, siteinfo=sites_parsed_json, app_workspace=app_workspace
                     )
                 )
-                # print(countries_json)
-                # variable_json = json.dumps(available_variables_2(url))
                 variable_json, hydroserver_type = available_variables_2(url)
                 variable_json = json.dumps(variable_json)
 

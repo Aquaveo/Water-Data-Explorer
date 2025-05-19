@@ -28,7 +28,7 @@ activate_layer_values = function () {
       var features = map.getFeaturesAtPixel(evt.pixel);
       if(features) {
         var isCluster = features.some(function(feature) {
-          return feature.get('features') instanceof Array && feature.get('features').length > 1;        });
+          return feature.get('features') instanceof Array && feature.get('features').length > 1; });
         }
         if (isCluster) {
           var clusterFeature = features.find(function(feature) {
@@ -174,7 +174,7 @@ activate_layer_values = function () {
                           <th>Unit</th>
                         </tr>`;
   
-                  //SORT THERESULT FROM THE AJAX RESPONSE FOR SOME ATTRIBUTES //
+                  //SORT THE RESULT FROM THE AJAX RESPONSE FOR SOME ATTRIBUTES //
   
                   //1) combine the arrays:
                    var list_e = [];
@@ -490,64 +490,68 @@ activate_layer_values = function () {
                   });
                   $("#variables_graph").bind('change', function(e) {
                     variable_select.select2();
-                    var selectedDatastreamId = $("#variables_graph");
-                    var object_request = {"url": feature_single["hs_url"],
-                                          "datastream_id": $("#variables_graph option:selected").attr("datastream_id")};
-                    
-                    // var carousel = document.getElementById('carouselExampleIndicators');
+                    var selectedDatastreamId = $("#variables_graph option:selected").attr("datastream_id");
+                    if (selectedDatastreamId != null) {
+                      var object_request = {"url": feature_single["hs_url"],
+                                            "datastream_id": $("#variables_graph option:selected").attr("datastream_id")};
+                      
+                      // var carousel = document.getElementById('carouselExampleIndicators');
 
-                    // // Check if the element exists to avoid errors
-                    // if (carousel) {
-                    //   // Set overflow properties to "auto" or another value as needed
-                    //   carousel.style.overflowY = "visible";
-                    //   carousel.style.overflowX = "visible";
-                    // }
-                    
-                    $.ajax({
-                      type:"POST",
-                      url: `get-datastream-values/`,
-                      dataType: "JSON",
-                      data: object_request,
-                      success: function(result) {
-                        if (result["observed_values"].length == 0) {
-                          new Notify ({
-                            status: 'warning',
-                            title: 'Warning',
-                            text: `No time series data was found for ${$("#variables_graph option: selected")}`,
-                            effect: 'fade',
-                            speed: 300,
-                            customClass: '',
-                            customIcon: '',
-                            showIcon: true,
-                            showCloseButton: true,
-                            autoclose: true,
-                            autotimeout: 3000,
-                            gap: 20,
-                            distance: 20,
-                            type: 1,
-                            position: 'right top'
-                          })
-                        } else {
+                      // // Check if the element exists to avoid errors
+                      // if (carousel) {
+                      //   // Set overflow properties to "auto" or another value as needed
+                      //   carousel.style.overflowY = "visible";
+                      //   carousel.style.overflowX = "visible";
+                      // }
+                      
+                      $.ajax({
+                        type:"POST",
+                        url: `get-datastream-values/`,
+                        dataType: "JSON",
+                        data: object_request,
+                        success: function(result) {
+                          if (result["observed_values"].length == 0) {
+                            new Notify ({
+                              status: 'warning',
+                              title: 'Warning',
+                              text: `No time series data was found for ${$("#variables_graph option:selected").text()}`,
+                              effect: 'fade',
+                              speed: 300,
+                              customClass: '',
+                              customIcon: '',
+                              showIcon: true,
+                              showCloseButton: true,
+                              autoclose: true,
+                              autotimeout: 3000,
+                              gap: 20,
+                              distance: 20,
+                              type: 1,
+                              position: 'right top'
+                            })
+                          } else {
 
-                        // THIS IS NECESARRY TO RESET THE DATES OTHERWISE IT IS GOING TO HAVE EMPTY SPACES..
-                        $('#datetimepicker6').datepicker('setStartDate', null);
-                        $('#datetimepicker6').datepicker('setEndDate', null);
-                        $('#datetimepicker7').datepicker('setEndDate',null);
+                          // THIS IS NECESARRY TO RESET THE DATES OTHERWISE IT IS GOING TO HAVE EMPTY SPACES..
+                          $('#datetimepicker6').datepicker('setStartDate', null);
+                          $('#datetimepicker6').datepicker('setEndDate', null);
+                          $('#datetimepicker7').datepicker('setEndDate',null);
+                          
+                          let [startYear, startMonth, startDay] = result["minimum_time"].split("-");
+                          let [endYear, endMonth, endDay] = result["maximum_time"].split("-");
+                          let startDate = `${startMonth}/${startDay}/${startYear}`;
+                          let endDate = `${endMonth}/${endDay}/${endYear}`;
+                          
+                          $("#datetimepicker6").datepicker('update', startDate);
+                          $("#datetimepicker7").datepicker('update',endDate);
 
-                        let startDate = result["minimum_time"];
-                        let endDate = result["maximum_time"];
-                        
-                        $("#datetimepicker6").datepicker('update', startDate);
-                        $("#datetimepicker7").datepicker('update',endDate);
-
-                        $("#datetimepicker6").datepicker("setStartDate", startDate);
-                        $("#datetimepicker6").datepicker("setEndDate", endDate);
-                        $("#datetimepicker7").datepicker("setEndDate", endDate);
-                        $("#hydroserver-2-values-input").val("");
-                        $("#hydroserver-2-values-input").val(JSON.stringify(result));
+                          $("#datetimepicker6").datepicker("setStartDate", startDate);
+                          $("#datetimepicker6").datepicker("setEndDate", endDate);
+                          $("#datetimepicker7").datepicker("setEndDate", endDate);
+                          $("#hydroserver-2-values-input").val("");
+                          $("#hydroserver-2-values-input").val(JSON.stringify(result));
+                        }
                       }
+                      })
                     }
-                    })
                   })
                 
                 } else {

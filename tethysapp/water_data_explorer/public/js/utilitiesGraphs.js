@@ -882,9 +882,9 @@ function select_variable_change_2() {
 
   //Filter values by dates selected by user
   datastream_values.forEach(function(set) {
-    if (set[0] > start_date_string && set[0] < end_date_string) {
-      x_values.push(set[0]);
-      y_values.push(set[1]);
+    if (set.timestamp >= start_date_string && set.timestamp <= end_date_string) {
+      x_values.push(set.timestamp);
+      y_values.push(set.value);
     }
   });
 

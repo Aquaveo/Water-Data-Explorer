@@ -116,7 +116,18 @@ class WaterDataExplorer(TethysAppBase):
                 description='GA_MEASUREMENT_ID for Google Analytics gtag.js',
                 required=False
             ),
-
+            CustomSetting(
+                name='hydroserver_email',
+                type=CustomSetting.TYPE_STRING,
+                description='Username/email for HydroServer',
+                required=False
+            ),
+            CustomSetting(
+                name='hydroserver_password',
+                type=CustomSetting.TYPE_STRING,
+                description='Password for HydroServer',
+                required=False
+            )
         )
         return custom_settings
 
