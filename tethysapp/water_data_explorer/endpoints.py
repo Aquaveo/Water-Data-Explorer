@@ -511,15 +511,19 @@ def upload_hs(request, app_workspace):
             Persistent_Store_Name, as_sessionmaker=True
         )
         session = SessionMaker()  # Initiate a session
-        hydroservers_group = (
-            session.query(Groups).filter(Groups.title == specific_group)[0].hydroserver1
-        )
+        group = session.query(Groups).filter(Groups.title == specific_group).first()
+        hydroservers = group.hydroserver1 + group.hydroserver2
         # h1 = session.query(Groups).join("hydroserver")
-        for hydroservers in hydroservers_group:
-            name = hydroservers.title
-            url = hydroservers.url
+        for hydroserver in hydroservers:
+            if isinstance(hydroserver, Hydroserver_Individual_Sensor):
+                server_type = "hydroserver2"
+            else:
+                server_type = "hydroserver1"
+
+            name = hydroserver.title
+            url = hydroserver.url
             if name == specific_hs:
-                difference = len(json.loads(hydroservers.siteinfo))
+                difference = len(json.loads(hydroserver.siteinfo))
                 # client = Client(url, timeout= 500)
                 # water = pwml.WaterMLOperations(url = url)
                 # sites_object = water.GetSites()
@@ -535,15 +539,16 @@ def upload_hs(request, app_workspace):
 
                 variable_json = json.dumps(available_variables_2(url))
 
-                hydroservers.siteinfo = sites_parsed_json
-                hydroservers.variables = variable_json
-                hydroservers.countries = countries_json
+                hydroserver.siteinfo = sites_parsed_json
+                hydroserver.variables = variable_json
+                hydroserver.countries = countries_json
 
                 # sites_parsed_json = json.dumps(sites_object)
                 difference = len(sites) - difference
                 return_obj["siteInfo"] = json.loads(sites_parsed_json)
                 return_obj["sitesAdded"] = difference
-                return_obj["url"] = hydroservers.url
+                return_obj["url"] = hydroserver.url
+                return_obj["server_type"] = server_type
 
         session.commit()
         session.close()
@@ -819,6 +824,10 @@ def soap_group(request, app_workspace):
 
             if hydroserver_type == 2:
                 url = url.split("?WSDL")[0]
+                server_type = "hydroserver2"
+            else:
+                server_type = "hydroserver1"
+
 
             return_obj["title"] = title
             return_obj["url"] = url
@@ -826,13 +835,8 @@ def soap_group(request, app_workspace):
             return_obj["siteInfo"] = sites
             return_obj["group"] = group
             return_obj["status"] = "true"
-
-            if hydroserver_type == 1:
-                server_type = "hydroserver1"
-            else:
-                server_type = "hydroserver2"
-
             return_obj["server_type"] = server_type
+
             # print(return_obj)
             SessionMaker = app.get_persistent_store_database(
                 Persistent_Store_Name, as_sessionmaker=True
