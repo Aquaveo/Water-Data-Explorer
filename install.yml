@@ -24,5 +24,6 @@ requirements:
       - psycopg2
       - sqlalchemy<2
   pip:
+    - hydroserverpy
 
 post:
