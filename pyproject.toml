@@ -6,8 +6,6 @@ build-backend = "setuptools.build_meta"
 name = "tethysapp-water_data_explorer"
 version = "1.1.19"
 description = "A tethys app that lets the user to visualize and query WSDL enpoints"
-long_description = ""
-keywords = ""
 authors = [
     {name = "Giovanni Romero Bustamante", email = "gio.rombus@gmail.com"},
 ]
